@@ -1,0 +1,23 @@
+[
+    {
+        "route_id": 0,
+        "route_name": "U1",
+        "arrival_time": "2025-02-12T13:23:49.444446",
+        "seats_empty": 1,
+        "ramp_type": "NONE"
+    },
+    {
+        "route_id": 1,
+        "route_name": "U2",
+        "arrival_time": "2025-02-12T13:28:49.444446",
+        "seats_empty": 0,
+        "ramp_type": "MANUAL"
+    },
+    {
+        "route_id": 2,
+        "route_name": "U3",
+        "arrival_time": "2025-02-12T13:33:49.444446",
+        "seats_empty": 2,
+        "ramp_type": "AUTO"
+    }
+]
