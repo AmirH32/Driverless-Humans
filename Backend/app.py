@@ -1,7 +1,9 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from data.read import get_timetables
 from datetime import datetime
 from typing import List, Dict, Any
+from authorisation.auth import check_password
+
 
 app = Flask(__name__)
 
@@ -19,6 +21,21 @@ def timetables() -> List[Dict[str, Any]]:
         }
         for timetable in timetables
     ]
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json  # Get JSON data from React frontend
+    email = data.get('email')
+    password = data.get('password')
+
+    # get user from DB
+    
+    if True:  # if user exists and password verified
+        #login the user
+        return jsonify({"message": "Login successful", "success": True, "user": 4}), 200 # last field should be user ID
+    else:
+        return jsonify({"message": "Invalid email or password", "success": False}), 401
+
 
 if __name__ == '__main__':
     app.run(debug=True)
