@@ -56,6 +56,18 @@ def login():
     else:
         return jsonify({"message": "Invalid email or password", "success": False}), 401
 
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    # Check if user already exists
+
+    # Hash the password and store the user
+    return jsonify({'message': 'User created successfully'}), 201
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
