@@ -2,12 +2,18 @@ from flask import Flask, request, jsonify
 from data.read import get_timetables
 from datetime import datetime
 from typing import List, Dict, Any
-from authorisation.auth import check_password
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from authorisation.auth import check_password, init_jwt
+
 
 
 app = Flask(__name__)
 
+# Initialize JWTManager from auth.py
+jwt = init_jwt(app)
+
 @app.route('/timetables')
+@jwt_required() # Protect this route
 def timetables() -> List[Dict[str, Any]]:
     """
     Gets bus timetables
