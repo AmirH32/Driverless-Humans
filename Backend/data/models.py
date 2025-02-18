@@ -18,7 +18,7 @@ class User(db.Model):
     Email = db.Column(db.String(150), unique=True, nullable=False)
     Password = db.Column(db.String(150), nullable=False)
     Name = db.Column(db.String(150), nullable=False)
-    Salt = db.Column(db.CHAR(16), nullable=False)
+    Salt = db.Column(db.CHAR(128), nullable=False)
     
     def get_id(self):
         # Returns the User's ID

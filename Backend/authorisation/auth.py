@@ -12,7 +12,7 @@ def init_jwt(app: Flask):
     return jwt
 
 def create_user(email, password, name):
-    salt = os.urandom(16).hex()
+    salt = os.urandom(64).hex()
     hashed_password = generate_password_hash(password + salt, method="pbkdf2:sha256", salt_length=16)
     new_user = User(Email=email, Password=hashed_password, Name=name, Salt=salt)
     db.session.add(new_user)
