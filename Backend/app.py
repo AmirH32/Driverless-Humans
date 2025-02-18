@@ -1,20 +1,25 @@
 from dotenv import load_dotenv
-from Backend.bus_data import get_timetables
+from bus_data import get_timetables
 import pandas as pd
 from flask import Flask, request, jsonify
 from Backend.data.models import db, User
 from datetime import datetime
 from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from Backend.authorisation.auth import verify_password, init_jwt
+from Backend.authorisation.auth import verify_password, init_jwt, create_user, is_strong_password, is_valid_email
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
-
+from markupsafe import escape
+from datetime import timedelta
+from flask_talisman import Talisman
 load_dotenv()
 
 ### App configuration
 
 app = Flask(__name__)
+Talisman(app, force_https=True)
+
+def sanitise_input(string):
+    return escape(string.strip())
 
 def auth_init():
     # This connects to local postgresql docker instance, change in future if you want it on a public server
@@ -61,40 +66,42 @@ def timetables() -> List[Dict[str, Any]]:
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json  # Get JSON data from React frontend
-    email = data.get('email')
+    data = request.get_json()
+    email = sanitise_input(data.get('email'))
     password = data.get('password')
 
-    # get user from DB
-    
-    if True:  # if user exists and password verified
-        #login the user
-        return jsonify({"message": "Login successful", "success": True, "user": 4}), 200 # last field should be user ID
+    user = User.query.filter_by(Email=email).first()
+    if user and user.verify_password(password):
+        access_token = create_access_token(identity=user.UserID, algorithm="RS256", expires_delta = timedelta(hours=1))
+        return jsonify({'message': 'Login successful', 'success': True, 'user_id': user.UserID, 'access_token': access_token}), 200
     else:
-        return jsonify({"message": "Invalid email or password", "success": False}), 401
+        return jsonify({'message': 'Invalid email or password', 'success': False}), 401
 
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    email = data.get('email')
-    name = data.get('name')
-    password = data.get('password')
+    email = sanitise_input(data.get('email', ''))
+    name = sanitise_input(data.get('name', ''))
+    password = data.get('password', '')
 
     # Make sure email and password fields are filled
-    if not email or not password:
-        return jsonify({'message': 'Email and password are required', 'success': False}), 400
+    if not email or not password or not name:
+        return jsonify({'message': 'All fields are required', 'success': False}), 400
+
+    if not is_valid_email(email):
+        return jsonify({'message': 'Invalid email format', 'success': False}), 400
+    
+    if not is_strong_password(password):
+        return jsonify({'message': 'Password must be at least 16 characters long, include an uppercase letter, a lowercase letter, a digit, and a special character.', 'success': False}), 400
 
     # Check if user already exists
     existing_user = User.query.filter_by(Email=email).first()
     if existing_user:
         return jsonify({'message': 'User already exists', 'success': False}), 400
 
-    hashed_password = generate_password_hash(password)
-    new_user = User(Email=email, Password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    # Hash the password and store the user
+    # Create the user
+    create_user(email, password, name)
+    
     return jsonify({'message': 'User created successfully', 'success': True}), 201
 
 
