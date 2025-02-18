@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Literal
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash
 
 class Timetable(BaseModel):
     route_id    : int
@@ -16,11 +17,18 @@ class User(db.Model):
     UserID = db.Column(db.Integer, primary_key=True, unique=True)
     Email = db.Column(db.String(150), unique=True, nullable=False)
     Password = db.Column(db.String(150), nullable=False)
-    Name = db.Column(db.string(150), nullable=False)
+    Name = db.Column(db.String(150), nullable=False)
+    Salt = db.Column(db.CHAR(16), nullable=False)
     
     def get_id(self):
         # Returns the User's ID
         return self.UserID
+    
+    def verify_password(self, password):
+        if check_password_hash(self.Password, password + self.Salt):
+            return True
+        else:
+            return False
     
 class AccessibilityRequirement(db.Model):
     RequirementID = db.Column(db.Integer, primary_key=True, unique=True)
