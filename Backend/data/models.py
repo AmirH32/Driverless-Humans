@@ -29,6 +29,30 @@ class AccessibilityRequirement(db.Model):
 class UserAccessibility(db.Model):
     __tablename__ = 'User_Accessibility'
     # Cascade delete so if we delete a user or an accessibility all associated records are automatically deleted
-    UserID = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True, unique=True)
-    RequirementID = db.Column(db.Integer, db.ForeignKey('accessibility_requirement.id', ondelete='CASCADE'), primary_key=True, unique=True)
+    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID', ondelete='CASCADE'), primary_key=True, unique=True)
+    RequirementID = db.Column(db.Integer, db.ForeignKey('accessibilityrequirement.RequirementID', ondelete='CASCADE'), primary_key=True, unique=True)
+    
+class Reservations(db.Model):
+    ReservationID = db.Column(db.Integer, primary_key=True, unique=True)
+    StopID1 = db.Column(db.Integer, nullable=False)
+    StopID2 = db.Column(db.Integer, nullable=False)
+    BusID = db.Column(db.Integer, nullable=False)
+    time = db.Column(db.DateTime, nullable=False) 
+
+class UserReservation(db.Model):
+    __tablename__ = "User_to_Reservation"
+    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID', ondelete='CASCADE'), primary_key=True, unique=True)
+    ReservationID = db.Column(db.Integer, db.ForeignKey('reservations.ReservationID', ondelete='CASCADE'), primary_key=True, unique=True)
+
+
+class AccessibilityOptions(db.Model):
+    __tablename__ = "Accessibility_Options"
+    OptionID = db.Column(db.Integer, primary_key=True, unique=True)
+    Option_name = db.Column(db.String(120), unique=True, nullable=False)
+    Option_description = db.Column(db.String(255), unique=False, nullable=True)  
+
+class UserToOptions(db.Model):
+    __tablename__ = "User_to_AOptions"
+    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID', ondelete='CASCADE'), primary_key=True, unique=True)
+    OptionID = db.Column(db.Integer, db.ForeignKey('Accessibility_Options.OptionID', ondelete='CASCADE'), primary_key=True, unique=True)
     
