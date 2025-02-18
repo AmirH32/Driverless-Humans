@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from werkzeug.security import generate_password_hash, check_password_hash
+from data.models import User
 
 # Init for Flask & JWT Manager 
 def init_jwt(app: Flask):
@@ -11,4 +12,6 @@ def init_jwt(app: Flask):
 def verify_password(args):
     # authenticate the user
     pass
+
+
         

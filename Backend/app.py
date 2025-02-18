@@ -1,8 +1,6 @@
 from dotenv import load_dotenv
-
 from Backend.bus_data import get_timetables
 import pandas as pd
-
 from flask import Flask, request, jsonify
 from Backend.data.models import db, User
 from datetime import datetime
@@ -10,6 +8,7 @@ from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from Backend.authorisation.auth import verify_password, init_jwt
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 
@@ -77,13 +76,26 @@ def login():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
+    name = data.get('name')
     password = data.get('password')
 
+    # Make sure email and password fields are filled
+    if not email or not password:
+        return jsonify({'message': 'Email and password are required', 'success': False}), 400
+
     # Check if user already exists
+    existing_user = User.query.filter_by(Email=email).first()
+    if existing_user:
+        return jsonify({'message': 'User already exists', 'success': False}), 400
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(Email=email, Password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
 
     # Hash the password and store the user
-    return jsonify({'message': 'User created successfully'}), 201
+    return jsonify({'message': 'User created successfully', 'success': True}), 201
 
 
 

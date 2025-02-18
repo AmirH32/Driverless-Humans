@@ -16,6 +16,7 @@ class User(db.Model):
     UserID = db.Column(db.Integer, primary_key=True, unique=True)
     Email = db.Column(db.String(150), unique=True, nullable=False)
     Password = db.Column(db.String(150), nullable=False)
+    Name = db.Column(db.string(150), nullable=False)
     
     def get_id(self):
         # Returns the User's ID
