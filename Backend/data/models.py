@@ -31,6 +31,7 @@ class User(db.Model):
             return False
     
 class AccessibilityRequirement(db.Model):
+    __tablename__ = 'accessibilityrequirement' 
     RequirementID = db.Column(db.Integer, primary_key=True, unique=True)
     Requirement_name = db.Column(db.String(100), unique=False, nullable=False)
     Description = db.Column(db.String(255), unique=False, nullable=True)  # Optional description for the requirement
