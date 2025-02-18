@@ -182,6 +182,27 @@ def create_reservation():
         db.session.rollback()  # Rollback in case of error
         return jsonify({'error': str(e)}), 500
 
+@app.route('/delete_reservation', methods=['POST'])
+@jwt_required()
+def delete_reservation():
+    try:
+        userID = get_jwt_identity()
+
+        # Find the most recent reservation for the user to delete
+        reservation = db.session.query(Reservations).join(UserReservation).filter(UserReservation.UserID == userID).order_by(Reservations.time.desc()).first()
+
+        if not reservation:
+            return jsonify({'message': 'No reservations found for this user.'}), 404
+
+        # Delete the reservation
+        db.session.delete(reservation)
+        db.session.commit()
+
+        return jsonify({'message': 'Reservation deleted successfully.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
 
 
 if __name__ == '__main__':
