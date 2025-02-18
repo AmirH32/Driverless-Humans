@@ -8,7 +8,7 @@ from Backend.data.models import db, User
 from datetime import datetime
 from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from authorisation.auth import check_password, init_jwt
+from Backend.authorisation.auth import verify_password, init_jwt
 from flask_sqlalchemy import SQLAlchemy
 
 load_dotenv()
@@ -17,20 +17,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# This connects to local postgresql docker instance, change in future if you want it on a public server
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mypassword@localhost:5432/mydatabase'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def auth_init():
+    # This connects to local postgresql docker instance, change in future if you want it on a public server
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mypassword@localhost:5432/mydatabase'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialise the database with the Flask app
-db.init_app(app)
-# Initialise JWTManager from auth.py
-jwt = init_jwt(app)
+    # Initialise the database with the Flask app
+    db.init_app(app)
+    # Initialise JWTManager from auth.py
+    jwt = init_jwt(app)
 
-# Creates the tables if not yet created
-with app.app_context():
-    db.create_all()
+    # Creates the tables if not yet created
+    with app.app_context():
+        db.create_all()
 
-### End
+auth_init()
 
 @app.route('/timetables')
 @jwt_required() # Protect this route
