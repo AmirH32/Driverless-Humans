@@ -5,8 +5,8 @@ Functions to process and return data
 import os
 from datetime import datetime
 import pandas as pd
-from Backend.fetch import fetch_location_data, fetch_stops_data
-from Backend.utils import gridreference_to_latlong, calc_coord_distance
+from .fetch import fetch_location_data, fetch_stops_data
+from .utils import gridreference_to_latlong, calc_coord_distance
 
 AVERAGE_BUS_SPEED = 21 # kmph
 CAMBRIDGE_BOUNDING_BOX = (0.0800,52.1700,0.1600,52.2300) # Cambridge

@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from .bus_data import get_timetables
 import pandas as pd
 from flask import Flask, request, jsonify
-from .data.models import db, User
+from .data.models import db, User, AccessibilityRequirement, UserAccessibility, Reservations, UserReservation, AccessibilityOptions, UserToOptions
 from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from .authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
