@@ -9,7 +9,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from .authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import escape
-import datetime
+from datetime import datetime
 from datetime import timedelta
 from flask_talisman import Talisman
 load_dotenv()
@@ -81,8 +81,8 @@ def login():
 
     user = User.query.filter_by(Email=email).first()
     if user and user.verify_password(password):
-        access_token = create_access_token(identity=user.UserID, expires_delta = timedelta(hours=1))
-        refresh_token = create_refresh_token(identity=user.UserID, expires_delta=timedelta(days=7))  # 7 days expiry
+        access_token = create_access_token(identity=str(user.UserID), expires_delta = timedelta(hours=1))
+        refresh_token = create_refresh_token(identity=str(user.UserID), expires_delta=timedelta(days=7))  # 7 days expiry
         
         # Set JWT in HttpOnly cookie
         response = make_response(jsonify({'message': 'Login successful', 'success': True}))
@@ -138,12 +138,13 @@ def logout():
 def refresh(self):
     try: 
         current_user = get_jwt_identity()
-        new_access_token = create_access_token(identity=current_user, fresh=False, expires_delta=timedelta(hours=1))
-        new_refresh_token = create_refresh_token(identity=current_user, expires_delta=timedelta(days=7)) 
+        new_access_token = create_access_token(identity=str(current_user), fresh=False, expires_delta=timedelta(hours=1))
+        new_refresh_token = create_refresh_token(identity=str(current_user), expires_delta=timedelta(days=7)) 
 
 
         response = make_response(jsonify({'access_token': new_access_token}), 200)
         response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict')
+        # To prevent logging the user out after 7 days, everytime the user sends a request to refresh, their refresh token is renewed
         response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='Strict')
         return response
     except: 
