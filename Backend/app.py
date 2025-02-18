@@ -5,7 +5,7 @@ import os
 from flask import Flask, request, jsonify, make_response
 from .data.models import db, User, Reservations, UserReservation, AccessibilityRequirement, AccessibilityOptions, UserAccessibility, UserToOptions
 from typing import List, Dict, Any
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token
 from .authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import escape
@@ -82,10 +82,12 @@ def login():
     user = User.query.filter_by(Email=email).first()
     if user and user.verify_password(password):
         access_token = create_access_token(identity=user.UserID, expires_delta = timedelta(hours=1))
+        refresh_token = create_refresh_token(identity=user.UserID, expires_delta=timedelta(days=7))  # 7 days expiry
         
         # Set JWT in HttpOnly cookie
         response = make_response(jsonify({'message': 'Login successful', 'success': True}))
         response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
 
         return response, 200
     else:
@@ -117,6 +119,34 @@ def register():
     create_user(email, password, name)
     
     return jsonify({'message': 'User created successfully', 'success': True}), 201
+
+@app.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    response = make_response(jsonify({'message': 'Logout successful', 'success': True}), 200)
+
+    # Clear access and refresh tokens from cookies
+    response.set_cookie('access_token', '', expires=0)
+    response.set_cookie('refresh_token', '', expires=0)
+
+    return response
+
+
+### FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES
+@app.route("/refresh")
+@jwt_required(refresh=True)
+def refresh(self):
+    try: 
+        current_user = get_jwt_identity()
+        new_access_token = create_access_token(identity=current_user, fresh=False, expires_delta=timedelta(hours=1))
+
+
+        response = make_response(jsonify({'access_token': new_access_token}), 200)
+        response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict')
+        return response
+    except: 
+        # Refresh token has expired
+        return jsonify({'message': 'Please login again.'}), 401
 
 @app.route('/create_reservation', methods=['POST'])
 @jwt_required() # Protect this route
@@ -151,7 +181,6 @@ def create_reservation():
     except Exception as e:
         db.session.rollback()  # Rollback in case of error
         return jsonify({'error': str(e)}), 500
-
 
 
 
