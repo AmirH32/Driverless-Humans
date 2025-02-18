@@ -24,7 +24,7 @@ def is_valid_email(email):
         return re.match(email_regex, email) is not None
 
 def is_strong_password(password):
-    if len(password) < 12:
+    if len(password) < 16:
         return False  
 
     # Regex to check for required character types
