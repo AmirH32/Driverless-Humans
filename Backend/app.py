@@ -139,10 +139,12 @@ def refresh(self):
     try: 
         current_user = get_jwt_identity()
         new_access_token = create_access_token(identity=current_user, fresh=False, expires_delta=timedelta(hours=1))
+        new_refresh_token = create_refresh_token(identity=current_user, expires_delta=timedelta(days=7)) 
 
 
         response = make_response(jsonify({'access_token': new_access_token}), 200)
         response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict')
+        response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='Strict')
         return response
     except: 
         # Refresh token has expired
