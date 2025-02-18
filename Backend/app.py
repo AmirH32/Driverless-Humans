@@ -3,7 +3,6 @@ from bus_data import get_timetables
 import pandas as pd
 from flask import Flask, request, jsonify
 from Backend.data.models import db, User
-from datetime import datetime
 from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from Backend.authorisation.auth import verify_password, init_jwt, create_user, is_strong_password, is_valid_email
