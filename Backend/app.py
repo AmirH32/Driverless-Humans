@@ -15,7 +15,6 @@ from flask_talisman import Talisman
 load_dotenv()
 
 ### App configuration
-
 app = Flask(__name__)
 
 if os.getenv("FLASK_ENV") == "production":
@@ -43,6 +42,7 @@ def auth_init():
     # Creates the tables if not yet created
     with app.app_context():
         db.create_all()
+
 
 auth_init()
 
@@ -158,21 +158,31 @@ def create_reservation():
     stopID1 = sanitise_input(data.get('StopID1',''))
     stopID2 = sanitise_input(data.get('StopID2',''))
     busID = sanitise_input(data.get('BusID',''))
-    time = data.get('time', '')
+    time = data.get('Time', '')
 
     userID = get_jwt_identity()
 
     if not all([stopID1, stopID2, busID, time]):
         return jsonify({'message': 'Missing required fields'}), 400
     
-    try:
-        # Create reservation
+    # Check if reservation exists
+    existing_user_reservations = db.session.query(UserReservation).filter_by(UserID=userID).all()
+    if existing_user_reservations:
+        for user_reservation in existing_user_reservations:
+            reservation_id = user_reservation.ReservationID
+            reservation = db.session.query(Reservations).filter_by(ReservationID=reservation_id, Time=time).first()
+            if reservation: 
+                  return jsonify({'message': 'This reservation already exists for this user.'}), 400
+            else:
+                pass
+    try: 
         new_reservation = Reservations(
             StopID1=stopID1,
             StopID2=stopID2,
             BusID=busID,
-            time=datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            Time=datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
         )
+
         add_and_commit(new_reservation)
 
         # Link the user to the reservation
@@ -192,7 +202,7 @@ def delete_reservation():
         userID = get_jwt_identity()
 
         # Find the most recent reservation for the user to delete
-        reservation = db.session.query(Reservations).join(UserReservation).filter(UserReservation.UserID == userID).order_by(Reservations.time.desc()).first()
+        reservation = db.session.query(Reservations).join(UserReservation).filter(UserReservation.UserID == userID).order_by(Reservations.Time.desc()).first()
 
         if not reservation:
             return jsonify({'message': 'No reservations found for this user.'}), 404
