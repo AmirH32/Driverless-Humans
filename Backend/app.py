@@ -12,16 +12,47 @@ from markupsafe import escape
 from datetime import datetime
 from datetime import timedelta
 from flask_talisman import Talisman
+from flask_cors import CORS
 load_dotenv()
 
 ### App configuration
 
 app = Flask(__name__)
 
+
+### Only need this for development on browser but should work without on phones
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}})
+
+
+# Define Content Security Policy (CSP) to allow frontend
+csp = {
+    'default-src': [
+        "'self'",  # Allow content from the same origin
+        "http://localhost:8081",  # Allow frontend origin
+    ],
+    'script-src': [
+        "'self'",
+        "'unsafe-inline'",  
+        "http://localhost:8081"
+    ],
+    'style-src': [
+        "'self'",
+        "'unsafe-inline'",
+        "http://localhost:8081"
+    ],
+    'img-src': [
+        "'self'",
+        "data:"  # Allow inline images
+    ],
+}
+###
+
+
 if os.getenv("FLASK_ENV") == "production":
-    Talisman(app, force_https=True)
+    Talisman(app, content_security_policy=csp, force_https=True)
 else:
-    Talisman(app, force_https=False)
+    Talisman(app, content_security_policy=csp, force_https=False)
+
 
 def sanitise_input(string):
     return escape(string.strip())
@@ -43,6 +74,7 @@ def auth_init():
     # Creates the tables if not yet created
     with app.app_context():
         db.create_all()
+
 
 auth_init()
 
@@ -86,8 +118,9 @@ def login():
         
         # Set JWT in HttpOnly cookie
         response = make_response(jsonify({'message': 'Login successful', 'success': True}))
-        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
-        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
+        # Change samesite to "Strict" in prod
+        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='None')
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='None')
 
         return response, 200
     else:
@@ -143,9 +176,10 @@ def refresh(self):
 
 
         response = make_response(jsonify({'access_token': new_access_token}), 200)
-        response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict')
+        # CHANGE samesite to "Strict" in prod
+        response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='None')
         # To prevent logging the user out after 7 days, everytime the user sends a request to refresh, their refresh token is renewed
-        response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='Strict')
+        response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='None')
         return response
     except: 
         # Refresh token has expired
@@ -158,21 +192,31 @@ def create_reservation():
     stopID1 = sanitise_input(data.get('StopID1',''))
     stopID2 = sanitise_input(data.get('StopID2',''))
     busID = sanitise_input(data.get('BusID',''))
-    time = data.get('time', '')
+    time = data.get('Time', '')
 
     userID = get_jwt_identity()
 
     if not all([stopID1, stopID2, busID, time]):
         return jsonify({'message': 'Missing required fields'}), 400
     
-    try:
-        # Create reservation
+    # Check if reservation exists
+    existing_user_reservations = db.session.query(UserReservation).filter_by(UserID=userID).all()
+    if existing_user_reservations:
+        for user_reservation in existing_user_reservations:
+            reservation_id = user_reservation.ReservationID
+            reservation = db.session.query(Reservations).filter_by(ReservationID=reservation_id, Time=time).first()
+            if reservation: 
+                  return jsonify({'message': 'This reservation already exists for this user.'}), 400
+            else:
+                pass
+    try: 
         new_reservation = Reservations(
             StopID1=stopID1,
             StopID2=stopID2,
             BusID=busID,
-            time=datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            Time=datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
         )
+
         add_and_commit(new_reservation)
 
         # Link the user to the reservation
@@ -192,7 +236,7 @@ def delete_reservation():
         userID = get_jwt_identity()
 
         # Find the most recent reservation for the user to delete
-        reservation = db.session.query(Reservations).join(UserReservation).filter(UserReservation.UserID == userID).order_by(Reservations.time.desc()).first()
+        reservation = db.session.query(Reservations).join(UserReservation).filter(UserReservation.UserID == userID).order_by(Reservations.Time.desc()).first()
 
         if not reservation:
             return jsonify({'message': 'No reservations found for this user.'}), 404
