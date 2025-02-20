@@ -7,9 +7,37 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Implement login logic here
-    console.log('Logging in with', email, password);
+  const handleLogin = async () => {
+    try {
+      // create the POST request body
+      const requestBody = {
+        email: email,
+        password: password,
+      };
+
+      // Send POST request to backed /login endpoint
+      const response = await fetch("http://127.0.0.1:5000/login",{
+        method: "POST",
+        credentials: "include", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (response.ok){
+        // TODO: ADD LOGIC IF LOGIN SUCCESSFUL
+        console.log("Login successful");
+      } else {
+        // TODO: ADD LOGIC IF LOGIN FAILED
+        console.log("Login failed", data.message);
+      }
+    } catch (error){
+      // TODO: Possibly add logic to display frontend request error?
+      console.error("Error during login, could not connect to server:", error);
+    };
   };
 
   return (

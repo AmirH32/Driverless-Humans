@@ -12,15 +12,43 @@ from markupsafe import escape
 from datetime import datetime
 from datetime import timedelta
 from flask_talisman import Talisman
+from flask_cors import CORS
 load_dotenv()
 
 ### App configuration
+
 app = Flask(__name__)
 
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}})
+
+
+# Define Content Security Policy (CSP) to allow frontend
+csp = {
+    'default-src': [
+        "'self'",  # Allow content from the same origin
+        "http://localhost:8081",  # Allow frontend origin
+    ],
+    'script-src': [
+        "'self'",
+        "'unsafe-inline'",  
+        "http://localhost:8081"
+    ],
+    'style-src': [
+        "'self'",
+        "'unsafe-inline'",
+        "http://localhost:8081"
+    ],
+    'img-src': [
+        "'self'",
+        "data:"  # Allow inline images
+    ],
+}
+
 if os.getenv("FLASK_ENV") == "production":
-    Talisman(app, force_https=True)
+    Talisman(app, content_security_policy=csp, force_https=True)
 else:
-    Talisman(app, force_https=False)
+    Talisman(app, content_security_policy=csp, force_https=False)
+
 
 def sanitise_input(string):
     return escape(string.strip())
@@ -86,8 +114,9 @@ def login():
         
         # Set JWT in HttpOnly cookie
         response = make_response(jsonify({'message': 'Login successful', 'success': True}))
-        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
-        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
+        # Change samesite to "Strict" in prod
+        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='None')
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='None')
 
         return response, 200
     else:
@@ -143,9 +172,10 @@ def refresh(self):
 
 
         response = make_response(jsonify({'access_token': new_access_token}), 200)
-        response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict')
+        # CHANGE samesite to "Strict" in prod
+        response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='None')
         # To prevent logging the user out after 7 days, everytime the user sends a request to refresh, their refresh token is renewed
-        response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='Strict')
+        response.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='None')
         return response
     except: 
         # Refresh token has expired
