@@ -9,12 +9,41 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignup = () => {
-    if (password === confirmPassword) {
-      // Implement signup logic here
-      console.log('Signing up with', email, password);
-    } else {
-      console.log('Passwords do not match');
+  const handleSignup = async () => {
+
+    // Input validation on Frontend as well as Backend to maximise security
+    if (!name || !email || !password || !confirmPassword) {
+      console.log('Error', 'All fields are required.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      console.log('Error', 'Passwords do not match.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Success', data.message);
+      } else {
+        console.log('Signup Failed:', data.message);
+      }
+    } catch (error) {
+      console.log('Error during signup, could not connect to server:', error);
     }
   };
 
