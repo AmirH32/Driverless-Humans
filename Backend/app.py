@@ -19,6 +19,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
+
+### Only need this for development on browser but should work without on phones
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}})
 
 
@@ -43,6 +45,8 @@ csp = {
         "data:"  # Allow inline images
     ],
 }
+###
+
 
 if os.getenv("FLASK_ENV") == "production":
     Talisman(app, content_security_policy=csp, force_https=True)
