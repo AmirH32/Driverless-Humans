@@ -30,7 +30,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-      <Stack.Screen name="home" options={{ headerShown: false }} />
+        {/* Load the entire Tabs layout as the first screen */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
