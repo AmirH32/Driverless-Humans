@@ -47,11 +47,11 @@ class Reservations(db.Model):
     StopID1 = db.Column(db.Integer, nullable=False)
     StopID2 = db.Column(db.Integer, nullable=False)
     BusID = db.Column(db.Integer, nullable=False)
-    time = db.Column(db.DateTime, nullable=False) 
+    Time = db.Column(db.DateTime, nullable=False) 
 
 class UserReservation(db.Model):
     __tablename__ = "User_to_Reservation"
-    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID', ondelete='CASCADE'), primary_key=True, unique=True)
+    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID', ondelete='CASCADE'))
     ReservationID = db.Column(db.Integer, db.ForeignKey('reservations.ReservationID', ondelete='CASCADE'), primary_key=True, unique=True)
 
 
