@@ -14,7 +14,7 @@ On a seperate terminal, do the following:
    npm install
    ```
 
-2. Start the app
+2. Start the app (navigate to Frontend first)
 
    ```bash
     npx expo start
