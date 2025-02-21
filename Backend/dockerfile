@@ -1,0 +1,15 @@
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+
+RUN pip install --upgrade pip
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+EXPOSE 5000
+
+CMD ["sh", "-c", "flask db migrate --message 'Auto migration' || true && flask db upgrade && gunicorn -w 1 -b 0.0.0.0:5000 app:app"]
