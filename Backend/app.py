@@ -1,23 +1,32 @@
 from dotenv import load_dotenv
-from .bus_data import get_timetables
+from backend.bus_data import get_timetables
 import pandas as pd
 import os
 from flask import Flask, request, jsonify, make_response
-from .data.models import db, User, Reservations, UserReservation, AccessibilityRequirement, AccessibilityOptions, UserAccessibility, UserToOptions
+from backend.data.models import db, User, Reservations, UserReservation, AccessibilityRequirement, AccessibilityOptions, UserAccessibility, UserToOptions
 from typing import List, Dict, Any
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token
-from .authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
+from backend.authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import escape
 from datetime import datetime
 from datetime import timedelta
 from flask_talisman import Talisman
 from flask_cors import CORS
+from flask_migrate import Migrate
 load_dotenv()
 
 ### App configuration
 
 app = Flask(__name__)
+
+# This connects to local postgresql docker instance, change in future if you want it on a public server
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypassword@localhost:5432/mydatabase')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialise the database with the Flask app
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 ### Only need this for development on browser but should work without on phones
@@ -62,12 +71,7 @@ def add_and_commit(entry):
     db.session.commit()
 
 def auth_init():
-    # This connects to local postgresql docker instance, change in future if you want it on a public server
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mypassword@localhost:5432/mydatabase'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Initialise the database with the Flask app
-    db.init_app(app)
     # Initialise JWTManager from auth.py
     jwt = init_jwt(app)
 

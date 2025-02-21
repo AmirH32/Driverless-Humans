@@ -9,13 +9,10 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      - PGOPTIONS=-c listen_addresses=127.0.0.1 # Shouldn't be necessary as no ports exposed, just a precaution
     networks:
       - driverless_humans_network
     volumes:
       - driverless_humans_db_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
 
   flask_app:
     build: .

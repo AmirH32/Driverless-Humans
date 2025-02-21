@@ -1,15 +1,18 @@
-FROM python:3.9
+FROM python:3.13
 
-WORKDIR /app
+WORKDIR /app/backend
 
-COPY requirements.txt /app/
+COPY requirements.txt /app/backend/
 
 RUN pip install --upgrade pip
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+COPY . /app/backend/
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "flask db migrate --message 'Auto migration' || true && flask db upgrade && gunicorn -w 1 -b 0.0.0.0:5000 app:app"]
+ENV FLASK_APP=app.py
+ENV PYTHONPATH=/app
+
+CMD ["sh", "-c", "flask db init || true && flask db migrate --message 'Auto migration' || true && flask db upgrade && gunicorn -w 1 -b 0.0.0.0:5000 backend.app:app"]
