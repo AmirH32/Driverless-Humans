@@ -1,0 +1,35 @@
+networks:
+  driverless_humans_network:
+    driver: bridge
+
+services:
+  postgres_db:
+    image: postgres
+    container_name: driverless_humans_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PGOPTIONS=-c listen_addresses=127.0.0.1 # Shouldn't be necessary as no ports exposed, just a precaution
+    networks:
+      - driverless_humans_network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+  flask_app:
+    build: .
+    container_name: driverless_humans_flask_app
+    restart: always
+    depends_on:
+      - postgres_db
+    env_file:
+      - .env
+    networks:
+      - driverless_humans_network
+    ports:
+      - "5000:5000"
+
+volumes:
+  pgdata:
+
