@@ -7,6 +7,18 @@ run `pip install requirements.txt`.  If you don't want this to be a global insta
 # Running the app
 Navigate to Backend and run `flask run` to start the backend up
 
+On a seperate terminal, do the following:
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. Start the app
+
+   ```bash
+    npx expo start
+
 # Local DB setup 
 Run `sudo docker run --name <instance name> -e POSTGRES_USER=<> -e POSTGRES_PASSWORD=<> -p <port>:<port> -d postgres` to create a local docker instance hosting the DB
 Run `pip install psycopg2-binary flask-sqlalchemy`
