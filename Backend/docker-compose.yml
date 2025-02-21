@@ -14,7 +14,7 @@ services:
     networks:
       - driverless_humans_network
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - driverless_humans_db_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
 
   flask_app:
@@ -31,5 +31,5 @@ services:
       - "5000:5000"
 
 volumes:
-  pgdata:
+  driverless_humans_db_data:
 
