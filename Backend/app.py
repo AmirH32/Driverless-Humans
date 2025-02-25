@@ -32,7 +32,7 @@ from flask_talisman import Talisman
 from flask_cors import CORS
 
 ### Load environment variables (BODS_API_KEY)
-load_dotenv()
+# load_dotenv()
 
 ### App configuration
 app = Flask(__name__)
@@ -106,8 +106,9 @@ def timetables() -> List[Dict[str, Any]]:
 
     Example (with William Gates Building): http://127.0.0.1:5000/timetables?stop_id=0500CCITY424
     """
-    stop_id = request.args.get("stop_id")
-    timetables = get_timetables(stop_id)
+    origin_id = request.args.get("origin_id")
+    destination_id = request.args.get("destination_id")
+    timetables = get_timetables(origin_id=origin_id, destination_id=destination_id)
     timetables_json = [timetable.model_dump(mode="json") for timetable in timetables]
     return timetables_json
 
