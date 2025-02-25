@@ -3,12 +3,12 @@ import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
-from .data.timetables import get_timetables
-from .data.stops import get_autocomplete_stops
+from Backend.data.timetables import get_timetables
+from Backend.data.stops import get_autocomplete_stops
 
 from flask import Flask, request, jsonify, make_response
 
-from .database.models import (
+from Backend.database.models import (
     db,
     User,
     Reservations,
@@ -20,7 +20,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     create_refresh_token,
 )
-from .authorisation.auth import (
+from Backend.authorisation.auth import (
     init_jwt,
     create_user,
     is_strong_password,
