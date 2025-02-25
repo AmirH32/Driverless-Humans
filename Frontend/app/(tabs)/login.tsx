@@ -24,10 +24,10 @@ export default function LoginScreen() {
       if (response.ok) {
         window.alert("Login successful");
       } else {
-        window.alert("Login failed" + data.message);
+        window.alert("Login failed " + data.message);
       }
     } catch (error) {
-      window.alert("Error during login, could not connect to server:" + error);
+      window.alert("Error during login, could not connect to server: " + error);
     }
   };
 
