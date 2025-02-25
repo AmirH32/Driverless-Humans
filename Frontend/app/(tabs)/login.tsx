@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, Text, TextInput, Button, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, TextInput, Button, Image, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
@@ -22,12 +22,12 @@ export default function LoginScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Login successful");
+        window.alert("Login successful");
       } else {
-        console.log("Login failed", data.message);
+        window.alert("Login failed" + data.message);
       }
     } catch (error) {
-      console.error("Error during login, could not connect to server:", error);
+      window.alert("Error during login, could not connect to server:" + error);
     }
   };
 
@@ -54,7 +54,7 @@ export default function LoginScreen() {
       
       <TouchableOpacity
         style={[styles.loginButton]}
-        onPress={() => handlePress('Login')}
+        onPress={handlePress}
       >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
