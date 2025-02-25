@@ -1,24 +1,27 @@
 from dotenv import load_dotenv
-from .bus_data import get_timetables
-import pandas as pd
 import os
-from flask import Flask, request, jsonify, make_response
-from .data.models import db, User, Reservations, UserReservation, AccessibilityRequirement, AccessibilityOptions, UserAccessibility, UserToOptions
+from datetime import datetime, timedelta
 from typing import List, Dict, Any
+
+from .data.timetables import get_timetables
+from .data.stops import get_autocomplete_stops
+
+from flask import Flask, request, jsonify, make_response
+
+from .database.models import db, User, Reservations, UserReservation, AccessibilityRequirement, AccessibilityOptions, UserAccessibility, UserToOptions
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token
 from .authorisation.auth import init_jwt, create_user, is_strong_password, is_valid_email
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import escape
-from datetime import datetime
-from datetime import timedelta
+
 from flask_talisman import Talisman
 from flask_cors import CORS
+
+### Load environment variables (BODS_API_KEY)
 load_dotenv()
 
 ### App configuration
-
 app = Flask(__name__)
-
 
 ### Only need this for development on browser but should work without on phones
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}})
@@ -78,32 +81,35 @@ def auth_init():
 
 auth_init()
 
-@app.route('/timetables')
-@jwt_required() # Protect this route
+@app.route('/timetables', methods=['GET'])
+@jwt_required()
 def timetables() -> List[Dict[str, Any]]:
     """
-    Gets bus timetables
+    Gets bus timetables as JSON.
+
+    :returns timetables_json: A list of dictionaries containing bus timetable information in the format of `data.models.Timetable`
+
+    Example (with William Gates Building): http://127.0.0.1:5000/timetables?stop_id=0500CCITY424
     """
     stop_id = request.args.get('stop_id')
-    route_ids = ['U1','U2']
-    
-    all_timetables = []
-    for route_id in route_ids:
-        timetables = get_timetables(stop_id, route_id)
-        if len(timetables) == 0:
-            continue
-        timetables['arrival_time'] = timetables['arrival_time'].apply(lambda x: x.isoformat())
-        timetable = timetables.loc[timetables['arrival_min'].idxmin()]
-        all_timetables.append(timetable[['route_id','route_name','arrival_min','arrival_time','seats_empty','ramp_type']])
-    
-    if all_timetables:
-        all_timetables_df = pd.DataFrame(all_timetables)
-    else:
-        all_timetables_df = pd.DataFrame(columns=['route_id', 'route_name', 'arrival_min', 'arrival_time', 'seats_empty', 'ramp_type'])
+    timetables = get_timetables(stop_id)
+    timetables_json = [timetable.model_dump(mode='json') for timetable in timetables]
+    return timetables_json
 
-    print(all_timetables)
-    print(all_timetables_df)
-    return all_timetables_df.to_json(orient='records')
+@app.route('/autocomplete', methods=['GET'])
+@jwt_required()
+def autocomplete() -> List[Dict[str, Any]]:
+    """
+    Get autocompletions of a source/destination bus stop name search.
+
+    :returns autocomplete_json: A list of dictionaries containing autocompletion suggestions in the format of `data.models.Autocompletion`
+    """
+    input = request.args.get('input')
+    limit = int(request.args.get('limit'))
+
+    autocompletions = get_autocomplete_stops(name=input, limit=limit)
+    autocompletions_json = [autocompletion.model_dump(mode='json') for autocompletion in autocompletions]
+    return autocompletions_json
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -249,10 +255,6 @@ def delete_reservation():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    
-
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-# http://127.0.0.1:5000/timetables?stop_id=0500CCITY424
