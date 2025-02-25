@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Button, View } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import { TouchableOpacity, StyleSheet, Text, TextInput, Image } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function SignupScreen() {
@@ -10,8 +9,6 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSignup = async () => {
-
-    // Input validation on Frontend as well as Backend to maximise security
     if (!name || !email || !password || !confirmPassword) {
       console.log('Error', 'All fields are required.');
       return;
@@ -25,14 +22,8 @@ export default function SignupScreen() {
     try {
       const response = await fetch('http://127.0.0.1:5000/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
@@ -49,34 +40,17 @@ export default function SignupScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Signup</ThemedText>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-      <Button title="Sign Up" onPress={handleSignup} />
+      <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
+      <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} />
+
+      <TextInput style={styles.input} placeholder="Enter Name" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Enter Email" value={email} onChangeText={setEmail} />
+      <TextInput style={styles.input} placeholder="Enter Password" secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput style={styles.input} placeholder="Re-enter Password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+
+      <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign up</Text>
+      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -85,7 +59,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: -40,
+  },
+  topLeftImage: {
+    position: 'absolute',
+    top: 65,
+    left: 0,
+    width: 200,
+    height: 100,
+    resizeMode: 'contain',
+  },
+  mainImage: {
+    width: 390,
+    height: 280,
+    marginBottom: 0,
+    resizeMode: 'contain',
   },
   input: {
     height: 40,
@@ -93,5 +83,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 8,
+    width: '80%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  signupButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 12,
+    borderRadius: 15,
+    marginTop: 20,
+    paddingHorizontal: 100,
   },
 });
