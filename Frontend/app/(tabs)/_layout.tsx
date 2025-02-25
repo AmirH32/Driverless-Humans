@@ -40,7 +40,7 @@ export default function TabLayout() {
         name="signup"
         options={{
           title: 'Signup',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.badge.plus.fill" color={color} />,
         }}
       />
     </Tabs>
