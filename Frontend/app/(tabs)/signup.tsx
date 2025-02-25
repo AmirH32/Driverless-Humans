@@ -10,12 +10,12 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
-      console.log('Error', 'All fields are required.');
+      window.alert('Error' + 'All fields are required.');
       return;
     }
 
     if (password !== confirmPassword) {
-      console.log('Error', 'Passwords do not match.');
+      window.alert('Error' + 'Passwords do not match.');
       return;
     }
 
@@ -29,12 +29,12 @@ export default function SignupScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Success', data.message);
+        window.alert('Success' + data.message);
       } else {
-        console.log('Signup Failed:', data.message);
+        window.alert('Signup Failed:' + data.message);
       }
     } catch (error) {
-      console.log('Error during signup, could not connect to server:', error);
+      window.alert('Error during signup, could not connect to server:' + error);
     }
   };
 
