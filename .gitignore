@@ -4,3 +4,4 @@ myenv/
 .expo/
 Backend/authorisation/__init__.py
 Makefile
+node_modules/
