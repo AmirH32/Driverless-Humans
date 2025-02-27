@@ -52,7 +52,7 @@ def get_location_df(route_id) -> pd.DataFrame:
         .get("VehicleActivity", {})
     )
 
-    if type(data) != list:
+    if isinstance(data, list):
         data = [data]
 
     locations = []
@@ -134,47 +134,55 @@ def get_timetables_BODS(stop_id: str) -> list[Timetable]:
 
     return timetables
 
+
 def get_timetables_vix(origin_id: str, destination_id: str) -> list[Timetable]:
-	url = f'https://www.cambridgeshirebus.info/Text/WebDisplay.aspx?stopRef={origin_id}'
-	html = bytes.decode(requests.get(url).content)
-	soup = BeautifulSoup(html, "html.parser")
-	table = soup.find("table", {"id": "GridViewRTI"})
+    url = f"https://www.cambridgeshirebus.info/Text/WebDisplay.aspx?stopRef={origin_id}"
+    html = bytes.decode(requests.get(url).content)
+    soup = BeautifulSoup(html, "html.parser")
+    table = soup.find("table", {"id": "GridViewRTI"})
 
-	if table is None:
-		return None
+    if table is None:
+        return None
 
-	rows = []
-	for table_row in table.find_all("tr")[1:]:
-		row = [elem.text.strip() for elem in table_row.find_all("td")]
-		rows.append(row)
+    rows = []
+    for table_row in table.find_all("tr")[1:]:
+        row = [elem.text.strip() for elem in table_row.find_all("td")]
+        rows.append(row)
 
-	columns = [colname.text.strip() for colname in table.find_all("th")]
+    columns = [colname.text.strip() for colname in table.find_all("th")]
 
-	df = pd.DataFrame(rows, columns=columns)
+    df = pd.DataFrame(rows, columns=columns)
 
-	df = df.rename(columns={'Service':'route_id', 'Time': 'arrival_min'})
-	df['route_name'] = df.route_id
-    
-	def convert_time_to_min(t): # e.g. t = "19:23"
-		t = datetime.strptime(t, "%H:%M").time()
-		t = datetime.combine(datetime.today(), t)
-		now = datetime.now()
-		if t < now:
-			t += timedelta(days=1)
-		return (t-now).seconds//60
-    
-	df.arrival_min = df.arrival_min.apply(
-    	lambda s: int(s.replace(' Mins','')) if ' Mins' in s else convert_time_to_min(s)
-	)
-	df = df.sort_values(by='arrival_min').drop_duplicates(subset='route_id', keep='first')
+    df = df.rename(columns={"Service": "route_id", "Time": "arrival_min"})
+    df["route_name"] = df.route_id
 
-	df['vehicle_id'] = 'v'+df.index.astype(str)
-	statuses = df.apply(lambda row: get_bus_status(row['vehicle_id']), result_type='expand', axis=1)
+    def convert_time_to_min(t):  # e.g. t = "19:23"
+        t = datetime.strptime(t, "%H:%M").time()
+        t = datetime.combine(datetime.today(), t)
+        now = datetime.now()
+        if t < now:
+            t += timedelta(days=1)
+        return (t - now).seconds // 60
 
-	df = pd.concat([df,statuses],axis=1)
-	df = df[Timetable.model_fields.keys()]
-    
-	return [Timetable(**row) for row in df.to_dict(orient='records')]
+    df.arrival_min = df.arrival_min.apply(
+        lambda s: int(s.replace(" Mins", ""))
+        if " Mins" in s
+        else convert_time_to_min(s)
+    )
+    df = df.sort_values(by="arrival_min").drop_duplicates(
+        subset="route_id", keep="first"
+    )
 
-def get_timetables(origin_id: str, destination_id:str) -> list[Timetable]:
-	return get_timetables_vix(origin_id, destination_id)
+    df["vehicle_id"] = "v" + df.index.astype(str)
+    statuses = df.apply(
+        lambda row: get_bus_status(row["vehicle_id"]), result_type="expand", axis=1
+    )
+
+    df = pd.concat([df, statuses], axis=1)
+    df = df[Timetable.model_fields.keys()]
+
+    return [Timetable(**row) for row in df.to_dict(orient="records")]
+
+
+def get_timetables(origin_id: str, destination_id: str) -> list[Timetable]:
+    return get_timetables_vix(origin_id, destination_id)
