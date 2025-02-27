@@ -36,7 +36,7 @@ from flask_cors import CORS
 ### App configuration
 app = Flask(__name__)
 
-### Only need this for development on browser but should work without on phones
+### Only need this for development on browser but should work without on phones (REMOVE IN PROD)
 CORS(
     app,
     supports_credentials=True,
@@ -44,7 +44,7 @@ CORS(
 )
 
 
-# Define Content Security Policy (CSP) to allow frontend
+# Define Content Security Policy (CSP) to allow frontend this is only needed in DEV (REMOVE IN PROD)
 csp = {
     "default-src": [
         "'self'",  # Allow content from the same origin
