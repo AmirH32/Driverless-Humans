@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, Button, Image, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { router } from "expo-router";
+import api from "@/services/api";
 
 export default function LoginScreen() {
 
@@ -11,23 +13,23 @@ export default function LoginScreen() {
   const handlePress = async () => {
     try {
       const requestBody = { email, password };
-
-      const response = await fetch("http://127.0.0.1:5000/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        window.alert("Login successful");
+  
+      const response = await api.post("/login", requestBody);
+  
+      if (response.data.success) {
+        alert("Login successful");
+        router.push("/home");
       } else {
-        window.alert("Login failed " + data.message);
+        alert("Login failed: " + response.data.message);
       }
-    } catch (error) {
-      window.alert("Error during login, could not connect to server: " + error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert("Error during login: " + error.message);
+      } else if ((error as any)?.response?.data?.message) {
+        alert("Login failed: " + (error as any).response.data.message);
+      } else {
+        alert("An unknown error occurred.");
+      }
     }
   };
 
