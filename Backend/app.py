@@ -212,7 +212,7 @@ def logout():
 ### FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES
 @app.route("/refresh")
 @jwt_required(refresh=True)
-def refresh(self):
+def refresh():
     try:
         current_user = get_jwt_identity()
         new_access_token = create_access_token(
@@ -240,7 +240,8 @@ def refresh(self):
             samesite="None",
         )
         return response
-    except Exception:
+    except Exception as e:
+        print(f"Refresh error: {e}")  # Debug the actual error
         # Refresh token has expired
         return jsonify({"message": "Please login again."}), 401
 
