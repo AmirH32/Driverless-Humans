@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
@@ -86,7 +85,7 @@ def auth_init():
     # Initialise the database with the Flask app
     db.init_app(app)
     # Initialise JWTManager from auth.py
-    jwt = init_jwt(app)
+    init_jwt(app)
 
     # Creates the tables if not yet created
     with app.app_context():
@@ -241,7 +240,7 @@ def refresh(self):
             samesite="None",
         )
         return response
-    except:
+    except Exception:
         # Refresh token has expired
         return jsonify({"message": "Please login again."}), 401
 

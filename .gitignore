@@ -1,2 +1,6 @@
 venv/
 myenv/
+.env
+.expo/
+Backend/authorisation/__init__.py
+Makefile
