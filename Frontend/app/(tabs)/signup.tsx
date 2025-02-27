@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, Image } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
+import api from "@/services/api"; // Import the Axios instance
+import { router } from "expo-router";
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
@@ -10,31 +12,37 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
-      window.alert('Error' + ' All fields are required.');
+      alert("Error: All fields are required.");
       return;
     }
 
     if (password !== confirmPassword) {
-      window.alert('Error' + ' Passwords do not match.');
+      alert("Error: Passwords do not match.");
       return;
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+      const response = await api.post("/register", {
+        name,
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        window.alert('Success ' + data.message);
+      if (response.data.success) {
+        alert("Signup Successful: " + response.data.message);
+        // Redirect to login page after successful signup
+        router.push("/login"); 
       } else {
-        window.alert('Signup Failed: ' + data.message);
+        alert("Signup Failed: " + response.data.message);
       }
-    } catch (error) {
-      window.alert('Error during signup, could not connect to server: ' + error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert("Error during signup: " + error.message);
+      } else if ((error as any)?.response?.data?.message) {
+        alert("Signup Failed: " + (error as any).response.data.message);
+      } else {
+        alert("An unknown error occurred.");
+      }
     }
   };
 
