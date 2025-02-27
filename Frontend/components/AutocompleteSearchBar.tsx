@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-native";
+import api from "@/services/api";
 
 type Stop = {
   id: string;
@@ -21,11 +22,17 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   const onChangeText = async (text: string) => {
     setInput(text);
     if (text.length > 2) {
-      let response = await fetch(`http://127.0.0.1:5000/autocomplete?input=${text}&limit=${5}`);
-      if (response.ok) {
-        let data: Stop[] = await response.json();
-        setData(data);
+      try {
+        // Use the api instance instead of fetch
+        const response = await api.get(`/autocomplete?input=${text}&limit=${5}`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching autocomplete data:", error);
+        // The axios interceptor will automatically handle 401 errors
       }
+    } else {
+      // Clear results when input is too short
+      setData([]);
     }
   };
 

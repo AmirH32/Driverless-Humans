@@ -249,6 +249,9 @@ def refresh():
 @app.route("/create_reservation", methods=["POST"])
 @jwt_required()  # Protect this route
 def create_reservation():
+    """
+
+    """
     data = request.get_json()
     stopID1 = sanitise_input(data.get("StopID1", ""))
     stopID2 = sanitise_input(data.get("StopID2", ""))
