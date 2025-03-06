@@ -1,145 +1,91 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, Pressable, Text} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TextInput, View, Pressable, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { SearchBar } from 'react-native-screens';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
 
 export default function LoginScreen() {
   const [busstop, setBusStop] = useState('');
+  const [busses, setBusses] = useState([]);  // State for storing bus data
   const color = '#000000';
 
   const handleSearch = () => {
-      const requestBody = {
-        busstop: busstop, /* I need to go through and find all the protocol details or ask shaun */
-      };
-    // Implement login logic here
     console.log('Searching for: ', busstop);
   };
+
   const bookBus = () => {
-    console.log('bus booking, not yet passing an ID yet, need to have collecion of data first')
+    console.log('bus booking, not yet passing an ID yet, need to have collection of data first');
   };
-  const getTimetables = () => {
+
+  const getTimetables = async () => {
     try {
-      // create the POST request body
-      const src_stop = "source";
-      const dst_stop = "dest"; // TODO these should be passed from the prev page
+      
+      const src_stop = "0500CCITY423";
+      const dst_stop = "0500CCITY523"; // TODO these should be passed from the prev page
 
+      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop}&destination_id=${dst_stop}`);
+      const data = await response.json(); // ! This is what will happen, but using dummies for now
+      console.log(data);
 
-      // Send POST request to backed /login endpoint
-      // const response = await fetch(`http://127.0.0.1:5000/timetables?stop_id=${src_stop}`);
-      // await means the program will background and do what it needs to do and carry on once its done,
-      // TODO shaun planning to add dest stop
+      const getRampType = (dat) => {
+        return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
+      };
 
-      // const data = await response.json(); // ! This is what will happen, but using dummies for now
-      const data = [{
-        "arrival_time":"2025-02-25T11:06:44.540073Z",
-        "ramp_type":"MANUAL",
-        "route_id":"U1",
-        "route_name":"U1",
-        "seats_empty":1,
-        "vehicle_id":"WHIP-MX23LRV"
-      },{
-        "arrival_time":"2025-02-25T11:06:31.409276Z",
-        "ramp_type":"MANUAL",
-        "route_id":"U2",
-        "route_name":"U2",
-        "seats_empty":2,
-        "vehicle_id":"WHIP-MX23LRZ"
-      },{
-        "arrival_time":"2025-02-25T11:06:31.409276Z",
-        "ramp_type":"MANUAL",
-        "route_id":"U2",
-        "route_name":"U2",
-        "seats_empty":2,
-        "vehicle_id":"WHIP-MX23LRZ"
-      }];
-      const getRampType = (dat: { [key: string]: string | number }) => {
-        if(dat["ramp_type"]=="MANUAL"){
-          return "Manual ramp";
-        } else if (dat["ramp_type"]=="AUTO"){
-          return "Auromatic ramp";
-        }
-      }
+      const bussesComponents = data.map((dat, index) => (
+        <Pressable
+          key={index}
+          style={styles.busview_container}
+          onPress={bookBus}
+        >
+          <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
+          <View style={styles.busview_infoContainer}>
+            <IconSymbol size={50} name="clock" color={color} />
+            <Text>{dat["arrival_min"]} min</Text>
+          </View>
+          <View style={styles.busview_infoContainer}>
+            <IconSymbol size={50} name="testing123" color={color} />
+            <Text>{dat["seats_empty"]} seat(s) free</Text>
+          </View>
+          <View style={styles.busview_infoContainer}>
+            <IconSymbol size={50} name="house.fill" color={color} />
+            <Text>{getRampType(dat)}</Text>
+          </View>
+        </Pressable>
+      ));
 
-      function getWaitingTime(timestamp: string) {
-        // TODO: Is there some way to make this a live updating variable??
-        const givenDate = new Date(timestamp);
-        const currentDate = new Date(); // Current time
-    
-        const diffMilliseconds = currentDate.getTime() - givenDate.getTime();
-        const diffSeconds = Math.floor(diffMilliseconds / 1000);
-        const diffMinutes = Math.floor(diffSeconds / 60);
-        const diffHours = Math.floor(diffMinutes / 60);
-        const diffDays = Math.floor(diffHours / 24);
-    
-
-        return (((diffDays*24)+diffHours)*60)+diffMinutes;
-      }
-
-
-
-      // if (response.ok){ // why not
-      //   console.log("Request succesful");
-      // } else {
-      //   console.error("Request failed, response did not return succesfully");
-      // }
-      var busses = [];
-      // For ech thing in the lsit
-      for (let dat of data){
-        busses.push(
-          <Pressable 
-            style={styles.busview_container}
-            onPress={bookBus} 
-          >  {/* TODO add a reservation tag for which bus, comes with automating it ig */}
-            <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
-            <View style={styles.busview_infoContainer}>
-              <IconSymbol size={50} name="clock" color={color} />
-              <Text>{getWaitingTime(dat["arrival_time"])} min</Text>
-            </View>
-            <View style={styles.busview_infoContainer}>
-              <IconSymbol size={50} name="testing123" color={color} />
-              <Text>{dat["seats_empty"]} seat free</Text>
-            </View>
-            <View style={styles.busview_infoContainer}>
-              <IconSymbol size={50} name="house.fill" color={color} />
-              <Text>{getRampType(dat)}</Text>
-            </View>
-          </Pressable> 
-          );
-        
-      }
-      return busses;
-
-
-      // Out put the style correctly with the values inserted
-    } catch (error){
+      setBusses(bussesComponents);  // Update state with bus components
+    } catch (error) {
       console.error("Error during stops fetch, could not connect to server:", error);
-    };
-    
+    }
   };
+
+  // Fetch timetables when the component mounts
+  useEffect(() => {
+    getTimetables();
+  }, []);
 
   return (
     <ThemedView style={styles.wide_container}>
-    <TopBar></TopBar>
-    <ThemedView style={styles.container}>
-      <View style={styles.searchbar_overal}>
-      <TextInput
-        style={styles.searchbar_search}
-        placeholder="Enter Bus Stop..."
-        value={busstop}
-        onChangeText={setBusStop}
-      />
-      <Pressable 
-        style={styles.searchbar_button} 
-        onPress={handleSearch} 
-      > <IconSymbol size={50} name="lookup" color={color} /> </Pressable> {/* TODO get a search  */}
-      </View>
-
-      {getTimetables()} 
+      <TopBar />
+      <ThemedView style={styles.container}>
+        <View style={styles.searchbar_overal}>
+          <TextInput
+            style={styles.searchbar_search}
+            placeholder="Enter Bus Stop..."
+            value={busstop}
+            onChangeText={setBusStop}
+          />
+          <Pressable
+            style={styles.searchbar_button}
+            onPress={handleSearch}
+          >
+            <IconSymbol size={50} name="lookup" color={color} />
+          </Pressable>
+        </View>
+        {busses}
       </ThemedView>
-      </ThemedView>
+    </ThemedView>
   );
 }
 
