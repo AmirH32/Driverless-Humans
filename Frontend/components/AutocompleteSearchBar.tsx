@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-native";
-import api from "@/services/api";
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 type Stop = {
   id: string;
@@ -22,23 +22,17 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   const onChangeText = async (text: string) => {
     setInput(text);
     if (text.length > 2) {
-      try {
-        // Use the api instance instead of fetch
-        const response = await api.get(`/autocomplete?input=${text}&limit=${5}`);
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching autocomplete data:", error);
-        // The axios interceptor will automatically handle 401 errors
+      let response = await fetch(`http://127.0.0.1:5000/autocomplete?input=${text}&limit=${5}`);
+      if (response.ok) {
+        let data: Stop[] = await response.json();
+        setData(data);
       }
-    } else {
-      // Clear results when input is too short
-      setData([]);
     }
   };
 
   return (
-    <View>
-      <Text style={styles.searchLabel}>{label}</Text>
+    <View style={styles.main_container}>
+      <IconSymbol size={50} name="map.pin" color={"#0000FF"} />
       <TextInput
         onChangeText={onChangeText}
         value={input}
@@ -74,15 +68,21 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
 }
 
 const styles = StyleSheet.create({
+  main_container: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly'
+  },
   searchLabel: {
     marginLeft: 12,
     marginVertical: 5,
     fontSize: 12,
+    width: '100%',
   },
   input: {
     height: 40,
     marginHorizontal: 12,
-    borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 5,
     borderColor: 'gray',

@@ -47,6 +47,7 @@ export default function SignupScreen() {
   };
 
   return (
+    <ThemedView style={styles.wide_container}>
     <ThemedView style={styles.container}>
       <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
       <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} />
@@ -59,6 +60,7 @@ export default function SignupScreen() {
       <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
+    </ThemedView>
     </ThemedView>
   );
 }
