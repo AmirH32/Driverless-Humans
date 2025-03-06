@@ -20,6 +20,21 @@ export default function LoginScreen() {
 
   const getTimetables = async () => {
     try {
+      const dummy_data = [{
+        "arrival_min": 12,
+        "ramp_type": "MANUAL",
+        "route_id": "U1",
+        "route_name": "U1",
+        "seats_empty": 1,
+        "vehicle_id": "v0"
+      }, {
+        "arrival_min": 22,
+        "ramp_type": "MANUAL",
+        "route_id": "U2",
+        "route_name": "U2",
+        "seats_empty": 2,
+        "vehicle_id": "v1"
+      }];
       
       const src_stop = "0500CCITY423";
       const dst_stop = "0500CCITY523"; // TODO these should be passed from the prev page
@@ -30,6 +45,14 @@ export default function LoginScreen() {
 
       const getRampType = (dat) => {
         return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
+      };
+
+      const getWaitingTime = (timestamp) => {
+        const givenDate = new Date(timestamp);
+        const currentDate = new Date();
+        const diffMilliseconds = givenDate.getTime() - currentDate.getTime();
+        const diffMinutes = Math.ceil(diffMilliseconds / (1000 * 60));
+        return diffMinutes > 0 ? diffMinutes : 0;  // Prevent negative times
       };
 
       const bussesComponents = data.map((dat, index) => (
