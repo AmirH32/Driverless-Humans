@@ -44,19 +44,6 @@ export default function SearchScreen() {
           <AutocompleteInput label="Destination" onSelect={setDestination} />
         </View>
 
-        {origin && (
-          <View>
-            <Text>Origin: {origin.name}</Text>
-            <Text>Street: {origin.street}</Text>
-          </View>
-        )}
-
-        {destination && (
-          <View>
-            <Text>Destination: {destination.name}</Text>
-            <Text>Street: {destination.street}</Text>
-          </View>
-        )}
       </View>
       
       <View style={styles.buttonContainer}>
