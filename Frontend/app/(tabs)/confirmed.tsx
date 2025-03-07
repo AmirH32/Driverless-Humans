@@ -10,50 +10,14 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleVolounteer = async () => {
-    try {
-      // create the POST request body
-      const requestBody = {
-      };
-
-      // Send POST request to backed /login endpoint
-      const response = await fetch("http://127.0.0.1:5000/login",{
-        method: "POST",
-        credentials: "include", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-    } catch (error){
-      // TODO: Possibly add logic to display frontend request error?
-      console.error("Error during login, could not connect to server:", error);
-    };
+    // TODO: Send a volounteer request
+    // TODO: Remove the button
+    alert("This button should send an api request to volounteer, then the button should disappear");
   };
   const handleCancel = async () => {
-    try {
-      // create the POST request body
-      const requestBody = {
-      };
-
-      // Send POST request to backed /login endpoint
-      const response = await fetch("http://127.0.0.1:5000/login",{
-        method: "POST",
-        credentials: "include", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-    } catch (error){
-      // TODO: Possibly add logic to display frontend request error?
-      console.error("Error during login, could not connect to server:", error);
-    };
+    // TODO: Send a cancel request
+    // TODO: Redirect to the search page porbably (possibly the timetables page??)
+    alert("This button should send an api request to volounteer, then the button should disappear");
   };
 
 
