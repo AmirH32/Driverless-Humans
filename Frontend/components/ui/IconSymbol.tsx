@@ -17,6 +17,7 @@ const MAPPING = {
   'lookup': 'search',
   'map.pin': 'location-pin',
   'settings.fill': 'settings',
+  'arrow.left': 'arrow-back',
 
 } as Partial<
   Record<

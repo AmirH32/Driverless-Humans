@@ -43,6 +43,19 @@ export default function SearchScreen() {
         <View style={styles.inputbox}>
           <AutocompleteInput label="Destination" onSelect={setDestination} />
         </View>
+        {/* origin && (
+          <View>
+            <Text>Origin: {origin.name}</Text>
+            <Text>Street: {origin.street}</Text>
+          </View>
+        ) */}
+
+        {/* destination && (
+          <View>
+            <Text>Destination: {destination.name}</Text>
+            <Text>Street: {destination.street}</Text>
+          </View>
+        )*/ }
 
       </View>
       
@@ -58,7 +71,7 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   wide_container: {
     height: '100vh',
-   marginTop: 45,// idrk why this was needs, feels like the fault of the background image maybe?
+    marginTop: 45,// idrk why this was needs, feels like the fault of the background image maybe?
   },
   container: {
     flex: 1,

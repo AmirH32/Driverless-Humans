@@ -10,13 +10,19 @@ export default function LoginScreen() {
   const [busses, setBusses] = useState([]);  // State for storing bus data
   const color = '#000000';
 
-  const handleSearch = () => {
-    console.log('Searching for: ', busstop);
+  const backToEdit = () => {
+    alert("This button should link back to the origin/ desitination page")
   };
 
-  const bookBus = () => {
-    console.log('bus booking, not yet passing an ID yet, need to have collection of data first');
+  const bookBus = (srcStop, dstStop, vechileBookingID) => {
+    const timee = new Date();
+    alert("send booking from <" + srcStop + "> to <"+ dstStop+"> on vechicle <"+ vechileBookingID+"> at time <"+timee+">");
+
   };
+  const src_stop_id = "0500CCITY423";
+  const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
+  const src_stop_name = "name 1";
+  const dst_stop_name = "name 2";
 
   const getTimetables = async () => {
     try {
@@ -36,8 +42,6 @@ export default function LoginScreen() {
         "vehicle_id": "v1"
       }];
       
-      const src_stop = "0500CCITY423";
-      const dst_stop = "0500CCITY523"; // TODO these should be passed from the prev page
 
       const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop}&destination_id=${dst_stop}`);
       const data = await response.json(); // ! This is what will happen, but using dummies for now
@@ -59,7 +63,7 @@ export default function LoginScreen() {
         <Pressable
           key={index}
           style={styles.busview_container}
-          onPress={bookBus}
+          onPress={bookBus(src_stop, dst_stop, dat["vehicle_id"])}
         >
           <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
           <View style={styles.busview_infoContainer}>
@@ -92,19 +96,16 @@ export default function LoginScreen() {
     <ThemedView style={styles.wide_container}>
       <TopBar />
       <ThemedView style={styles.container}>
-        <View style={styles.searchbar_overal}>
-          <TextInput
-            style={styles.searchbar_search}
-            placeholder="Enter Bus Stop..."
-            value={busstop}
-            onChangeText={setBusStop}
-          />
+        <View style={styles.editbar_overal}>
           <Pressable
-            style={styles.searchbar_button}
-            onPress={handleSearch}
+            style={styles.editbar_button}
+            onPress={backToEdit}
           >
-            <IconSymbol size={50} name="lookup" color={color} />
+            <IconSymbol size={70} name="arrow.left" color={color} />
           </Pressable>
+          <Text>
+            {src_stop_name} to {dst_stop_name}
+          </Text>
         </View>
         {busses}
       </ThemedView>
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     overflowY: 'scroll',
     height: 100,
   },
-  searchbar_overal: {
+  editbar_overal: {
     maxHeight: 100,
     borderColor: 'gray',
     borderWidth: 1,
@@ -135,16 +136,16 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
-  searchbar_search: {
+  editbar_search: {
     borderRadius: 32,
     height: 84,
     fontSize: 25,
 
   },
-  searchbar_button: {
+  editbar_button: {
     borderRadius: 32,
     height: 84,
   },
@@ -157,14 +158,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
     justifyContent: 'space-evenly'
-
-
   },
   busview_busNumber: {
     fontSize: 50,
   },
   busview_infoContainer: {
     alignItems: 'center',
-
   },
 });
