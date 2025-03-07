@@ -22,7 +22,7 @@ export default function LoginScreen() {
   const src_stop_id = "0500CCITY423";
   const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
   const src_stop_name = "name 1";
-  const dst_stop_name = "name 2";
+  const dst_stop_name = "name 2"; // TODO These also need to be passed, used for the top display
 
   const getTimetables = async () => {
     try {
@@ -43,7 +43,7 @@ export default function LoginScreen() {
       }];
       
 
-      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop}&destination_id=${dst_stop}`);
+      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
       const data = await response.json(); // ! This is what will happen, but using dummies for now
       console.log(data);
 
@@ -75,7 +75,7 @@ export default function LoginScreen() {
             <Text>{dat["seats_empty"]} seat(s) free</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="house.fill" color={color} />
+            <IconSymbol size={50} name="{getRampType(dat)}" color={color} />
             <Text>{getRampType(dat)}</Text>
           </View>
         </Pressable>

@@ -31,6 +31,7 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   };
 
   return (
+    <View style={styles.totalContainer}>
     <View style={styles.main_container}>
       <IconSymbol size={50} name="map.pin" color={"#0000FF"} />
       <TextInput
@@ -39,6 +40,7 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
         style={styles.input}
         placeholder={label}
       />
+    </View>
       {input && data.length > 0 ? (
         <FlatList
           data={data}
@@ -63,11 +65,16 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
           keyExtractor={(item, index) => index.toString()}
         />
       ) : null}
-    </View>
+      </View>
   );
 }
 
 const styles = StyleSheet.create({
+  totalContainer: {
+    paddingTop: 15,
+    paddingBottom: 15,
+
+  },
   main_container: {
     flex: 1,
     flexDirection: 'row',
