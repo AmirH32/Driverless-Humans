@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   scrollableWindow: {
     borderRadius: 2,
     borderColor: 'grey',
-    overflowY: 'scroll',// ! this one actually should be lol
+    overflowY: 'scroll',
     maxHeight: '80vh',
   },
   settingsEntry: {

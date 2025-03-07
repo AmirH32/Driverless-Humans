@@ -10,14 +10,35 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleVolounteer = async () => {
-    // TODO: Send a volounteer request
-    // TODO: Remove the button
+    // TODO: Send a volounteer request [relies an Amir's Backend??]
+    // TODO: Remove the button or link to a seperate page without the button [relies an Agrim's work on buttons]
     alert("This button should send an api request to volounteer, then the button should disappear");
   };
   const handleCancel = async () => {
-    // TODO: Send a cancel request
-    // TODO: Redirect to the search page porbably (possibly the timetables page??)
+    // TODO: Send a cancel request [relies an Amir's Backend??]
+    // TODO: Redirect to the search page porbably (possibly the timetables page??)  [relies an Agrim's work on buttons]
     alert("This button should send an api request to volounteer, then the button should disappear");
+  };
+  master_data = {
+    seats_available: 1,
+    volounteers_available: 4,
+    minutes_wait: 30,
+  }// TODO using the API, this need to be linked
+  
+  const getData = async () => {
+    try {
+      
+      const src_stop_id = "0500CCITY423";
+      const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
+
+      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
+      const data = await response.json(); // ! This is what will happen, but using dummies for now
+      console.log(data);
+      master_data["minutes_wait"] = data["arrival_min"]
+      // TODO Modify the dict
+    } catch (error) {
+      console.error("Error during stops fetch, could not connect to server:", error);
+    }
   };
 
 
@@ -30,15 +51,15 @@ export default function LoginScreen() {
       <View style={styles.infoView}>
         <ThemedView style={styles.infoEntry}>
           <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>1 Seat Available</ThemedText>
+          <ThemedText style={styles.infoText}>{master_data["seats_available"]} Seat Available</ThemedText>
         </ThemedView>
         <ThemedView style={styles.infoEntry}>
           <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>4 Volunteers Available</ThemedText>
+          <ThemedText style={styles.infoText}>{master_data["volounteers_available"]} Volunteers Available</ThemedText>
         </ThemedView>
         <ThemedView style={styles.infoEntry}>
           <IconSymbol size={50} name="clock" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>30 Minute wait</ThemedText>
+          <ThemedText style={styles.infoText}>{master_data["minutes_wait"]} Minute wait</ThemedText>
         </ThemedView>
       </View>
       <Pressable style={styles.button_volouteer} onPress={handleVolounteer}>Volunteer</Pressable> 

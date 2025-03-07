@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: `space-between`,
+    justifyContent: `space-evenly`,
     padding: 12,
     alignItems: 'center',
   },
@@ -100,6 +100,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     fontFamily: 'Arial',
     fontSize: 30,
+    boxShadow: '5 5',
+    opacity: 1,
   },
   backingImage: { 
 
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     resizeMode: 'cover',
-    width: '100vw',
-    height: '100vw',
+    bottom: 0,
+    height: '100vh',
   },
 });
