@@ -82,6 +82,8 @@ def auth_init():
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Initialise the database with the Flask app
+    db.init_app(app)
     # Initialise JWTManager from auth.py
     init_jwt(app)
 
