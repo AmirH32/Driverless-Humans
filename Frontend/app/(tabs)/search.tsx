@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Text, View, StyleSheet, Pressable, ImageBackground } from "react-native";
 import AutocompleteInput from "@/components/AutocompleteSearchBar";
 import { useRouter } from 'expo-router';
-
 import { TopBar } from '@/components/TopBar';
+
 type Stop = {
   id: string;
   name: string;
@@ -27,40 +27,22 @@ export default function SearchScreen() {
       source={require('@/assets/images/camb_map.png')}
       style={styles.backingImage}
     >
-    <View style={styles.wide_container}>
-      <TopBar></TopBar>
-    <View style={styles.container}>
-      <View style={styles.upper_container}>
-      {/* <Image 
-        source={require('@/assets/images/camb_map.png')} 
-        style={styles.backingImage} 
-      /> */}
-        <View style={styles.inputbox}>
-          <AutocompleteInput label="Origin" onSelect={setOrigin} />
-        </View>
-        <View style={styles.inputbox}>
-          <AutocompleteInput label="Destination" onSelect={setDestination} />
-        </View>
-        {/* origin && (
-          <View>
-            <Text>Origin: {origin.name}</Text>
-            <Text>Street: {origin.street}</Text>
+      <View style={styles.wide_container}>
+        <TopBar />
+        <View style={styles.container}>
+          <View style={styles.inputContainer}>
+            <View style={styles.inputbox}>
+              <AutocompleteInput label="Origin" onSelect={setOrigin} />
+            </View>
+            <View style={styles.inputbox}>
+              <AutocompleteInput label="Destination" onSelect={setDestination} />
+            </View>
           </View>
-        ) */}
 
-        {/* destination && (
-          <View>
-            <Text>Destination: {destination.name}</Text>
-            <Text>Street: {destination.street}</Text>
-          </View>
-        )*/ }
-
-      </View>
-      
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.submitButton} onPress={handleSubmit}>Find Routes </Pressable>
-      </View>
-      </View>
+          <Pressable style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitButtonText}>Find Routes</Text>
+          </Pressable>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -68,46 +50,52 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
   wide_container: {
-    height: '100vh',
-    marginTop: 45,// idrk why this was needs, feels like the fault of the background image maybe?
+    flex: 1,
   },
   container: {
     flex: 1,
-    justifyContent: `space-evenly`,
-    padding: 12,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: -30, // Aligns content closer to the logo
   },
-  upper_container: {
-  },
-  buttonContainer: {
-    marginTop: 20,
-    width: '70%',
-    height: 100,
+  inputContainer: {
+    width: '100%',
+    gap: 15, // Creates space between input boxes
   },
   inputbox: {
     borderWidth: 1,
-    margin: 20,
+    padding: 15,
     backgroundColor: '#d9d9d9',
     borderRadius: 25,
+    width: '100%',
   },
-  submitButton: {// TODO this style has sponteneously broken idrk
-    height: 70,
+  submitButton: {
+    height: 60,
     backgroundColor: '#7ed957',
     borderRadius: 25,
-    textAlign: 'center',
     justifyContent: 'center',
-    fontFamily: 'Arial',
-    fontSize: 30,
-    boxShadow: '5 5',
-    opacity: 1,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    width: '70%',
+    marginTop: 20,
+    minWidth: 250,
   },
-  backingImage: { 
-
-    flex: 1, 
-    justifyContent: 'center', 
+  submitButtonText: {
+    fontFamily: 'Arial',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  backingImage: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'cover',
-    bottom: 0,
-    height: '100vh',
+    height: '100%',
   },
 });
