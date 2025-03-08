@@ -61,6 +61,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="disability"
+        options={{
+          title: 'Disability',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="figure.roll" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="accessibility"
+        options={{
+          title: 'Accessibility',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="figure.stand" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="help"
+        options={{
+          title: 'Help',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="questionmark.circle" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="timetables"
         options={{
           title: 'Time Tables',
