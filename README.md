@@ -39,3 +39,7 @@ Create a file at `Backend/.env` with your API key:
 ```
 BODS_API_KEY = <your_api_key>
 ```
+
+Example Creds
+Username: example@gmail.com
+Password: .&np0>2kOdPo@>f[

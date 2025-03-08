@@ -13,6 +13,7 @@ from Backend.database.models import (
     User,
     Reservations,
     UserReservation,
+    VolunteerReservation
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -88,6 +89,12 @@ def auth_init():
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Add this to your auth_init() function or wherever you're configuring JWT
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # During development
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token"
+    app.config["JWT_REFRESH_COOKIE_NAME"] = "refresh_token"
+
     # Initialise the database with the Flask app
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -158,10 +165,18 @@ def login():
         )
         # Change samesite to "Strict" in prod
         response.set_cookie(
-            "access_token", access_token, httponly=True, secure=True, samesite="None"
+            "access_token", 
+            access_token, 
+            httponly=True, 
+            secure=True, 
+            samesite="None"
         )
         response.set_cookie(
-            "refresh_token", refresh_token, httponly=True, secure=True, samesite="None"
+            "refresh_token", 
+            refresh_token, 
+            httponly=True, 
+            secure=True, 
+            samesite="None"
         )
 
         return response, 200
@@ -175,6 +190,7 @@ def register():
     email = sanitise_input(data.get("email", ""))
     name = sanitise_input(data.get("name", ""))
     password = data.get("password", "")
+    hasDisability = data.get("hasDisability", "")
 
     # Make sure email and password fields are filled
     if not email or not password or not name:
@@ -190,6 +206,11 @@ def register():
                 "success": False,
             }
         ), 400
+    
+    if hasDisability == True:
+        role = "Disabled"
+    else:
+        role = "Volunteer"
 
     # Check if user already exists
     existing_user = User.query.filter_by(Email=email).first()
@@ -197,7 +218,7 @@ def register():
         return jsonify({"message": "User already exists", "success": False}), 400
 
     # Create the user
-    create_user(email, password, name)
+    create_user(email, password, name, role)
 
     return jsonify({"message": "User created successfully", "success": True}), 201
 
@@ -263,46 +284,49 @@ def create_reservation():
     stopID1 = sanitise_input(data.get("StopID1", ""))
     stopID2 = sanitise_input(data.get("StopID2", ""))
     busID = sanitise_input(data.get("BusID", ""))
-    time = data.get("Time", "")
+    time = data.get("Time", "") # This will be the time the bus arrives at the bus stop
+    VolunteerCount = data.get("VolunteerCount", "")
 
     userID = get_jwt_identity()
 
     if not all([stopID1, stopID2, busID, time]):
         return jsonify({"message": "Missing required fields"}), 400
 
-    # Check if reservation exists
+    # Check if reservations with the same User ID exist
+    # First, query the UserReservation table to find the user's reservations
     existing_user_reservations = (
-        db.session.query(UserReservation).filter_by(UserID=userID).all()
+        db.session.query(UserReservation)
+        .filter_by(UserID=userID)  # Filter by userID
+        .join(Reservations, UserReservation.ReservationID == Reservations.ReservationID)  # Join with the Reservations table
+        .filter(Reservations.Time == time, Reservations.busID == busID)  # Check Time and busID
+        .first()
     )
+
+    # If there are any matching reservations for this user
     if existing_user_reservations:
-        for user_reservation in existing_user_reservations:
-            reservation_id = user_reservation.ReservationID
-            reservation = (
-                db.session.query(Reservations)
-                .filter_by(ReservationID=reservation_id, Time=time)
-                .first()
-            )
-            if reservation:
-                return jsonify(
-                    {"message": "This reservation already exists for this user."}
-                ), 400
-            else:
-                pass
+        return jsonify(
+            {"message": "This reservation already exists for this user."}
+        ), 400
+    
+    ### END OF CHECKS
     try:
         new_reservation = Reservations(
             StopID1=stopID1,
             StopID2=stopID2,
             BusID=busID,
             Time=datetime.strptime(time, "%Y-%m-%d %H:%M:%S"),
+            VolunteerCount = VolunteerCount,
         )
 
-        add_and_commit(new_reservation)
+        db.session.add(new_reservation)
 
         # Link the user to the reservation
         user_reservation = UserReservation(
             UserID=userID, ReservationID=new_reservation.ReservationID
         )
-        add_and_commit(user_reservation)
+        
+        db.session.add(user_reservation)
+        db.session.commit()
 
         return jsonify(
             {
@@ -314,6 +338,106 @@ def create_reservation():
     except Exception as e:
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/add_volunteer", methods=["POST"])
+@jwt_required()  # Protect this route
+def add_volunteer():
+    data = request.get_json()
+
+    reservationID = data.get("ReservationID", "")
+
+    userID = get_jwt_identity()
+
+    # Get the user object to check the role
+    user = db.session.query(User).filter_by(UserID=userID).first()
+    
+    # Check the user has the right role
+    if user.Role != "Volunteer":
+        return jsonify(
+            {
+                "message": "Invalid Role",
+                "success": False,
+            }
+        ), 400
+    
+    # Check the user isn't already volunteering for this reservation
+    # If we get reservation ID from frontend we can check with reservation ID instead
+    existing_volunteer_reservations = (
+        db.session.query(VolunteerReservation)
+        .filter_by(UserID=userID, ReservationID = reservationID)  # Filter by userID
+        .first()
+    )
+
+    # If there are any matching reservations for this user
+    if existing_volunteer_reservations:
+        return jsonify(
+            {"message": "The user is already volunteering for this reservation."}
+        ), 400
+    
+
+    # Find reservation to add the user
+    # If we get reservation ID from frontend we can check with reservation ID instead
+    reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
+
+    if not reservation:
+        return jsonify({"message":"Reservation not found."}), 404
+    # End of Checks
+
+    try:
+        reservation.VolunteerCount += 1
+
+        # Link the volunteer to the reservation
+        volunteerReservation = VolunteerReservation(
+            UserID=userID, ReservationID = reservation.ReservationID
+        )
+
+        db.session.add(volunteerReservation)
+
+        db.session.commit()
+
+        return jsonify(
+            {
+                "message": "Volunteer added to the reservation successfully.",
+                "reservation_id": reservation.ReservationID,
+            }
+        ), 201
+    
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        return jsonify({"error": str(e)}), 500
+        
+@app.route("/remove_volunteer", methods=["POST"])
+@jwt_required()
+def remove_volunteer():  
+    data = request.get_json()
+
+    reservationID = data.get("ReservationID", "")
+    userID = get_jwt_identity()
+
+    try:
+        reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
+        volunteerReservation = db.session.query(VolunteerReservation).filter_by(UserID=userID, ReservationID=reservationID).first()
+
+        if not reservation:
+            return jsonify({"message":"Reservation not found."}), 404
+        
+        if not volunteerReservation:
+            return jsonify({"message":"Reservation not found."}), 404
+        
+        reservation.VolunteerCount -= 1
+        db.session.delete(volunteerReservation)
+
+        db.session.commit()
+
+        return jsonify({"message": "Volunteer removed from the reservation successfully."}), 200
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        return jsonify({"error": str(e)}), 500
+            
+@app.route("/show_reservations", methods=["GET"])
+@jwt_required()
+def show_reservations():
+    pass
 
 
 @app.route("/delete_reservation", methods=["POST"])
