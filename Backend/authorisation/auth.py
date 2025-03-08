@@ -18,9 +18,9 @@ def generate_hashed_password(password):
     return hashed_password, salt
 
 
-def create_user(email, password, name):
+def create_user(email, password, name, role):
     hashed_password, salt = generate_hashed_password(password)
-    new_user = User(Email=email, Password=hashed_password, Name=name, Salt=salt)
+    new_user = User(Email=email, Password=hashed_password, Name=name, Salt=salt, Role=role)
     db.session.add(new_user)
     db.session.commit()
     return
