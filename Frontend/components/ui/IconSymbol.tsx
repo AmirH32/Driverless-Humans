@@ -1,6 +1,7 @@
 // This file is a fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SymbolWeight } from 'expo-symbols';
 import React from 'react';
 import { OpaqueColorValue, StyleProp, ViewStyle } from 'react-native';
@@ -17,6 +18,7 @@ const MAPPING = {
   'lookup': 'search',
   'map.pin': 'location-pin',
   'settings.fill': 'settings',
+  'arrow.left': 'arrow-back',
 
 } as Partial<
   Record<

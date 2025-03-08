@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: -40,
   },
+<<<<<<< HEAD
   title: {
     fontSize: 40,
     fontWeight: 'bold',
@@ -65,6 +66,13 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     letterSpacing: 2,
     marginBottom: 30,
+=======
+  scrollableWindow: {
+    borderRadius: 2,
+    borderColor: 'grey',
+    overflowY: 'scroll',
+    maxHeight: '80vh',
+>>>>>>> f49d5908d1a39b976680bd0fd54a5ba3b13325d5
   },
   button: {
     backgroundColor: '#007BFF',
