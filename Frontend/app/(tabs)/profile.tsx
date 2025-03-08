@@ -9,9 +9,15 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <TouchableOpacity 
+        style={styles.crossButton}
+        onPress={() => router.push('/settings')}
+      >
+        <Text style={styles.crossText}>✕</Text>
+      </TouchableOpacity>
+
       <ThemedText style={styles.title}>Profile</ThemedText>
 
-      {/* Buttons */}
       <TouchableOpacity
         style={[styles.button, styles.editButton]} 
         onPress={() => router.push('/home')}
@@ -43,6 +49,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: -40,
+  },
+  crossButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
+    marginTop: 40,
+  },
+  crossText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   title: {
     fontSize: 40,

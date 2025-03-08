@@ -9,6 +9,13 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
+        <TouchableOpacity 
+            style={styles.crossButton}
+            onPress={() => router.push('/settings')}
+            >
+            <Text style={styles.crossText}>✕</Text>
+        </TouchableOpacity>
+
       <ThemedText style={styles.title}>Help and Support</ThemedText>
 
       {/* Login Button */}
@@ -38,19 +45,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: -40,
   },
-  topLeftImage: {
+  crossButton: {
     position: 'absolute',
-    top: 65,
-    left: 0,
-    width: 200,
-    height: 100,
-    resizeMode: 'contain',
+    top: 60,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
+    marginTop: 40,
   },
-  mainImage: {
-    width: 390,
-    height: 280,
-    marginBottom: 0,
-    resizeMode: 'contain',
+  crossText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   title: {
     fontSize: 32,
