@@ -4,66 +4,62 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [busstop, setBusStop] = useState('');
-  const [busses, setBusses] = useState([]);  // State for storing bus data
+  const [busses, setBusses] = useState<JSX.Element[]>([]);  // State for storing bus data
   const color = '#000000';
 
   const backToEdit = () => {
-    alert("This button should link back to the origin/ desitination page")
+    alert("This button should link back to the origin/ desitination page");
+    router.back();
   };
 
   const bookBus = (srcStop, dstStop, vechileBookingID) => {
+    console.log("bookBus")
     const timee = new Date();
     alert("send booking from <" + srcStop + "> to <"+ dstStop+"> on vechicle <"+ vechileBookingID+"> at time <"+timee+">");
 
   };
-  const src_stop_id = "0500CCITY423";
-  const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
-  const src_stop_name = "name 1";
-  const dst_stop_name = "name 2"; // TODO These also need to be passed, used for the top display
+
+  const { src_stop_id, dst_stop_id, src_stop_name, dst_stop_name } = useLocalSearchParams();
+  // const src_stop_id = "0500CCITY423";
+  // const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
+  // const src_stop_name = "name 1";
+  // const dst_stop_name = "name 2"; // TODO These also need to be passed, used for the top display
 
   const getTimetables = async () => {
     try {
-      const dummy_data = [{
-        "arrival_min": 12,
-        "ramp_type": "MANUAL",
-        "route_id": "U1",
-        "route_name": "U1",
-        "seats_empty": 1,
-        "vehicle_id": "v0"
-      }, {
-        "arrival_min": 22,
-        "ramp_type": "MANUAL",
-        "route_id": "U2",
-        "route_name": "U2",
-        "seats_empty": 2,
-        "vehicle_id": "v1"
-      }];
-      
+      // const dummy_data = [{
+      //   "arrival_min": 12,
+      //   "ramp_type": "MANUAL",
+      //   "route_id": "U1",
+      //   "route_name": "U1",
+      //   "seats_empty": 1,
+      //   "vehicle_id": "v0"
+      // }, {
+      //   "arrival_min": 22,
+      //   "ramp_type": "MANUAL",
+      //   "route_id": "U2",
+      //   "route_name": "U2",
+      //   "seats_empty": 2,
+      //   "vehicle_id": "v1"
+      // }];
 
       const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
-      const data = await response.json(); // ! This is what will happen, but using dummies for now
-      console.log(data);
+      const data = await response.json();
 
       const getRampType = (dat) => {
         return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
       };
-
-      const getWaitingTime = (timestamp) => {
-        const givenDate = new Date(timestamp);
-        const currentDate = new Date();
-        const diffMilliseconds = givenDate.getTime() - currentDate.getTime();
-        const diffMinutes = Math.ceil(diffMilliseconds / (1000 * 60));
-        return diffMinutes > 0 ? diffMinutes : 0;  // Prevent negative times
-      };
-
+      
       const bussesComponents = data.map((dat, index) => (
         <Pressable
           key={index}
           style={styles.busview_container}
-          onPress={bookBus(src_stop, dst_stop, dat["vehicle_id"])}
+          onPress={() => bookBus(src_stop, dst_stop, dat["vehicle_id"])}
         >
           <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
           <View style={styles.busview_infoContainer}>

@@ -30,6 +30,10 @@ from markupsafe import escape
 from flask_talisman import Talisman
 from flask_cors import CORS
 
+DISABLE_AUTHORISATION = False
+if DISABLE_AUTHORISATION:
+    jwt_required = lambda refresh=True: (lambda x:x)
+
 ### Load environment variables (BODS_API_KEY)
 # load_dotenv()
 
