@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, Pressable, ImageBackground } from "react-native";
 import AutocompleteInput from "@/components/AutocompleteSearchBar";
-// import CookieManager from '@react-native-cookies/cookies';
+import { useRouter } from 'expo-router';
 
 import { TopBar } from '@/components/TopBar';
 type Stop = {
@@ -11,18 +11,16 @@ type Stop = {
 };
 
 export default function SearchScreen() {
+  const router = useRouter();
   const [origin, setOrigin] = useState<Stop | null>(null);
   const [destination, setDestination] = useState<Stop | null>(null);
 
   const handleSubmit = () => {
     if (origin && destination) {
       alert("Navigating to Schedule from " + origin.id + " to " + destination.id);
-      // TODO see how agrim has done buttons, same principle i think
+      router.push(`/timetables?src_stop_id=${origin.id}&dst_stop_id=${destination.id}&src_stop_name=${origin.name}&dst_stop_name=${destination.name}`);
     }
-  };
-
-  // const cookies = CookieManager.get("http://127.0.0.1:5000");
-  // console.log(cookies);
+  };  
 
   return (
     <ImageBackground
