@@ -55,34 +55,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
+    overflowY: 'scroll',
   },
-<<<<<<< HEAD
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 40,
-    letterSpacing: 2,
-    marginBottom: 30,
-=======
   scrollableWindow: {
     borderRadius: 2,
     borderColor: 'grey',
-    overflowY: 'scroll',
+    overflowY: 'scroll',// ! this one actually should be lol
     maxHeight: '80vh',
->>>>>>> f49d5908d1a39b976680bd0fd54a5ba3b13325d5
   },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 25,
-    borderRadius: 15,
-    marginTop: 20,
-    width: 300,
+  settingsEntry: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    backgroundColor: '##36b7ff',
+    height: 100,
+
+    
   },
-  buttonText: {
-    color: 'white',
+  entryText: {
+    color: '#FFFFFF',
     fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
