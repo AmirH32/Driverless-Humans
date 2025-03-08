@@ -6,6 +6,7 @@ from Backend.data.timetables import get_timetables
 from Backend.data.stops import get_autocomplete_stops
 
 from flask import Flask, request, jsonify, make_response
+from flask_migrate import Migrate
 
 from Backend.database.models import (
     db,
@@ -78,12 +79,13 @@ def add_and_commit(entry):
 def auth_init():
     # This connects to local postgresql docker instance, change in future if you want it on a public server
     app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "postgresql://myuser:mypassword@localhost:5432/mydatabase"
+        os.getenv('DATABASE_URL', "postgresql://myuser:mypassword@localhost:5432/mydatabase")
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Initialise the database with the Flask app
     db.init_app(app)
+    migrate = Migrate(app, db)
     # Initialise JWTManager from auth.py
     init_jwt(app)
 
