@@ -7,40 +7,39 @@ const api = axios.create({
   withCredentials: true, 
 });
 
-// Interceptor that handles token refrehs
 // Interceptor that handles token refresh
 api.interceptors.response.use(
-    response => response,
-    async error => {
-      const originalRequest = error.config;
-      
-      // Skip refresh token logic for auth endpoints
-      const isAuthEndpoint = 
-        originalRequest.url === '/login' || 
-        originalRequest.url === '/register';
-      
-      // Only attempt refresh for 401 errors on non-auth endpoints
-      if (error.response && 
-          error.response.status === 401 && 
-          !originalRequest._retry && 
-          !isAuthEndpoint) {
-          
-          originalRequest._retry = true;
-          try {
-              // Attempt to refresh tokens
-              const refreshResponse = await api.get('/refresh');
-              const { access_token } = refreshResponse.data;
-              api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-              originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
-              return api(originalRequest);
-          } catch (refreshError) {
-              console.log("Refresh token expired, redirecting to login...");
-              router.push('/login');
-              return Promise.reject(refreshError);
-          }
-      }
-      return Promise.reject(error);
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    
+    // Skip refresh token logic for auth endpoints
+    const isAuthEndpoint = 
+      originalRequest.url === '/login' || 
+      originalRequest.url === '/register' ||
+      originalRequest.url === '/refresh';
+    
+    // Only attempt refresh for 401 errors on non-auth endpoints
+    if (error.response && 
+        error.response.status === 401 && 
+        !originalRequest._retry && 
+        !isAuthEndpoint) {
+        
+        originalRequest._retry = true;
+        try {
+            // Attempt to refresh tokens - this will set the HTTP-only cookies
+            await api.get('/refresh');
+            
+            // No need to manually set Authorization headers since cookies will be sent automatically
+            return api(originalRequest);
+        } catch (refreshError) {
+            console.log("Refresh token expired, redirecting to login...");
+            router.push('/login');
+            return Promise.reject(refreshError);
+        }
     }
-  );
+    return Promise.reject(error);
+  }
+);
 
 export default api;
