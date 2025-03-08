@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-native";
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import api from "@/services/api";
 
 type Stop = {
   id: string;
@@ -22,10 +23,10 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   const onChangeText = async (text: string) => {
     setInput(text);
     if (text.length > 2) {
-      let response = await fetch(`http://127.0.0.1:5000/autocomplete?input=${text}&limit=${5}`);
-      if (response.ok) {
-        let data: Stop[] = await response.json();
-        setData(data);
+      let response = await api.get("/autocomplete", { params: { input: text, limit: 5 } });
+      console.log(response);
+      if (response.status == 200) {
+        setData(response.data);
       }
     }
   };
