@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, Button, Alert, Image, Pressable, ImageBackground } from "react-native";
+import { Text, View, StyleSheet, Pressable, ImageBackground } from "react-native";
 import AutocompleteInput from "@/components/AutocompleteSearchBar";
 // import CookieManager from '@react-native-cookies/cookies';
 
