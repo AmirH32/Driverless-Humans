@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
 
   return (
     <ThemedView style={styles.container}>
@@ -16,16 +16,16 @@ export default function HomeScreen() {
 
       {/* Login Button */}
       <TouchableOpacity
-        style={[styles.button, styles.loginButton]} // Apply styles for login button
-        onPress={() => router.push('/login')}  // Navigate to login page
+        style={[styles.button, styles.loginButton]}
+        onPress={() => router.push('/login')}
       >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
       {/* Sign up Button */}
       <TouchableOpacity
-        style={[styles.button, styles.signupButton]} // Apply styles for signup button
-        onPress={() => router.push('/signup')} // Navigate to signup page
+        style={[styles.button, styles.signupButton]}
+        onPress={() => router.push('/signup')}
       >
         <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
@@ -36,32 +36,32 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Centers content vertically
-    alignItems: 'center', // Centers content horizontally
-    paddingHorizontal: 20, // Adds some space on the sides
-    marginTop: -40, // Moves everything upwards
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: -40,
   },
   topLeftImage: {
-    position: 'absolute', // Positions the image freely
+    position: 'absolute',
     top: 65,
     left: 0,
     width: 200,
     height: 100,
-    resizeMode: 'contain', // Ensures image scales properly
+    resizeMode: 'contain',
   },
   mainImage: {
     width: 390,
     height: 280,
     marginBottom: 0,
-    resizeMode: 'contain', // Ensures image scales properly
+    resizeMode: 'contain',
   },
   title: {
-    fontSize: 32, // Title size
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 40,
     letterSpacing: 2,
-    marginBottom: 30, // Adds space below the title
+    marginBottom: 30,
   },
   button: {
     backgroundColor: '#007BFF',

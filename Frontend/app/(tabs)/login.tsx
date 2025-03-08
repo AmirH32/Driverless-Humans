@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, Text, TextInput, Button, Image, Alert } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import { TouchableOpacity, StyleSheet, Text, TextInput, Image } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { router } from "expo-router";
 import api from "@/services/api";
@@ -38,17 +37,17 @@ export default function LoginScreen() {
       <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
       <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} />
 
-      {/* <ThemedText style={styles.title}>Login</ThemedText> */}
-      
       <TextInput
         style={styles.input}
         placeholder="Enter Email"
+        placeholderTextColor="#D0E1FF" 
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Enter Password"
+        placeholderTextColor="#D0E1FF"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -89,10 +88,11 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
+    backgroundColor: '#007BFF',
+    color: 'white',
+    borderRadius: 8,
+    paddingLeft: 10,
     marginBottom: 10,
-    paddingLeft: 8,
     width: '80%',
   },
   buttonText: {
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#00BF63',
     paddingVertical: 12,
     borderRadius: 15,
     marginTop: 20,

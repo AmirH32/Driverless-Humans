@@ -1,26 +1,33 @@
 import { PropsWithChildren, useState } from 'react';
 import { StyleSheet, TouchableOpacity, Image, View } from 'react-native';
+import { useRouter } from 'expo-router'; // Import the useRouter hook
 
-import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 export function TopBar({ children }: PropsWithChildren) {
   const [isOpen, setIsOpen] = useState(false);
-  // const theme = useColorScheme() ?? 'light';
+  const router = useRouter();
+
+  // Navigation for icons
+  const handleProfilePress = () => {
+    router.push('/profile');
+  };
+  const handleSettingsPress = () => {
+    router.push('/settings');
+  };
 
   return (
     <View style={styles.topbar_cont}>
-      <Image source={require('@/assets/images/council_logo.png')} style={styles.logo}/>
+      <Image source={require('@/assets/images/council_logo.png')} style={styles.logo} />
       <ThemedView style={styles.icons_cont}>
-        <Image source={require('@/assets/images/profile.png')} style={styles.icons}/>
-        <Image source={require('@/assets/images/settings.png')} style={styles.icons}/>
+        <TouchableOpacity onPress={handleProfilePress}>
+          <Image source={require('@/assets/images/profile.png')} style={styles.icons} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSettingsPress}>
+          <Image source={require('@/assets/images/settings.png')} style={styles.icons} />
+        </TouchableOpacity>
       </ThemedView>
     </View>
-
-
   );
 }
 
@@ -36,6 +43,7 @@ const styles = StyleSheet.create({
     alignItems: 'end',
     justifyContent: 'space-between',
     paddingBottom: 5,
+    marginTop: 40,
   },
   logo: {
     resizeMode: 'contain',

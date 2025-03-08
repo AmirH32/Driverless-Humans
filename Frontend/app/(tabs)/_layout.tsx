@@ -6,7 +6,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { TopBar } from '@/components/TopBar';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -22,6 +21,9 @@ export default function TabLayout() {
           ios: { position: 'absolute' },
           default: {},
         }),
+        // tabBarStyle: {
+        //   display: 'none', // Hide the tab bar globally
+        // },
       }}>
       <Tabs.Screen
         name="home"
@@ -45,31 +47,38 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="timetables"
-        options={{
-          title: 'Time Tables',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="timetables"
+        options={{
+          title: 'Time Tables',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
         }}
       />
       <Tabs.Screen
         name="confirmed"
         options={{
-          title: 'Coonfirmed',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          title: 'Confirmed',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark" color={color} />,
         }}
       />
     </Tabs>
