@@ -9,10 +9,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
-      <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} /> 
-      
-      <ThemedText style={styles.title}>Plan and Track your journey!</ThemedText>
+      <ThemedText style={styles.title}>Accessibility</ThemedText>
 
       {/* Login Button */}
       <TouchableOpacity
