@@ -10,10 +10,7 @@ class User(db.Model):
     Password = db.Column(db.String(150), nullable=False)
     Name = db.Column(db.String(150), nullable=False)
     Salt = db.Column(db.CHAR(128), nullable=False)
-
-    def get_id(self):
-        # Returns the User's ID
-        return self.UserID
+    Role = db.Column(db.String(16), nullable=False)
 
     def verify_password(self, password):
         if check_password_hash(self.Password, password + self.Salt):
@@ -53,8 +50,18 @@ class Reservations(db.Model):
     StopID1 = db.Column(db.Integer, nullable=False)
     StopID2 = db.Column(db.Integer, nullable=False)
     BusID = db.Column(db.Integer, nullable=False)
+    VolunteerCount = db.Column(db.Integer, nullable=False)
     Time = db.Column(db.DateTime, nullable=False)
 
+class VolunteerReservation(db.Model):
+    __tablename__ = "Volunteer_to_Reservation"
+    UserID = db.Column(db.Integer, db.ForeignKey("user.UserID", ondelete="CASCADE"))
+    ReservationID = db.Column(
+        db.Integer,
+        db.ForeignKey("reservations.ReservationID", ondelete="CASCADE"),
+        primary_key = True
+    )
+    
 
 class UserReservation(db.Model):
     __tablename__ = "User_to_Reservation"

@@ -18,8 +18,6 @@ api.interceptors.response.use(
 
     // If the error is coming from the /refresh endpoint, immediately redirect to login
     if (originalRequest.url === '/refresh') {
-      alert("Refresh endpoint failed, your refresh token might be expired. Please re-login","Redirecting to login...");
-      router.push('/login');
       return Promise.reject(error);
     }
 
@@ -30,23 +28,17 @@ api.interceptors.response.use(
 
     if (error.response && error.response.status === 401 && !isAuthEndpoint) {
       // Initialize the retry counter if it doesn't exist
-      originalRequest._retryCount = originalRequest._retryCount || 0;
-
-      if (originalRequest._retryCount < MAX_RETRIES) {
-        originalRequest._retryCount += 1;
         try {
           // Attempt to refresh tokens - this call should set new HTTP-only cookies
           await api.get('/refresh');
           // Retry the original request with the new tokens/cookies
           return api(originalRequest);
         } catch (refreshError) {
-          console.log(`Refresh attempt ${originalRequest._retryCount} failed`);
+          console.log(`Refresh attempt failed`);
         }
-      }
-      router.push('/login');
     }
 
-    return 200
+    return Promise.reject(error);
   }
 );
 
