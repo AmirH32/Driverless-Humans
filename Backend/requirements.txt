@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 appnope==0.1.4
 asttokens==3.0.0
+beautifulsoup4==4.13.3
 blinker==1.9.0
 certifi==2025.1.31
 charset-normalizer==3.4.1
@@ -56,6 +57,7 @@ RapidFuzz==3.12.1
 ratelim==0.1.6
 requests==2.32.3
 six==1.17.0
+soupsieve==2.6
 SQLAlchemy==2.0.38
 stack-data==0.6.3
 tornado==6.4.2
