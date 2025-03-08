@@ -9,8 +9,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const MAX_RETRIES = 3;
-
 api.interceptors.response.use(
   response => response,
   async error => {
