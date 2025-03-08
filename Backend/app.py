@@ -433,6 +433,11 @@ def remove_volunteer():
     except Exception as e:
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
+            
+@app.route("/show_reservations", methods=["GET"])
+@jwt_required()
+def show_reservations():
+    pass
 
 
 @app.route("/delete_reservation", methods=["POST"])
