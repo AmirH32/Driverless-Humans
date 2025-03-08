@@ -1,4 +1,4 @@
-name: Driverless Humans Automated Backend Deployment
+name: Automated Backend Deployment
 run-name: ${{ github.actor }} is deploying the updated code to the backend
 
 on:
