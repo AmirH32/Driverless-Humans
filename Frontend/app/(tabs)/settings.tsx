@@ -3,9 +3,27 @@ import { TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import api from "@/services/api";
 
 export default function SettingsScreen() {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      // Send the POST request to logout
+      const response = await api.post('/logout');
+      if (response.status === 200 && response.data.success) {
+        // Show an alert on successful logout
+        alert('Success, You have been logged out successfully.');
+        delete api.defaults.headers.common['Authorization'];
+        // Navigate to the home screen after logout
+        router.push('/home');
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+      alert('Error, There was an issue logging out. Please try again.');
+    }
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -21,28 +39,29 @@ export default function SettingsScreen() {
 
       <TouchableOpacity
         style={[styles.button, styles.disabilityButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/disability')}
       >
         <Text style={styles.buttonText}>Disability Info</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.accessibilityButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/accessibility')}
       >
         <Text style={styles.buttonText}>Accessibility</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.helpButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/help')}
       >
         <Text style={styles.buttonText}>Help & Support</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.logoutButton]}
-        onPress={() => router.push('/home')}  // TODO: Implement Logout logic
+        onPress={handleLogout}
+
       >
         <Text style={styles.buttonText}>Log out</Text>
       </TouchableOpacity>

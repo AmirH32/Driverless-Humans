@@ -1,42 +1,37 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function ProfileScreen() {
+export default function HomeScreen() {
   const router = useRouter();
 
   return (
     <ThemedView style={styles.container}>
-      <TouchableOpacity 
-        style={styles.crossButton}
-        onPress={() => router.push('/settings')}
+        <TouchableOpacity 
+            style={styles.crossButton}
+            onPress={() => router.push('/settings')}
+            >
+            <Text style={styles.crossText}>✕</Text>
+        </TouchableOpacity>
+
+      <ThemedText style={styles.title}>Accessibility</ThemedText>
+
+      {/* Login Button */}
+      <TouchableOpacity
+        style={[styles.button, styles.loginButton]}
+        onPress={() => router.push('/login')}
       >
-        <Text style={styles.crossText}>✕</Text>
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      <ThemedText style={styles.title}>Profile</ThemedText>
-
+      {/* Sign up Button */}
       <TouchableOpacity
-        style={[styles.button, styles.editButton]} 
-        onPress={() => router.push('/home')}
+        style={[styles.button, styles.signupButton]}
+        onPress={() => router.push('/signup')}
       >
-        <Text style={styles.buttonText}>Edit Profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, styles.passwordButton]}
-        onPress={() => router.push('/home')}
-      >
-        <Text style={styles.buttonText}>Change Password</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, styles.notificationsButton]}
-        onPress={() => router.push('/home')}
-      >
-        <Text style={styles.buttonText}>Toggle Notifications</Text>
+        <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
     </ThemedView>
   );
@@ -64,7 +59,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   title: {
-    fontSize: 40,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 40,
@@ -73,21 +68,20 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#007BFF',
-    paddingVertical: 25,
+    paddingVertical: 12,
     borderRadius: 15,
     marginTop: 20,
-    width: 300,
   },
   buttonText: {
     color: 'white',
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  editButton: {
+  loginButton: {
+    paddingHorizontal: 100,
   },
-  passwordButton: {
-  },
-  notificationsButton: {
+  signupButton: {
+    paddingHorizontal: 90,
   },
 });

@@ -3,6 +3,9 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, Image } from 'react-nati
 import { ThemedView } from '@/components/ThemedView';
 import { router } from "expo-router";
 import api from "@/services/api";
+import axios, { AxiosError } from 'axios';
+
+
 
 export default function LoginScreen() {
 
@@ -12,21 +15,31 @@ export default function LoginScreen() {
   const handlePress = async () => {
     try {
       const requestBody = { email, password };
-  
       const response = await api.post("/login", requestBody);
-  
       if (response.data.success) {
+        const accessToken = response.data.access_token;  // Backend returns access token
+        api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
         alert("Login successful");
         router.push("/home");
       } else {
         alert("Login failed: " + response.data.message);
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
+      // Handle Axios error
+      if (axios.isAxiosError(error)) {
+        // Check if error.response exists and contains a message
+        if (error.response && error.response.data && error.response.data.message) {
+          alert("Login failed: " + error.response.data.message);
+        } else {
+          // Handle error without message (e.g., network issues)
+          alert("Login failed: Unknown error from the server.");
+        }
+      } else if (error instanceof Error) {
+        // Generic JS error
         alert("Error during login: " + error.message);
-      } else if ((error as any)?.response?.data?.message) {
-        alert("Login failed: " + (error as any).response.data.message);
       } else {
+        // Fallback for unknown errors
         alert("An unknown error occurred.");
       }
     }
