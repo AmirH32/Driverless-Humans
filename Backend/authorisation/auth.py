@@ -8,7 +8,7 @@ import re
 
 # Init for Flask & JWT Manager
 def init_jwt(app: Flask):
-    app.config["JWT_SECRET_KEY"] = "SECRET"  # Change in future
+    app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET") # Add test in future to make sure it's set correctly in prod
     jwt = JWTManager(app)
     return jwt
 
