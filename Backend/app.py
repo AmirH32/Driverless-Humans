@@ -88,6 +88,12 @@ def auth_init():
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Add this to your auth_init() function or wherever you're configuring JWT
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # During development
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token"
+    app.config["JWT_REFRESH_COOKIE_NAME"] = "refresh_token"
+
     # Initialise the database with the Flask app
     db.init_app(app)
     migrate = Migrate(app, db)
