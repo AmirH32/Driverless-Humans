@@ -14,6 +14,8 @@ export default function LoginScreen() {
       const requestBody = { email, password };
   
       const response = await api.post("/login", requestBody);
+      const accessToken = response.data.access_token;  // If your backend returns the token
+      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
   
       if (response.data.success) {
         alert("Login successful");
