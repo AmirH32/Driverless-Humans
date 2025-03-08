@@ -55,26 +55,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    overflowY: 'scroll',
+    paddingHorizontal: 20,
+    marginTop: -40,
   },
-  scrollableWindow: {
-    borderRadius: 2,
-    borderColor: 'grey',
-    overflowY: 'scroll',// ! this one actually should be lol
-    maxHeight: '80vh',
+  title: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 40,
+    letterSpacing: 2,
+    marginBottom: 30,
   },
-  settingsEntry: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: '##36b7ff',
-    height: 100,
-
-    
+  button: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 25,
+    borderRadius: 15,
+    marginTop: 20,
+    width: 300,
   },
-  entryText: {
-    color: '#FFFFFF',
+  buttonText: {
+    color: 'white',
     fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
