@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-native";
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { router } from 'expo-router';
 import api from "@/services/api";
 
 type Stop = {
@@ -23,10 +24,22 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   const onChangeText = async (text: string) => {
     setInput(text);
     if (text.length > 2) {
-      let response = await api.get("/autocomplete", { params: { input: text, limit: 5 } });
-      console.log(response);
-      if (response.status == 200) {
-        setData(response.data);
+      try {
+        const response = await api.get("/autocomplete", { params: { input: text, limit: 5 } });
+        console.log(response);
+        if (response.status === 200) {
+          setData(response.data);
+        }
+      } catch (error) {
+        // Using type assertion to treat the error as AxiosError
+        if ((error as any)?.response?.status === 401) {
+          alert("You are not authorised, please login. Going back to home screen...");
+          router.push("/login");  // Redirect to login screen if 401 error
+        } else {
+          // Handle other errors here (e.g., network issues, server errors)
+          console.error("Error occurred:", error);
+          alert("An error occurred while fetching autocomplete data.");
+        }
       }
     }
   };

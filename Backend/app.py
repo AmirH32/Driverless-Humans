@@ -190,7 +190,7 @@ def register():
     email = sanitise_input(data.get("email", ""))
     name = sanitise_input(data.get("name", ""))
     password = data.get("password", "")
-    role = data.get("role", "")
+    hasDisability = data.get("hasDisability", "")
 
     # Make sure email and password fields are filled
     if not email or not password or not name:
@@ -207,13 +207,10 @@ def register():
             }
         ), 400
     
-    if role not in ["Volunteer", "Disabled"]:
-        return jsonify(
-            {
-                "message": "Invalid Role",
-                "success": False,
-            }
-        ), 400
+    if hasDisability == True:
+        role = "Disabled"
+    else:
+        role = "Volunteer"
 
     # Check if user already exists
     existing_user = User.query.filter_by(Email=email).first()
@@ -321,13 +318,15 @@ def create_reservation():
             VolunteerCount = VolunteerCount,
         )
 
-        add_and_commit(new_reservation)
+        db.session.add(new_reservation)
 
         # Link the user to the reservation
         user_reservation = UserReservation(
             UserID=userID, ReservationID=new_reservation.ReservationID
         )
-        add_and_commit(user_reservation)
+        
+        db.session.add(user_reservation)
+        db.session.commit()
 
         return jsonify(
             {
@@ -345,8 +344,7 @@ def create_reservation():
 def add_volunteer():
     data = request.get_json()
 
-    busID = data.get("BusID", "")
-    time = data.get("Time", "")
+    reservationID = data.get("ReservationID", "")
 
     userID = get_jwt_identity()
 
@@ -363,23 +361,23 @@ def add_volunteer():
         ), 400
     
     # Check the user isn't already volunteering for this reservation
+    # If we get reservation ID from frontend we can check with reservation ID instead
     existing_volunteer_reservations = (
         db.session.query(VolunteerReservation)
-        .filter_by(UserID=userID)  # Filter by userID
-        .join(Reservations, VolunteerReservation.ReservationID == Reservations.ReservationID)  # Join with the Reservations table
-        .filter(Reservations.Time == time, Reservations.busID == busID)  # Check Time and busID
+        .filter_by(UserID=userID, ReservationID = reservationID)  # Filter by userID
         .first()
     )
 
     # If there are any matching reservations for this user
     if existing_volunteer_reservations:
         return jsonify(
-            {"message": "The user is already volunteering for this bus."}
+            {"message": "The user is already volunteering for this reservation."}
         ), 400
     
 
     # Find reservation to add the user
-    reservation = db.session.query(Reservations).filter_by(Time=time, BusID = busID).first()
+    # If we get reservation ID from frontend we can check with reservation ID instead
+    reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
 
     if not reservation:
         return jsonify({"message":"Reservation not found."}), 404
@@ -387,14 +385,15 @@ def add_volunteer():
 
     try:
         reservation.VolunteerCount += 1
-        db.session.commit()
 
         # Link the volunteer to the reservation
         volunteerReservation = VolunteerReservation(
-            UserID=userID, ReservationID= reservation.ReservationID
+            UserID=userID, ReservationID = reservation.ReservationID
         )
 
-        add_and_commit(volunteerReservation)
+        db.session.add(volunteerReservation)
+
+        db.session.commit()
 
         return jsonify(
             {
@@ -407,7 +406,33 @@ def add_volunteer():
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
         
-    
+@app.route("/remove_volunteer", methods=["POST"])
+@jwt_required()
+def remove_volunteer():  
+    data = request.get_json()
+
+    reservationID = data.get("ReservationID", "")
+    userID = get_jwt_identity()
+
+    try:
+        reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
+        volunteerReservation = db.session.query(VolunteerReservation).filter_by(UserID=userID, ReservationID=reservationID).first()
+
+        if not reservation:
+            return jsonify({"message":"Reservation not found."}), 404
+        
+        if not volunteerReservation:
+            return jsonify({"message":"Reservation not found."}), 404
+        
+        reservation.VolunteerCount -= 1
+        db.session.delete(volunteerReservation)
+
+        db.session.commit()
+
+        return jsonify({"message": "Volunteer removed from the reservation successfully."}), 200
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/delete_reservation", methods=["POST"])
