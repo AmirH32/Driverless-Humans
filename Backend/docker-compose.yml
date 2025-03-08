@@ -26,6 +26,8 @@ services:
       - driverless_humans_network
     ports:
       - "5000:5000"
+    volumes:
+      - ./migrations:/app/Backend/migrations
 
 volumes:
   driverless_humans_db_data:
