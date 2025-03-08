@@ -1,0 +1,32 @@
+networks:
+  driverless_humans_network:
+    driver: bridge
+
+services:
+  postgres_db:
+    image: postgres
+    container_name: driverless_humans_postgres
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - driverless_humans_network
+    volumes:
+      - driverless_humans_db_data:/var/lib/postgresql/data
+
+  flask_app:
+    build: .
+    container_name: driverless_humans_flask_app
+    restart: always
+    depends_on:
+      - postgres_db
+    env_file:
+      - .env
+    networks:
+      - driverless_humans_network
+    ports:
+      - "5000:5000"
+
+volumes:
+  driverless_humans_db_data:
+
