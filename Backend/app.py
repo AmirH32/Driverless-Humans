@@ -25,6 +25,7 @@ from Backend.authorisation.auth import (
     create_user,
     is_strong_password,
     is_valid_email,
+    generate_hashed_password,
 )
 from markupsafe import escape
 
@@ -338,6 +339,47 @@ def delete_reservation():
         db.session.commit()
 
         return jsonify({"message": "Reservation deleted successfully."}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/change_password", methods=["POST"])
+@jwt_required()
+def change_password():
+    try: 
+        userID = get_jwt_identity()
+
+        # Get the new password from the request body
+        data = request.get_json()
+        new_password = data.get('new_password', None)
+
+        if not new_password:
+            return jsonify({"error": "New password is required."}), 400
+
+        # Validate password length or any other rules
+        if not is_strong_password(new_password):
+            return jsonify(
+                {
+                    "message": "Password must be at least 16 characters long, include an uppercase letter, a lowercase letter, a digit, and a special character.",
+                    "success": False,
+                }
+        ), 400
+
+        # Find the user in the database
+        user = db.session.query(User).filter(User.id == userID).first()
+        
+        if not user:
+            return jsonify({"error": "User not found."}), 404
+        
+        # Hash the new password
+        hashed_password, salt = generate_hashed_password(new_password)
+
+        # Update the user's password in the database
+        user.password = hashed_password
+        db.session.commit()
+
+        return jsonify({"message": "Password changed successfully."}), 200
+    
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
