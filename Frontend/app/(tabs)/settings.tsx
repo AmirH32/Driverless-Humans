@@ -21,21 +21,21 @@ export default function SettingsScreen() {
 
       <TouchableOpacity
         style={[styles.button, styles.disabilityButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/disability')}
       >
         <Text style={styles.buttonText}>Disability Info</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.accessibilityButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/accessibility')}
       >
         <Text style={styles.buttonText}>Accessibility</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.helpButton]}
-        onPress={() => router.push('/home')}
+        onPress={() => router.push('/help')}
       >
         <Text style={styles.buttonText}>Help & Support</Text>
       </TouchableOpacity>
