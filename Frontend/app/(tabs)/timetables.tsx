@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import api from "@/services/api";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -48,8 +49,8 @@ export default function LoginScreen() {
       //   "vehicle_id": "v1"
       // }];
 
-      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
-      const data = await response.json();
+      const response = await api.get("/timetables", {params: {origin_id: src_stop_id, destination_id: dst_stop_id}});
+      const data = response.data;
 
       const getRampType = (dat) => {
         return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
@@ -59,7 +60,7 @@ export default function LoginScreen() {
         <Pressable
           key={index}
           style={styles.busview_container}
-          onPress={() => bookBus(src_stop, dst_stop, dat["vehicle_id"])}
+          onPress={() => bookBus(src_stop_id, dst_stop_id, dat["vehicle_id"])}
         >
           <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
           <View style={styles.busview_infoContainer}>
