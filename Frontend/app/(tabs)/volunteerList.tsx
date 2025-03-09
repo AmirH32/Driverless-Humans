@@ -15,6 +15,12 @@ export default function VolunteerListScreen() {
   // const latitude = 52.212;
   // const longitude = 0.0915;
 
+  const noLocation = [
+    <View style={styles.noLocation}>
+      <Text>Please enable location permissions.</Text>
+    </View>
+  ]
+
   const volunteerFor = (reservation_id) => {
     alert("volunteering for " + reservation_id);
     // router.push(`/volunteerConfirm?reservation_id=${reservation_id}`);
@@ -22,7 +28,7 @@ export default function VolunteerListScreen() {
 
   const getReservations = async (latitude, longitude) => {
     if (latitude === null || longitude === null) {
-      console.log("Waiting for location...");
+      setReservations(noLocation);
       return;
     }
     try {
@@ -71,6 +77,7 @@ export default function VolunteerListScreen() {
   };
 
   useEffect(() => {
+    setReservations(noLocation);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         getReservations(position.coords.latitude, position.coords.longitude)
@@ -141,5 +148,15 @@ const styles = StyleSheet.create({
   },
   busview_infoContainer: {
     alignItems: 'center',
+  },
+  noLocation: {
+    height: 160,
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#39b7ff',
+    borderRadius: 30,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'space-evenly'
   },
 });
