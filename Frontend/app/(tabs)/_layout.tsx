@@ -47,10 +47,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="volunteer_signup"
+        name="volunteerSignup"
         options={{
           title: 'Volunteer Signup',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.badge.plus.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.badge.plus" color={color} />,
         }}
       />
       <Tabs.Screen
