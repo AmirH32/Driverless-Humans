@@ -562,7 +562,7 @@ def add_volunteer():
     if existing_volunteer_reservations:
         return jsonify(
             {"message": "The user is already volunteering for this reservation."}
-        ), 400
+        ), 200
     
 
     # Find reservation to add the user
@@ -570,7 +570,7 @@ def add_volunteer():
     reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
 
     if not reservation:
-        return jsonify({"message":"Reservation not found."}), 404
+        return jsonify({"message":"Reservation not found."}), 200
     # End of Checks
 
     try:
@@ -609,10 +609,10 @@ def remove_volunteer():
         volunteerReservation = db.session.query(VolunteerReservation).filter_by(UserID=userID, ReservationID=reservationID).first()
 
         if not reservation:
-            return jsonify({"message":"Reservation not found."}), 404
+            return jsonify({"message":"Reservation not found."}), 200
         
         if not volunteerReservation:
-            return jsonify({"message":"Reservation not found."}), 404
+            return jsonify({"message":"Reservation not found."}), 200
         
         reservation.VolunteerCount -= 1
         db.session.delete(volunteerReservation)
