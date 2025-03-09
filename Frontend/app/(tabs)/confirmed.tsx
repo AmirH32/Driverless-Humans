@@ -1,24 +1,39 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Button, View, Pressable, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function ConfirmedScreen() {
+  const router = useRouter();
 
-  const handleVolounteer = async () => {
-    // TODO: Send a volounteer request [relies an Amir's Backend??]
-    // TODO: Remove the button or link to a seperate page without the button [relies an Agrim's work on buttons]
-    alert("This button should send an api request to volounteer, then the button should disappear");
+  // Track if the booking has been confirmed
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  // Handle confirming the booking
+  const handleConfirm = async () => {
+    setIsConfirmed(true);
+    // TODO: Send an API request to confirm the booking
+    alert("Booking confirmed!");
   };
+
+  // Handle cancelling the booking
   const handleCancel = async () => {
-    // TODO: Send a cancel request [relies an Amir's Backend??]
-    // TODO: Redirect to the search page porbably (possibly the timetables page??)  [relies an Agrim's work on buttons]
-    alert("This button should send an api request to volounteer, then the button should disappear");
+    if (isConfirmed) {
+      // Unpress the button
+      setIsConfirmed(false);
+
+      // TODO: API request to cancel the booking
+      alert("Booking cancelled.");
+
+    } else {
+      // If booking wasn't confirmed, just return to timetables
+      router.push('/timetables');
+    }
   };
+
   master_data = {
     seats_available: 1,
     volounteers_available: 4,
@@ -49,97 +64,106 @@ export default function LoginScreen() {
       <ThemedText type="title" style={{color: '#000000'}}>Booking Confirmed!</ThemedText>
       <Image source={require('@/assets/images/camb_map.png')} style={styles.mapimg}/>
       <View style={styles.infoView}>
-        <ThemedView style={styles.infoEntry}>
+        <View style={styles.infoEntry}>
           <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>{master_data["seats_available"]} Seat Available</ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.infoEntry}>
+          <Text style={styles.infoText}>{master_data["seats_available"]} Seat Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
           <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>{master_data["volounteers_available"]} Volunteers Available</ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.infoEntry}>
+          <Text style={styles.infoText}>{master_data["volounteers_available"]} Volunteers Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
           <IconSymbol size={50} name="clock" color={'#000000'} /> 
-          <ThemedText style={styles.infoText}>{master_data["minutes_wait"]} Minute wait</ThemedText>
-        </ThemedView>
+          <Text style={styles.infoText}>{master_data["minutes_wait"]} Minute wait</Text>
+        </View>
       </View>
-      <Pressable style={styles.button_volouteer} onPress={handleVolounteer}>Volunteer</Pressable> 
-      <Pressable style={styles.button_cancel} onPress={handleCancel}>Cancel</Pressable> 
+
+      {/* Confirm Booking Button */}
+      <Pressable 
+        style={[styles.button_confirm, isConfirmed && styles.button_pressed]} 
+        onPress={handleConfirm}
+        disabled={isConfirmed}
+      >
+        <Text style={styles.buttonText}>
+          {isConfirmed ? 'Confirmed!' : 'Confirm Booking?'}
+        </Text>
+      </Pressable>
+
+      {/* Cancel Booking Button */}
+      <Pressable 
+        style={styles.button_cancel}
+        onPress={handleCancel}
+      >
+        <Text style={styles.buttonText}>
+          {isConfirmed ? 'Cancel Booking' : 'Cancel'}
+        </Text>
+      </Pressable>
+
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  wide_container: {
-    height: '100vh',
-    backgroundColor: '#FFFFFF',
-  },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    overflowY: 'scroll',
     backgroundColor: '#FFFFFF',
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 8,
-  },
-  button_volouteer: { // todo how does css merge in this stuff
-    backgroundColor: '#03bf62',
-    color: '#FFFFFF',
-    fontFamily: 'Arial',
-    textAlign: 'center',
-    height: 50,
-    justifyContent: 'center',
-    marginTop: 20,
+  title: {
     fontSize: 30,
-    borderRadius: 20,
-    width: '90vw',
-
-  },
-  button_cancel: {
-    backgroundColor: '#ff3130',
-    color: '#FFFFFF',
-    fontFamily: 'Arial',
+    fontWeight: 'bold',
     textAlign: 'center',
-    height: 50,
-    justifyContent: 'center',
-    marginTop: 20,
-    fontSize: 30,
-    borderRadius: 20,
-    width: '90vw',
-    marginBottom: 30,
-
-  },
-  infoView: {
-    backgroundColor: '#39b7ff',
-    color: '#FFFFFF',
-    fontFamily: 'Arial',
-    textAlign: 'center',
-    height: 200,
-    justifyContent: 'center',
-    marginTop: 20,
-    fontSize: 30,
-    borderRadius: 25,
-
-  },
-  infoEntry: {
-    flex: 1,
-    flexDirection: 'row',
-    color: '#000000',
-    alignItems: 'center',
-    margin: 3,
-    backgroundColor: 'rgba(52, 52, 52, 0)', // Bit of a work aroud but oh well
-  },
-  infoText: {
+    marginBottom: 20,
+    marginTop: 10,
     color: '#000000',
   },
   mapimg: {
     width: 200,
     height: 200,
     marginTop: 10,
-  }
-}); 
+    marginBottom: 20,
+  },
+  infoView: {
+    backgroundColor: '#39b7ff',
+    borderRadius: 25,
+    padding: 15,
+    marginBottom: 20,
+    width: '90%',
+  },
+  infoEntry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  infoText: {
+    fontSize: 18,
+    color: '#000000',
+    marginLeft: 10,
+  },
+  button_confirm: {
+    backgroundColor: '#03bf62',
+    paddingVertical: 15,
+    borderRadius: 20,
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  button_pressed: {
+    backgroundColor: '#006c43',
+  },
+  button_cancel: {
+    backgroundColor: '#ff3130',
+    paddingVertical: 15,
+    borderRadius: 20,
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+});
