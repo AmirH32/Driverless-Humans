@@ -12,38 +12,37 @@ export default function HelpScreen() {
 
   return (
     <ThemedView style={styles.container}>
-        <TouchableOpacity 
-            style={styles.crossButton}
-            onPress={() => router.push('/settings')}
-            >
-            <Text style={styles.crossText}>✕</Text>
-        </TouchableOpacity>
+      <TouchableOpacity 
+          style={styles.crossButton}
+          onPress={() => router.push('/settings')}
+          >
+          <Text style={styles.crossText}>✕</Text>
+      </TouchableOpacity>
 
-        <ThemedText style={styles.title}>Help and Support</ThemedText>
+      <ThemedText style={styles.title}>Help and Support</ThemedText>
 
-        <ThemedText style={styles.text}>
-          Contact us!{"\n"}
-          as3520@cam.ac.uk
+      <ThemedText style={styles.text}>
+        Contact us!{"\n"}
+        as3520@cam.ac.uk
+      </ThemedText>
+
+      <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/5Ps2da5HJRTsnYzr6")}>
+        <ThemedText style={styles.buttonText}>
+          Feedback Form
         </ThemedText>
+      </Pressable>
 
-        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/5Ps2da5HJRTsnYzr6")}>
-          <ThemedText style={styles.buttonText}>
-            Feedback Form
-          </ThemedText>
-        </Pressable>
+      <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/PQcnp5zGqTpkfDXy5")}>
+        <ThemedText style={styles.buttonText}>
+          Assistance Request Form
+        </ThemedText>
+      </Pressable>
 
-        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/PQcnp5zGqTpkfDXy5")}>
-          <ThemedText style={styles.buttonText}>
-            Assistance Request Form
-          </ThemedText>
-        </Pressable>
-
-        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://docs.google.com/document/d/1sz4OI-C5nLqZnQLJcRFlt5BmmMdRktHRGIOS4u6KyP4/edit?usp=sharing")}>
-          <ThemedText style={styles.buttonText}>
-            FAQs
-          </ThemedText>
-        </Pressable>
-
+      <Pressable style={styles.button} onPress={()=>Linking.openURL("https://docs.google.com/document/d/1sz4OI-C5nLqZnQLJcRFlt5BmmMdRktHRGIOS4u6KyP4/edit?usp=sharing")}>
+        <ThemedText style={styles.buttonText}>
+          FAQs
+        </ThemedText>
+      </Pressable>
     </ThemedView>
   );
 }
@@ -75,7 +74,7 @@ const createStyles = (fontScale:number) => {
         fontSize: 32 * fontScale,
         fontWeight: 'bold',
         textAlign: 'center',
-        lineHeight: 40,
+        lineHeight: 40 * fontScale,
         letterSpacing: 2,
         marginBottom: 30,
       },
@@ -83,7 +82,7 @@ const createStyles = (fontScale:number) => {
         fontSize: 24 * fontScale,
         fontWeight: 'bold',
         textAlign: 'center',
-        lineHeight: 40,
+        lineHeight: 40 * fontScale,
         letterSpacing: 2,
         marginBottom: 30,
       },
@@ -97,6 +96,7 @@ const createStyles = (fontScale:number) => {
       buttonText: {
         color: 'white',
         fontSize: 25 * fontScale,
+        lineHeight: 25 * fontScale * 1.2,
         fontWeight: 'bold',
         textAlign: 'center',
       }
