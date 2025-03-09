@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, Image, View } from 'reac
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api"; // Import the Axios instance
 import { router } from "expo-router";
+import axios, { AxiosError } from 'axios';
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
@@ -37,11 +38,20 @@ export default function SignupScreen() {
         alert("Signup Failed: " + response.data.message);
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert("Error during signup: " + error.message);
-      } else if ((error as any)?.response?.data?.message) {
-        alert("Signup Failed: " + (error as any).response.data.message);
+      // Handle Axios error
+      if (axios.isAxiosError(error)) {
+        // Check if error.response exists and contains a message
+        if (error.response && error.response.data && error.response.data.message) {
+          alert("Registration failed: " + error.response.data.message);
+        } else {
+          // Handle error without message (e.g., network issues)
+          alert("Registration failed: Unknown error from the server.");
+        }
+      } else if (error instanceof Error) {
+        // Generic JS error
+        alert("Error during Registration: " + error.message);
       } else {
+        // Fallback for unknown errors
         alert("An unknown error occurred.");
       }
     }
