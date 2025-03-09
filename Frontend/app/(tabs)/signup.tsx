@@ -82,10 +82,10 @@ export default function SignupScreen() {
       return;
     }
 
-    // if (!doc_uploaded) {
-    //   alert("Error: Please upload document as supporting evidence");
-    //   return;
-    // }
+    if (!doc_uploaded) {
+      alert("Error: Please upload document as supporting evidence");
+      return;
+    }
 
     try {
       const tempUserId = await AsyncStorage.getItem('temp_user_id');

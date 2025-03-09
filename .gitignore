@@ -5,3 +5,4 @@ myenv/
 Backend/authorisation/__init__.py
 Makefile
 node_modules/
+Backend/uploads/
