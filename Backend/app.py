@@ -157,10 +157,12 @@ def login():
     user = User.query.filter_by(Email=email).first()
     if user and user.verify_password(password):
         access_token = create_access_token(
-            identity=str(user.UserID), expires_delta=timedelta(hours=1)
+            identity=str(user.UserID), 
+            expires_delta=timedelta(hours=1), 
         )
         refresh_token = create_refresh_token(
-            identity=str(user.UserID), expires_delta=timedelta(days=7)
+            identity=str(user.UserID),
+            expires_delta=timedelta(days=7),
         )  # 7 days expiry
 
         # Set JWT in HttpOnly cookie
@@ -190,6 +192,24 @@ def login():
             "success": False,
             "error_type": "invalid_credentials"
         }), 401
+
+
+@app.route("/user-info", methods=["GET"])
+@jwt_required()
+def get_user_info():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(UserID=user_id).first()
+    
+    if not user:
+        return jsonify({"error": "User not found", "success": False}), 404
+    
+    return jsonify({
+        "user_id": user_id,
+        "role": user.Role,
+        "name": user.Name,
+        "email": user.Email,
+        "success": True
+    }), 200
 
 
 @app.route("/register", methods=["POST"])
@@ -251,8 +271,11 @@ def logout():
 def refresh():
     try:
         current_user = get_jwt_identity()
+        user = User.query.filter_by(UserID=current_user).first()
+
         new_access_token = create_access_token(
-            identity=str(current_user), fresh=False, expires_delta=timedelta(hours=1)
+            identity=str(current_user), fresh=False, 
+            expires_delta=timedelta(hours=1)
         )
         new_refresh_token = create_refresh_token(
             identity=str(current_user), expires_delta=timedelta(days=7)
@@ -603,7 +626,7 @@ def change_password():
 
         # Get the new password from the request body
         data = request.get_json()
-        new_password = data.get('new_password', None)
+        new_password = data.get('newPassword', None)
 
         if not new_password:
             return jsonify({"error": "New password is required."}), 400
@@ -631,7 +654,7 @@ def change_password():
         user.Salt = salt
         db.session.commit()
 
-        return jsonify({"message": "Password changed successfully."}), 200
+        return jsonify({"message": "Password changed successfully.", "success":True}), 200
     
     except Exception as e:
         db.session.rollback()
@@ -663,7 +686,7 @@ def edit_profile():
 
             db.session.commit()
 
-            return jsonify({"message": "User Profile changed successfully.", "Success":True}), 200
+            return jsonify({"message": "User Profile changed successfully.", "success":True}), 200
         elif not user:
             return jsonify({"error": "User not found."}), 404
         else:
