@@ -45,7 +45,7 @@ export default function SignupScreen() {
           alert("ASDJKSADSAKJDSAD: " + error.response.data.message);
         } else {
           // Handle error without message (e.g., network issues)
-          alert("ASDKJSADNSASA: Unknown error from the server.");
+          alert("ASDKJSADNSAassSA: Unknown error from the server.");
         }
       } else if (error instanceof Error) {
         // Generic JS error
