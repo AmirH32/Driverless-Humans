@@ -157,6 +157,8 @@ def get_timetables_vix(origin_id: str, destination_id: str) -> list[Timetable]:
     df["route_name"] = df.route_id
 
     def convert_time_to_min(t):  # e.g. t = "19:23"
+        if t == "Due":
+            return 0
         t = datetime.strptime(t, "%H:%M").time()
         t = datetime.combine(datetime.today(), t)
         now = datetime.now()
@@ -186,3 +188,4 @@ def get_timetables_vix(origin_id: str, destination_id: str) -> list[Timetable]:
 
 def get_timetables(origin_id: str, destination_id: str) -> list[Timetable]:
     return get_timetables_vix(origin_id, destination_id)
+
