@@ -1,24 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import api from '@/services/api';
 
 export default function ConfirmedScreen() {
   const router = useRouter();
 
   // Track if the booking has been confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
-
+  const [info, setInfo] = useState<JSX.Element | null>(null);
+  const { StopID1, StopID2, BusID, Time, VolunteerCount } = useLocalSearchParams();
+  
   // Handle confirming the booking
   const handleConfirm = async () => {
+    const r = api.post("/delete_reservation");
+    console.log("Confirm fetching data.")
+    const response = api.post("/create_reservation", {StopID1, StopID2, BusID, Time, VolunteerCount: parseInt(VolunteerCount as string, 10)});
+    await new Promise(resolve => setTimeout(resolve, 100));
     setIsConfirmed(true);
-    // TODO: Send an API request to confirm the booking
-    alert("Booking confirmed!");
+    fetchData();
   };
-
+  
   // Handle cancelling the booking
   const handleCancel = async () => {
     if (isConfirmed) {
@@ -26,57 +32,54 @@ export default function ConfirmedScreen() {
       setIsConfirmed(false);
 
       // TODO: API request to cancel the booking
-      alert("Booking cancelled.");
-
+      const response = api.post("/delete_reservation");
     } else {
       // If booking wasn't confirmed, just return to timetables
       router.push('/timetables');
     }
   };
 
-  master_data = {
-    seats_available: 1,
-    volounteers_available: 4,
-    minutes_wait: 30,
-  }// TODO using the API, this need to be linked
-  
-  const getData = async () => {
-    try {
-      
-      const src_stop_id = "0500CCITY423";
-      const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
-
-      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
-      const data = await response.json(); // ! This is what will happen, but using dummies for now
-      console.log(data);
-      master_data["minutes_wait"] = data["arrival_min"]
-      // TODO Modify the dict
-    } catch (error) {
-      console.error("Error during stops fetch, could not connect to server:", error);
-    }
+  const fetchData = async () => {
+    const response = await api.get('/see_reservation');
+    const data = response.data.reservations;
+    const infoComponents = (
+      <View style={styles.infoView}>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["street"]}</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["seats_empty"]} Seat Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["VolunteerCount"]} Volunteers Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="clock" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["arrival_min"]} Minute wait</Text>
+        </View>
+      </View>
+    )
+    setInfo(infoComponents);
   };
 
-
+  useEffect(() => {
+    if (isConfirmed) {
+      console.log("Effect fetching data.")
+      fetchData();
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
+    }
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
       <TopBar/>
       <ThemedText type="title" style={{color: '#000000'}}>Booking Confirmed!</ThemedText>
       <Image source={require('@/assets/images/camb_map.png')} style={styles.mapimg}/>
-      <View style={styles.infoView}>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["seats_available"]} Seat Available</Text>
-        </View>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["volounteers_available"]} Volunteers Available</Text>
-        </View>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="clock" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["minutes_wait"]} Minute wait</Text>
-        </View>
-      </View>
+      {isConfirmed && info}
 
       {/* Confirm Booking Button */}
       <Pressable 

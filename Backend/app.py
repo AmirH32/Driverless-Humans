@@ -15,8 +15,12 @@ from Backend.database.models import (
     Reservations,
     UserReservation,
     VolunteerReservation,
+    Roles,
     Document
 )
+
+from Backend.database.utils import get_reservation_data
+
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
@@ -410,6 +414,55 @@ def refresh():
         # Refresh token has expired
         return jsonify({"message": "Please login again."}), 401
 
+@app.route("/see_reservation", methods=["GET"])
+@jwt_required()
+def see_reservation():
+    userID = get_jwt_identity()
+    
+    user = db.session.query(User).filter_by(UserID=userID).first()
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+
+    role = user.Role
+    print(f"see_reservation userID={userID},role={role},isVolunteer={role==Roles.VOLUNTEER}")
+    if role not in [role.value for role in Roles]:
+        return jsonify({"message": f"Unexpected role '{role}'."}), 400
+    
+    reservations = (
+        db.session.query(Reservations)
+        .join(VolunteerReservation, Reservations.ReservationID == VolunteerReservation.ReservationID)
+        .filter(VolunteerReservation.UserID == userID)
+        .all()
+    ) if role == Roles.VOLUNTEER else (
+        db.session.query(Reservations)
+        .join(UserReservation, Reservations.ReservationID == UserReservation.ReservationID)
+        .filter(UserReservation.UserID == userID)
+        .all()
+    )
+
+    print(f"reservations={reservations}")
+
+    # if len(reservations) != 1:
+    #     return jsonify({"message": f"Got {len(reservations)} reservations, but expected length 1."}), 400
+
+    res = reservations[0]
+
+    reservations_dict = {
+        "ReservationID": res.ReservationID,
+        "StopID1": res.StopID1,
+        "StopID2": res.StopID2,
+        "BusID": res.BusID,
+        "Time": res.Time,
+        "VolunteerCount": res.VolunteerCount,
+    }
+
+    data = get_reservation_data(reservations_dict)
+    if data is None:
+        return jsonify({"message": "Could not fetch timetables."}), 400
+    
+    reservations_dict |= data
+    return jsonify({"role": role, "reservations": reservations_dict}), 200
+    
 
 @app.route("/create_reservation", methods=["POST"])
 @jwt_required()  # Protect this route
@@ -464,7 +517,7 @@ def create_reservation():
         
         db.session.add(user_reservation)
         db.session.commit()
-
+        print(f"Created reservation {new_reservation}")
         return jsonify(
             {
                 "message": "Reservation created successfully",
@@ -571,73 +624,6 @@ def remove_volunteer():
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
 
-@app.route("/get_reservation", methods=["GET"])
-@jwt_required()
-def get_reservation():
-    try:
-        reservation_id = int(request.args.get("reservationID",None))
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    res = (
-        db.session.query(Reservations)
-        .filter_by(ReservationID=reservation_id)
-        .first()
-    )
-
-    reservation_dict = {
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    }
-    return reservation_dict
-
-    reservations_df = pd.DataFrame([{
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    } for res in reservations], columns=["ReservationID", "StopID1", "StopID2", "BusID", "Time", "VolunteerCount"])
-
-    reservations_df = pd.DataFrame({"ReservationID":[11,12], "StopID1":["0500CCITY423","0500CCITY523"], "StopID2":["0500CCITY523","0500CCITY423"], "BusID":["v0","v1"], "Time":[100,101], "VolunteerCount":[0,1]})
-    
-    latlongs_df = get_stops_data().reset_index()
-    reservations_df = pd.merge(reservations_df, latlongs_df, left_on='StopID1', right_on='id', how='inner')
-    reservations_df = reservations_df.drop(columns=['id'])
-
-    reservations_df["distance"] = reservations_df.apply(
-        lambda row: calc_coord_distance((row["latitude"], row["longitude"]), volunteer_latlong),
-        axis=1,
-    )
-
-    reservations_df = reservations_df.sort_values(by="distance").head(limit)
-    
-    reservations_list = []
-    for _,res in reservations_df.iterrows():
-        timetables = [t for t in get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
-                      if t.vehicle_id == res["BusID"]]
-        
-        if len(timetables) == 0:
-            continue
-
-        timetable = timetables[0]
-
-        reservations_list.append({
-            "reservation_id": res["ReservationID"],
-            "origin_id": res["StopID1"],
-            "destination_id": res["StopID2"],
-            "volunteer_count": res["VolunteerCount"],
-            "distance": res["distance"]
-        } | timetable.model_dump(mode='json'))
-
-    return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
-
-
 @app.route("/show_reservations", methods=["GET"])
 @jwt_required()
 def show_reservations():
@@ -704,22 +690,24 @@ def delete_reservation():
         userID = get_jwt_identity()
 
         # Find the most recent reservation for the user to delete
-        reservation = (
+        reservations = (
             db.session.query(Reservations)
             .join(UserReservation)
             .filter(UserReservation.UserID == userID)
             .order_by(Reservations.Time.desc())
-            .first()
+            .all()
         )
 
-        if not reservation:
-            return jsonify({"message": "No reservations found for this user."}), 404
+        # if not reservations:
+            # return jsonify({"message": "No reservations found for this user."}), 404
 
-        # Delete the reservation
-        db.session.delete(reservation)
+        for reservation in reservations:
+            # Delete the reservation
+            db.session.delete(reservation)
+        
         db.session.commit()
 
-        return jsonify({"message": "Reservation deleted successfully."}), 200
+        return jsonify({"message": "Reservations deleted successfully."}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500

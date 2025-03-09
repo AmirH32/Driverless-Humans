@@ -1,64 +1,28 @@
 from Backend.database.models import db, Reservations
+from Backend.data.stops import get_stops_data
+from Backend.data.utils import calc_coord_distance
+from Backend.data.timetables import get_timetables
+from Backend.data.models import Timetable
+import pandas as pd
 
-def filter_reservations(reservation_id=None):
-    if reservation_id is None:
-        reservations = db.session.query(Reservations).all()
-    else:
-        
-    reservations = (
-        db.session.query(Reservations)
-        .filter_by(ReservationID=reservation_id)
-        .first()
-    )
+def get_reservation_data(res, latlong=None):
+    """
+    Takes dict of ReservationID, StopID1, StopID2, BusID, Time, VolunteerCount
+    """
+    
+    timetables = get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
+    
+    if len(timetables) == 0:
+        return None
 
-    reservation_dict = {
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    }
-    return reservation_dict
-
-    reservations_df = pd.DataFrame([{
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    } for res in reservations], columns=["ReservationID", "StopID1", "StopID2", "BusID", "Time", "VolunteerCount"])
-
-    reservations_df = pd.DataFrame({"ReservationID":[11,12], "StopID1":["0500CCITY423","0500CCITY523"], "StopID2":["0500CCITY523","0500CCITY423"], "BusID":["v0","v1"], "Time":[100,101], "VolunteerCount":[0,1]})
+    timetable = timetables[0].model_dump(mode='json')
     
     latlongs_df = get_stops_data().reset_index()
-    reservations_df = pd.merge(reservations_df, latlongs_df, left_on='StopID1', right_on='id', how='inner')
-    reservations_df = reservations_df.drop(columns=['id'])
+    stop = latlongs_df.loc[latlongs_df.id == res["StopID1"]].iloc[0]
+    timetable["origin_name"] = stop["name"]
+    timetable["street"] = stop["street"]
 
-    reservations_df["distance"] = reservations_df.apply(
-        lambda row: calc_coord_distance((row["latitude"], row["longitude"]), volunteer_latlong),
-        axis=1,
-    )
+    if latlong is not None: # calculate distance    
+        timetables["distance"] = calc_coord_distance((stop["latitude"], stop["longitude"]), latlong)
 
-    reservations_df = reservations_df.sort_values(by="distance").head(limit)
-    
-    reservations_list = []
-    for _,res in reservations_df.iterrows():
-        timetables = [t for t in get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
-                      if t.vehicle_id == res["BusID"]]
-        
-        if len(timetables) == 0:
-            continue
-
-        timetable = timetables[0]
-
-        reservations_list.append({
-            "reservation_id": res["ReservationID"],
-            "origin_id": res["StopID1"],
-            "destination_id": res["StopID2"],
-            "volunteer_count": res["VolunteerCount"],
-            "distance": res["distance"]
-        } | timetable.model_dump(mode='json'))
-
-    return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
+    return timetable
