@@ -3,6 +3,8 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, View, Modal, Switch } fr
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import api from "@/services/api";
+import axios, { AxiosError } from 'axios';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -24,27 +26,77 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Handle Save for Edit Profile
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (name && email && currentPassword) {
-      alert('Profile updated successfully!');
-      setEditModalVisible(false);
-      setName('');
-      setEmail('');
-      setCurrentPassword('');
+      try{
+        const requestBody = { name, email, currentPassword };
+        const response = await api.post("/edit_profile", requestBody);
+        if (response.data.success) {
+          alert('Profile updated successfully!');
+          setEditModalVisible(false);
+          setName('');
+          setEmail('');
+          setCurrentPassword('');
+        } else {
+          alert("Profile change failed. " + response.data.message);
+        }
+      } catch (error: unknown) {
+        // Handle Axios error
+        if (axios.isAxiosError(error)) {
+          // Check if error.response exists and contains a message
+          if (error.response && error.response.data && error.response.data.message) {
+            alert("Profile change failed: " + error.response.data.message);
+          } else {
+            // Handle error without message (e.g., network issues)
+            alert("Profile change failed: Unknown error from the server.");
+          }
+        } else if (error instanceof Error) {
+          // Generic JS error
+          alert("Profile change failed: " + error.message);
+        } else {
+          // Fallback for unknown errors
+          alert("An unknown error occurred.");
+        }
+      }
     } else {
       alert('All fields are required.');
     }
   };
 
   // Handle Save for Change Password
-  const handleSavePassword = () => {
+  const handleSavePassword = async() => {
     if (newPassword === confirmPassword && newPassword !== '') {
-      alert('Password successfully changed!');
-      setPasswordModalVisible(false);
-      setNewPassword('');
-      setConfirmPassword('');
+      try{
+        const requestBody = {newPassword};
+        const response = await api.post("/change_password", requestBody);
+        if (response.data.success) {
+          alert('Password successfully changed!');
+          setPasswordModalVisible(false);
+          setNewPassword('');
+          setConfirmPassword('');
+        } else {
+          alert("Password change failed. " + response.data.message);
+        }
+      } catch (error: unknown) {
+        // Handle Axios error
+        if (axios.isAxiosError(error)) {
+          // Check if error.response exists and contains a message
+          if (error.response && error.response.data && error.response.data.message) {
+            alert("Password change failed: " + error.response.data.message);
+          } else {
+            // Handle error without message (e.g., network issues)
+            alert("Password change failed: Unknown error from the server.");
+          }
+        } else if (error instanceof Error) {
+          // Generic JS error
+          alert("Password change failed: " + error.message);
+        } else {
+          // Fallback for unknown errors
+          alert("An unknown error occurred.");
+        }
+      }
     } else {
-      alert('Passwords do not match or fields are empty');
+      alert('All fields are required.');
     }
   };
 
@@ -83,7 +135,7 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* ✅ Edit Profile Modal */}
+      {/* Edit Profile Modal */}
       <Modal
         visible={editModalVisible}
         transparent

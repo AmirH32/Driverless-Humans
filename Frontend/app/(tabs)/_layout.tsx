@@ -109,6 +109,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="confirmed_v"
+        options={{
+          title: 'Confirmed_V',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

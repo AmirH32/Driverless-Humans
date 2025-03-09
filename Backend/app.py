@@ -88,7 +88,6 @@ def add_and_commit(entry):
     db.session.add(entry)
     db.session.commit()
 
-
 def auth_init():
     # This connects to local postgresql docker instance, change in future if you want it on a public server
     app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -162,10 +161,12 @@ def login():
     user = User.query.filter_by(Email=email).first()
     if user and user.verify_password(password):
         access_token = create_access_token(
-            identity=str(user.UserID), expires_delta=timedelta(hours=1)
+            identity=str(user.UserID), 
+            expires_delta=timedelta(hours=1), 
         )
         refresh_token = create_refresh_token(
-            identity=str(user.UserID), expires_delta=timedelta(days=7)
+            identity=str(user.UserID),
+            expires_delta=timedelta(days=7),
         )  # 7 days expiry
 
         # Set JWT in HttpOnly cookie
@@ -190,7 +191,29 @@ def login():
 
         return response, 200
     else:
-        return jsonify({"message": "Invalid email or password", "success": False}), 401
+        return jsonify({
+            "message": "Invalid email or password", 
+            "success": False,
+            "error_type": "invalid_credentials"
+        }), 401
+
+
+@app.route("/user-info", methods=["GET"])
+@jwt_required()
+def get_user_info():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(UserID=user_id).first()
+    
+    if not user:
+        return jsonify({"error": "User not found", "success": False}), 404
+    
+    return jsonify({
+        "user_id": user_id,
+        "role": user.Role,
+        "name": user.Name,
+        "email": user.Email,
+        "success": True
+    }), 200
 
 
 @app.route("/register", methods=["POST"])
@@ -252,8 +275,11 @@ def logout():
 def refresh():
     try:
         current_user = get_jwt_identity()
+        user = User.query.filter_by(UserID=current_user).first()
+
         new_access_token = create_access_token(
-            identity=str(current_user), fresh=False, expires_delta=timedelta(hours=1)
+            identity=str(current_user), fresh=False, 
+            expires_delta=timedelta(hours=1)
         )
         new_refresh_token = create_refresh_token(
             identity=str(current_user), expires_delta=timedelta(days=7)
@@ -653,7 +679,7 @@ def change_password():
 
         # Get the new password from the request body
         data = request.get_json()
-        new_password = data.get('new_password', None)
+        new_password = data.get('newPassword', None)
 
         if not new_password:
             return jsonify({"error": "New password is required."}), 400
@@ -668,7 +694,7 @@ def change_password():
         ), 400
 
         # Find the user in the database
-        user = db.session.query(User).filter(User.id == userID).first()
+        user = User.query.filter_by(UserID=userID).first()
         
         if not user:
             return jsonify({"error": "User not found."}), 404
@@ -677,14 +703,56 @@ def change_password():
         hashed_password, salt = generate_hashed_password(new_password)
 
         # Update the user's password in the database
-        user.password = hashed_password
+        user.Password = hashed_password
+        user.Salt = salt
         db.session.commit()
 
-        return jsonify({"message": "Password changed successfully."}), 200
+        return jsonify({"message": "Password changed successfully.", "success":True}), 200
     
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+@app.route("/edit_profile", methods=["POST"])
+@jwt_required()
+def edit_profile():
+    try: 
+        userID = get_jwt_identity()
+
+        # Get the new password from the request body
+        data = request.get_json()
+        name = data.get('name', None)
+        email = data.get('email', None)
+        password = data.get('currentPassword', None)
+
+        if not all([name, email, password]):
+            return jsonify({"error": "Name, email and password fields are required."}), 400
+
+        if not is_valid_email(email):
+            return jsonify({"message": "Invalid email format", "success": False}), 400
+
+        # Validate password length or any other rules
+        user = User.query.filter_by(UserID=userID).first()
+        if user and user.verify_password(password):
+            user.Email = email
+            user.Name = name
+
+            db.session.commit()
+
+            return jsonify({"message": "User Profile changed successfully.", "success":True}), 200
+        elif not user:
+            return jsonify({"error": "User not found."}), 404
+        else:
+            return jsonify({
+            "message": "Incorrect password", 
+            "success": False,
+            "error_type": "invalid_credentials"
+        }), 401
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+
 
 
 if __name__ == "__main__":

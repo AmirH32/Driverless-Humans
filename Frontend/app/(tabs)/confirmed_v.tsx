@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export default function ConfirmedScreen() {
+export default function VolunteerConfirmedScreen() {
   const router = useRouter();
 
   // Track if the booking has been confirmed
@@ -30,7 +30,7 @@ export default function ConfirmedScreen() {
 
     } else {
       // If booking wasn't confirmed, just return to timetables
-      router.push('/timetables');
+      router.push('/volunteerList');
     }
   };
 
@@ -78,24 +78,24 @@ export default function ConfirmedScreen() {
         </View>
       </View>
 
-      {/* Confirm Booking Button */}
+      {/* Confirm Volunteering Button */}
       <Pressable 
         style={[styles.button_confirm, isConfirmed && styles.button_pressed]} 
         onPress={handleConfirm}
         disabled={isConfirmed}
       >
         <Text style={styles.buttonText}>
-          {isConfirmed ? 'Confirmed!' : 'Confirm Booking?'}
+          {isConfirmed ? 'Confirmed!' : 'Confirm Volunteering?'}
         </Text>
       </Pressable>
 
-      {/* Cancel Booking Button */}
+      {/* Cancel Volunteering Button */}
       <Pressable 
         style={styles.button_cancel}
         onPress={handleCancel}
       >
         <Text style={styles.buttonText}>
-          {isConfirmed ? 'Cancel Booking' : 'Cancel'}
+          {isConfirmed ? 'Cancel Volunteering' : 'Cancel'}
         </Text>
       </Pressable>
 
