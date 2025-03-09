@@ -8,6 +8,7 @@ from Backend.data.utils import calc_coord_distance
 
 from flask import Flask, request, jsonify, make_response, send_file
 from flask_migrate import Migrate
+import uuid
 
 from Backend.database.models import (
     db,
@@ -223,6 +224,63 @@ def upload_pdf():
         "file_path": file_path  # Optionally, return the file path or URL
     }), 200
 
+@app.route('/upload_pdf_temp', methods=['POST'])
+def upload_pdf_temp():
+    # Generate a temporary user ID for the "disabled" user
+    temp_user_id = uuid.uuid4()  # Generate a unique TempUserID
+
+    # Get the file from the request
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Check if the file has a valid extension
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+
+    # Generate a secure filename for the file
+    filename = secure_filename(file.filename)
+
+    # Save the file to the server's file system
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+
+    # Create a new Document instance with TempUserID
+    document = Document(
+        Name=filename,
+        FilePath=file_path,
+        TempUserID=temp_user_id  # Associate with TempUserID
+    )
+
+    db.session.add(document)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "PDF uploaded successfully",
+        "temp_user_id": str(temp_user_id),  # Return the TempUserID for frontend use
+        "document_name": document.Name,
+        "document_id": document.DocumentID,
+        "file_path": file_path
+    }), 200
+
+@app.route('/link_document_to_user', methods=['POST'])
+@jwt_required()
+def link_document_to_user():
+    user_id = get_jwt_identity()  # Get the user ID from the JWT
+    temp_user_id = request.json.get('tempUserId')  # TempUserID passed from frontend
+    # Find the document associated with the TempUserID
+    document = Document.query.filter_by(TempUserID=temp_user_id).first()
+    if document:
+        document.UserID = user_id  # Link the document to the authenticated user
+        document.TempUserID = None  # Remove the TempUserID once linked
+        db.session.commit()
+        return jsonify({"success": True, "message": "Document linked to user successfully"}), 200
+    else:
+        return jsonify({"error": "Document not found or already linked"}), 404
+
+
+
 @app.route('/view_pdf', methods=['GET'])
 @jwt_required()
 def view_pdf():
@@ -424,7 +482,7 @@ def see_reservation():
         return jsonify({"message": "User not found."}), 404
 
     role = user.Role
-    print(f"see_reservation userID={userID},role={role},Roles.VOLUNTEER,isVolunteer={role=="Volunteer"}")
+    print(f"see_reservation userID={userID},role={role},{Roles.VOLUNTEER},isVolunteer={role=='Volunteer'}")
     
     if role not in ["Volunteer", "Disabled"]:
         return jsonify({"message": f"Unexpected role '{role}'."}), 400
