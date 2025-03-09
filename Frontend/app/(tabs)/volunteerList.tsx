@@ -91,7 +91,7 @@ export default function VolunteerListScreen() {
     <ThemedView style={styles.wide_container}>
       <TopBar />
       <ThemedView style={styles.container}>
-        {reservations}
+        {reservations.length > 0 ? reservations : <Text>No reservations</Text>}
       </ThemedView>
     </ThemedView>
   );
