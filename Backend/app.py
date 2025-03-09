@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 from Backend.data.timetables import get_timetables
-from Backend.data.stops import get_autocomplete_stops
+from Backend.data.stops import get_autocomplete_stops, get_stops_data
+from Backend.data.utils import calc_coord_distance
 
 from flask import Flask, request, jsonify, make_response
 from flask_migrate import Migrate
@@ -32,6 +33,8 @@ from markupsafe import escape
 
 from flask_talisman import Talisman
 from flask_cors import CORS
+
+import pandas as pd
 
 DISABLE_AUTHORISATION = False
 if DISABLE_AUTHORISATION:
@@ -437,8 +440,56 @@ def remove_volunteer():
 @app.route("/show_reservations", methods=["GET"])
 @jwt_required()
 def show_reservations():
-    pass
+    try:
+        volunteer_latitude = request.args.get("latitude",None)
+        volunteer_longitude = request.args.get("longitude",None)
+        limit = int(request.args.get("limit",5))
+        volunteer_latlong = (float(volunteer_latitude), float(volunteer_longitude))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
+    # reservations = db.session.query(Reservations).all()
+    # reservations_df = pd.DataFrame([{
+    #     "ReservationID": res.ReservationID,
+    #     "StopID1": res.StopID1,
+    #     "StopID2": res.StopID2,
+    #     "BusID": res.BusID,
+    #     "Time": res.Time,
+    #     "VolunteerCount": res.VolunteerCount
+    # } for res in reservations], columns=["ReservationID", "StopID1", "StopID2", "BusID", "Time", "VolunteerCount"])
+
+    reservations_df = pd.DataFrame({"ReservationID":[11,12], "StopID1":["0500CCITY423","0500CCITY523"], "StopID2":["0500CCITY523","0500CCITY423"], "BusID":["v0","v1"], "Time":[100,101], "VolunteerCount":[0,1]})
+    
+    latlongs_df = get_stops_data().reset_index()
+    reservations_df = pd.merge(reservations_df, latlongs_df, left_on='StopID1', right_on='id', how='inner')
+    reservations_df = reservations_df.drop(columns=['id'])
+
+    reservations_df["distance"] = reservations_df.apply(
+        lambda row: calc_coord_distance((row["latitude"], row["longitude"]), volunteer_latlong),
+        axis=1,
+    )
+
+    reservations_df = reservations_df.sort_values(by="distance").head(limit)
+    
+    reservations_list = []
+    for _,res in reservations_df.iterrows():
+        timetables = [t for t in get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
+                      if t.vehicle_id == res["BusID"]]
+        
+        if len(timetables) == 0:
+            continue
+
+        timetable = timetables[0]
+
+        reservations_list.append({
+            "reservation_id": res["ReservationID"],
+            "origin_id": res["StopID1"],
+            "destination_id": res["StopID2"],
+            "volunteer_count": res["VolunteerCount"],
+            "distance": res["distance"]
+        } | timetable.model_dump(mode='json'))
+
+    return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
 
 @app.route("/delete_reservation", methods=["POST"])
 @jwt_required()
