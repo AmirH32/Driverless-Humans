@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, Image, Linking, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -18,8 +18,28 @@ export default function HelpScreen() {
 
         <ThemedText style={styles.title}>Help and Support</ThemedText>
 
-        {/* TODO: Text on information about where users can find help and support, such as FAQs and a feedback form */}
-        <ThemedText style={styles.text}>Placeholder Text</ThemedText>
+        <ThemedText style={styles.text}>
+          Contact us!{"\n"}
+          as3520@cam.ac.uk
+        </ThemedText>
+
+        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/5Ps2da5HJRTsnYzr6")}>
+          <ThemedText style={styles.buttonText}>
+            Feedback Form
+          </ThemedText>
+        </Pressable>
+
+        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://forms.gle/PQcnp5zGqTpkfDXy5")}>
+          <ThemedText style={styles.buttonText}>
+            Assistance Request Form
+          </ThemedText>
+        </Pressable>
+
+        <Pressable style={styles.button} onPress={()=>Linking.openURL("https://docs.google.com/document/d/1sz4OI-C5nLqZnQLJcRFlt5BmmMdRktHRGIOS4u6KyP4/edit?usp=sharing")}>
+          <ThemedText style={styles.buttonText}>
+            FAQs
+          </ThemedText>
+        </Pressable>
 
     </ThemedView>
   );
@@ -62,4 +82,17 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: 30,
   },
+  button: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 25,
+    borderRadius: 15,
+    marginBottom: 30,
+    width: 300,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 25,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  }
 });

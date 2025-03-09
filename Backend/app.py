@@ -6,7 +6,7 @@ from Backend.data.timetables import get_timetables
 from Backend.data.stops import get_autocomplete_stops, get_stops_data
 from Backend.data.utils import calc_coord_distance
 
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_file
 from flask_migrate import Migrate
 
 from Backend.database.models import (
@@ -15,7 +15,8 @@ from Backend.database.models import (
     Reservations,
     UserReservation,
     VolunteerReservation,
-    Roles
+    Roles,
+    Document
 )
 
 from Backend.database.utils import get_reservation_data
@@ -38,11 +39,27 @@ from markupsafe import escape
 from flask_talisman import Talisman
 from flask_cors import CORS
 
+import psycopg2
 import pandas as pd
 
+from werkzeug.utils import secure_filename
+
 DISABLE_AUTHORISATION = False
+
 if DISABLE_AUTHORISATION:
     jwt_required = lambda refresh=True: (lambda x:x)
+
+
+# Constants for allowed file types and max file size (optional)
+# Define the upload folder path
+UPLOAD_FOLDER = 'uploads/'
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Max file size (16MB)
+
+# Allowed file types (for example, only PDF files)
+ALLOWED_EXTENSIONS = {'pdf'}
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ### Load environment variables (BODS_API_KEY)
 # load_dotenv()
@@ -101,6 +118,9 @@ def auth_init():
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token"
     app.config["JWT_REFRESH_COOKIE_NAME"] = "refresh_token"
 
+    # Set the max content length for request files globally
+    app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
     # Initialise the database with the Flask app
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -115,6 +135,9 @@ def auth_init():
 
 
 auth_init()
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/timetables", methods=["GET"])
@@ -151,6 +174,86 @@ def autocomplete() -> List[Dict[str, Any]]:
     ]
     return autocompletions_json
 
+@app.route('/upload_pdf', methods=['POST'])
+@jwt_required()
+def upload_pdf():
+    # Ensure user is authenticated and get the user ID from the JWT
+    user_id = get_jwt_identity()
+
+    # Find the user by their ID
+    user = User.query.filter_by(UserID=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the file from the request
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Check if the file has a valid extension
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+
+    # Generate a secure filename for the file
+    filename = secure_filename(file.filename)
+
+    # Create a unique filename to avoid overwriting
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+    # Save the file to the server's file system
+    file.save(file_path)
+
+    # Create a new Document instance
+    document = Document(
+        Name=filename,  # Safe filename for the document
+        FilePath=file_path,  # Save the file path in the database
+        UserID=user.UserID  # Associate with the user
+    )
+
+    # Add to the session and commit
+    db.session.add(document)
+    db.session.commit()
+
+    # Return a response with document details
+    return jsonify({
+        "success": True,
+        "message": "PDF uploaded successfully",
+        "document_name": document.Name,
+        "document_id": document.DocumentID,
+        "file_path": file_path  # Optionally, return the file path or URL
+    }), 200
+
+@app.route('/view_pdf', methods=['GET'])
+@jwt_required()
+def view_pdf():
+    ### ASSUMPTION: User's have only one document
+
+    # Ensure user is authenticated and get the user ID from the JWT
+    user_id = get_jwt_identity()
+
+    # Find the user by their ID
+    user = User.query.filter_by(UserID=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+      # Find the document by document_id
+    document = Document.query.filter_by(UserID=user.UserID).first()
+    if not document:
+        return jsonify({"error": "Document not found"}), 404
+
+    # Get the file path
+    file_path = document.FilePath
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found on the server"}), 404
+
+    # Return the PDF file
+    try:
+        return send_file(file_path, as_attachment=False, mimetype='application/pdf')
+    except Exception as e:
+        return jsonify({"error": f"Error sending file: {str(e)}"}), 500
+    
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -520,73 +623,6 @@ def remove_volunteer():
     except Exception as e:
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
-
-@app.route("/get_reservation", methods=["GET"])
-@jwt_required()
-def get_reservation():
-    try:
-        reservation_id = int(request.args.get("reservationID",None))
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    res = (
-        db.session.query(Reservations)
-        .filter_by(ReservationID=reservation_id)
-        .first()
-    )
-
-    reservation_dict = {
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    }
-    return reservation_dict
-
-    reservations_df = pd.DataFrame([{
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    } for res in reservations], columns=["ReservationID", "StopID1", "StopID2", "BusID", "Time", "VolunteerCount"])
-
-    reservations_df = pd.DataFrame({"ReservationID":[11,12], "StopID1":["0500CCITY423","0500CCITY523"], "StopID2":["0500CCITY523","0500CCITY423"], "BusID":["v0","v1"], "Time":[100,101], "VolunteerCount":[0,1]})
-    
-    latlongs_df = get_stops_data().reset_index()
-    reservations_df = pd.merge(reservations_df, latlongs_df, left_on='StopID1', right_on='id', how='inner')
-    reservations_df = reservations_df.drop(columns=['id'])
-
-    reservations_df["distance"] = reservations_df.apply(
-        lambda row: calc_coord_distance((row["latitude"], row["longitude"]), volunteer_latlong),
-        axis=1,
-    )
-
-    reservations_df = reservations_df.sort_values(by="distance").head(limit)
-    
-    reservations_list = []
-    for _,res in reservations_df.iterrows():
-        timetables = [t for t in get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
-                      if t.vehicle_id == res["BusID"]]
-        
-        if len(timetables) == 0:
-            continue
-
-        timetable = timetables[0]
-
-        reservations_list.append({
-            "reservation_id": res["ReservationID"],
-            "origin_id": res["StopID1"],
-            "destination_id": res["StopID2"],
-            "volunteer_count": res["VolunteerCount"],
-            "distance": res["distance"]
-        } | timetable.model_dump(mode='json'))
-
-    return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
-
 
 @app.route("/show_reservations", methods=["GET"])
 @jwt_required()
