@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
+export default function HelpScreen() {
   const router = useRouter();
 
   return (
@@ -16,23 +16,11 @@ export default function HomeScreen() {
             <Text style={styles.crossText}>✕</Text>
         </TouchableOpacity>
 
-      <ThemedText style={styles.title}>Help and Support</ThemedText>
+        <ThemedText style={styles.title}>Help and Support</ThemedText>
 
-      {/* Login Button */}
-      <TouchableOpacity
-        style={[styles.button, styles.loginButton]}
-        onPress={() => router.push('/login')}
-      >
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+        {/* TODO: Text on information about where users can find help and support, such as FAQs and a feedback form */}
+        <ThemedText style={styles.text}>Placeholder Text</ThemedText>
 
-      {/* Sign up Button */}
-      <TouchableOpacity
-        style={[styles.button, styles.signupButton]}
-        onPress={() => router.push('/signup')}
-      >
-        <Text style={styles.buttonText}>Sign up</Text>
-      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -66,22 +54,12 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: 30,
   },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    borderRadius: 15,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 20,
+  text: {
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  loginButton: {
-    paddingHorizontal: 100,
-  },
-  signupButton: {
-    paddingHorizontal: 90,
+    lineHeight: 40,
+    letterSpacing: 2,
+    marginBottom: 30,
   },
 });

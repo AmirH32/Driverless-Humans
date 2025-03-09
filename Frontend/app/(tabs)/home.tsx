@@ -29,6 +29,14 @@ export default function HomeScreen() {
       >
         <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
+
+      {/* Volunteer Sign up Button */}
+      <TouchableOpacity
+        style={[styles.button, styles.volunteerButton]}
+        onPress={() => router.push('/volunteer_signup')}
+      >
+        <Text style={styles.buttonText}>Sign up as a volunteer</Text>
+      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -80,5 +88,9 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     paddingHorizontal: 90,
+  },
+  volunteerButton: {
+    backgroundColor: '#8400BD',
+    paddingHorizontal: 23,
   },
 });

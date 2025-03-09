@@ -5,8 +5,6 @@ import { router } from "expo-router";
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
 
-
-
 export default function LoginScreen() {
 
   const [email, setEmail] = useState('');

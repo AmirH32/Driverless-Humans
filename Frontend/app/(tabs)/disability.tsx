@@ -1,11 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
+export default function DisabilityScreen() {
   const router = useRouter();
+
+  const handleViewDocument = () => {
+    console.log('View Current Document button clicked');
+  };
+
+  const handleUploadDocument = () => {
+    console.log('Upload New Document button clicked');
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -18,20 +26,20 @@ export default function HomeScreen() {
 
       <ThemedText style={styles.title}>Disability Info</ThemedText>
 
-      {/* Login Button */}
+      {/* View Current Document Button */}
       <TouchableOpacity
-        style={[styles.button, styles.loginButton]}
-        onPress={() => router.push('/login')}
+        style={[styles.button, styles.viewButton]}
+        onPress={handleViewDocument}
       >
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>View Current Document</Text>
       </TouchableOpacity>
 
-      {/* Sign up Button */}
+      {/* Upload New Document Button */}
       <TouchableOpacity
-        style={[styles.button, styles.signupButton]}
-        onPress={() => router.push('/signup')}
+        style={[styles.button, styles.uploadButton]}
+        onPress={handleUploadDocument}
       >
-        <Text style={styles.buttonText}>Sign up</Text>
+        <Text style={styles.buttonText}>Upload New Document</Text>
       </TouchableOpacity>
     </ThemedView>
   );
@@ -74,14 +82,14 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  loginButton: {
-    paddingHorizontal: 100,
+  viewButton: {
+    paddingHorizontal: 85,
   },
-  signupButton: {
+  uploadButton: {
     paddingHorizontal: 90,
   },
 });
