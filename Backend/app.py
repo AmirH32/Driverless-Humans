@@ -223,7 +223,7 @@ def register():
     # Create the user
     create_user(email, password, name, role)
 
-    return jsonify({"message": "User created successfully", "success": True}), 201
+    return jsonify({"message": "UaodnsaokdnsaokdnsaodADkjNSAKJDNBSAjdsandojsad", "success": True}), 201
 
 
 @app.route("/logout", methods=["POST"])
