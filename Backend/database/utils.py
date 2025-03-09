@@ -17,10 +17,12 @@ def get_reservation_data(res, latlong=None):
 
     timetable = timetables[0].model_dump(mode='json')
     
-    if latlong is not None: # calculate distance
-        latlongs_df = get_stops_data().reset_index()
-        stop = latlongs_df.loc[latlongs_df.id == res["StopID1"]].iloc[0]
-        distance = calc_coord_distance((stop["latitude"], stop["longitude"]), latlong)
-        timetables["distance"] = distance
+    latlongs_df = get_stops_data().reset_index()
+    stop = latlongs_df.loc[latlongs_df.id == res["StopID1"]].iloc[0]
+    timetable["origin_name"] = stop["name"]
+    timetable["street"] = stop["street"]
+
+    if latlong is not None: # calculate distance    
+        timetables["distance"] = calc_coord_distance((stop["latitude"], stop["longitude"]), latlong)
 
     return timetable
