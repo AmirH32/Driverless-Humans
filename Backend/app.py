@@ -651,6 +651,9 @@ def edit_profile():
         if not all([name, email, password]):
             return jsonify({"error": "Name, email and password fields are required."}), 400
 
+        if not is_valid_email(email):
+            return jsonify({"message": "Invalid email format", "success": False}), 400
+
         # Validate password length or any other rules
         user = User.query.filter_by(UserID=userID).first()
         if user and user.verify_password(password):
@@ -659,7 +662,7 @@ def edit_profile():
 
             db.session.commit()
 
-            return jsonify({"message": "User Profile changed successfully."}), 200
+            return jsonify({"message": "User Profile changed successfully.", "Success":True}), 200
         elif not user:
             return jsonify({"error": "User not found."}), 404
         else:
