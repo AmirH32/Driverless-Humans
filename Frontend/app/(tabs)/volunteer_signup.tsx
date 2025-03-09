@@ -4,12 +4,11 @@ import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api"; // Import the Axios instance
 import { router } from "expo-router";
 
-export default function SignupScreen() {
+export default function VolunteerSignupScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [hasDisability, setHasDisability] = useState(false);
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -57,19 +56,6 @@ export default function SignupScreen() {
       <TextInput style={styles.input} placeholder="Enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={password} onChangeText={setPassword} />
       <TextInput style={styles.input} placeholder="Re-enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
 
-      {/* Checkbox */}
-      {/* <View style={styles.checkboxWrapper}>
-        <TouchableOpacity style={styles.checkboxContainer} onPress={() => setHasDisability(!hasDisability)}>
-          <View style={[styles.checkbox, hasDisability && styles.checkedCheckbox]} />
-          <Text style={styles.checkboxText}>I have a disability</Text>
-        </TouchableOpacity>
-      </View> */}
-
-      {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadButton} onPress={() => alert("Upload feature coming soon!")}>
-        <Text style={styles.buttonText}>Upload Disability Evidence</Text>
-      </TouchableOpacity>
-
       {/* Signup Button */}
       <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign up</Text>
@@ -108,42 +94,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     marginBottom: 10,
     width: '80%',
-  },
-  // checkboxWrapper: {
-  //   backgroundColor: '#FFA500',
-  //   borderRadius: 15,
-  //   paddingVertical: 10,
-  //   paddingHorizontal: 20,
-  //   marginTop: 10,
-  //   alignItems: 'center',
-  //   width: '80%',
-  // },
-  // checkboxContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  // },
-  // checkbox: {
-  //   width: 20,
-  //   height: 20,
-  //   borderWidth: 2,
-  //   borderColor: '#007BFF',
-  //   borderRadius: 4,
-  //   marginRight: 10,
-  //   backgroundColor: 'white',
-  // },
-  // checkedCheckbox: {
-  //   backgroundColor: '#007BFF',
-  // },
-  // checkboxText: {
-  //   fontSize: 16,
-  //   color: 'white',
-  // },
-  uploadButton: {
-    backgroundColor: '#FFA500',
-    paddingVertical: 12,
-    borderRadius: 15,
-    marginTop: 10,
-    paddingHorizontal: 37,
   },
   buttonText: {
     color: 'white',

@@ -1,37 +1,67 @@
-import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import React, { useState } from 'react';
+import { TouchableOpacity, StyleSheet, Text, View, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
+export default function AccessibilityScreen() {
   const router = useRouter();
+
+  // State for theme toggle
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  const toggleTheme = () => {
+    setIsDarkTheme((prev) => !prev);
+  };
 
   return (
     <ThemedView style={styles.container}>
-        <TouchableOpacity 
-            style={styles.crossButton}
-            onPress={() => router.push('/settings')}
-            >
-            <Text style={styles.crossText}>✕</Text>
-        </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.crossButton}
+        onPress={() => router.push('/settings')}
+      >
+        <Text style={styles.crossText}>✕</Text>
+      </TouchableOpacity>
 
       <ThemedText style={styles.title}>Accessibility</ThemedText>
 
-      {/* Login Button */}
-      <TouchableOpacity
-        style={[styles.button, styles.loginButton]}
-        onPress={() => router.push('/login')}
-      >
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      {/* Font Size Box */}
+      <View style={styles.box}>
+        <Text style={styles.boxTitle}>Font Size</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.fontButton}>
+            <Text style={styles.fontButtonText}>Small</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.fontButton}>
+            <Text style={styles.fontButtonText}>Normal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.fontButton}>
+            <Text style={styles.fontButtonText}>Big</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.fontButton}>
+            <Text style={styles.fontButtonText}>Large</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      {/* Sign up Button */}
-      <TouchableOpacity
-        style={[styles.button, styles.signupButton]}
-        onPress={() => router.push('/signup')}
-      >
-        <Text style={styles.buttonText}>Sign up</Text>
+      {/* Theme Box */}
+      <View style={styles.box}>
+        <Text style={styles.boxTitle}>Theme</Text>
+        <View style={styles.themeToggleContainer}>
+          <Text style={styles.themeText}>Light</Text>
+          <Switch
+            value={isDarkTheme}
+            onValueChange={toggleTheme}
+            thumbColor={isDarkTheme ? '#f4f3f4' : '#f4f3f4'}
+            trackColor={{ false: '#81b0ff', true: '#767577' }}
+          />
+          <Text style={styles.themeText}>Dark</Text>
+        </View>
+      </View>
+
+      {/* Text to Speech Button */}
+      <TouchableOpacity style={[styles.button, styles.textToSpeechButton]}>
+        <Text style={styles.buttonText}>Enable Text to Speech</Text>
       </TouchableOpacity>
     </ThemedView>
   );
@@ -66,22 +96,69 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: 30,
   },
-  button: {
+  box: {
     backgroundColor: '#007BFF',
-    paddingVertical: 12,
+    padding: 20,
     borderRadius: 15,
     marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
   },
-  buttonText: {
+  boxTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 15,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    flexWrap: 'nowrap',
+    marginTop: 10,
+  },
+  fontButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 0,
+    borderRadius: 15,
+    marginBottom: 10,
+    marginHorizontal: 5,
+    width: 70,
+  },
+  fontButtonText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  loginButton: {
-    paddingHorizontal: 100,
+  themeToggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
-  signupButton: {
-    paddingHorizontal: 90,
+  themeText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  textToSpeechButton: {
+    backgroundColor: '#007BFF',
+    width: '100%',
+    paddingVertical: 25,
+  },
+  button: {
+    backgroundColor: 'black',
+    paddingVertical: 15,
+    borderRadius: 15,
+    marginTop: 20,
+    width: '80%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
