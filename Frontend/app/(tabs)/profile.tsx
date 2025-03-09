@@ -135,7 +135,7 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* ✅ Edit Profile Modal */}
+      {/* Edit Profile Modal */}
       <Modal
         visible={editModalVisible}
         transparent
