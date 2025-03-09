@@ -627,7 +627,8 @@ def change_password():
         hashed_password, salt = generate_hashed_password(new_password)
 
         # Update the user's password in the database
-        user.password = hashed_password
+        user.Password = hashed_password
+        user.Salt = salt
         db.session.commit()
 
         return jsonify({"message": "Password changed successfully."}), 200
