@@ -84,7 +84,6 @@ def add_and_commit(entry):
     db.session.add(entry)
     db.session.commit()
 
-
 def auth_init():
     # This connects to local postgresql docker instance, change in future if you want it on a public server
     app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -186,7 +185,11 @@ def login():
 
         return response, 200
     else:
-        return jsonify({"message": "Invalid email or password", "success": False}), 401
+        return jsonify({
+            "message": "Invalid email or password", 
+            "success": False,
+            "error_type": "invalid_credentials"
+        }), 401
 
 
 @app.route("/register", methods=["POST"])
@@ -615,7 +618,7 @@ def change_password():
         ), 400
 
         # Find the user in the database
-        user = db.session.query(User).filter(User.id == userID).first()
+        user = User.query.filter_by(UserID=userID).first()
         
         if not user:
             return jsonify({"error": "User not found."}), 404
@@ -632,6 +635,44 @@ def change_password():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+@app.route("/edit_profile", methods=["POST"])
+@jwt_required()
+def edit_profile():
+    try: 
+        userID = get_jwt_identity()
+
+        # Get the new password from the request body
+        data = request.get_json()
+        name = data.get('name', None)
+        email = data.get('email', None)
+        password = data.get('currentPassword', None)
+
+        if not all([name, email, password]):
+            return jsonify({"error": "Name, email and password fields are required."}), 400
+
+        # Validate password length or any other rules
+        user = User.query.filter_by(UserID=userID).first()
+        if user and user.verify_password(password):
+            user.Email = email
+            user.Name = name
+
+            db.session.commit()
+
+            return jsonify({"message": "User Profile changed successfully."}), 200
+        elif not user:
+            return jsonify({"error": "User not found."}), 404
+        else:
+            return jsonify({
+            "message": "Incorrect password", 
+            "success": False,
+            "error_type": "invalid_credentials"
+        }), 401
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+
 
 
 if __name__ == "__main__":
