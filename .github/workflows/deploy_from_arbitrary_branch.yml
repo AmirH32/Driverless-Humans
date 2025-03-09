@@ -1,5 +1,5 @@
-name: Driverless Humans Automated Backend Deployment
-run-name: $ {{ github.actor}} is deploying code from ${{ github.ref#refs/heads/ }} to the backend
+name: Deploy From Branch
+run-name: $ {{ github.actor}} is deploying code from ${{ github.ref }} to the backend
 
 on: workflow_dispatch
 
