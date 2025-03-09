@@ -19,7 +19,19 @@ export default function LoginScreen() {
         api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
         alert("Login successful");
-        router.push("/home");
+        try {
+          const userInfoResponse = await api.get("/user-info");
+          const userRole = userInfoResponse.data.role;
+          console.log("User role:", userRole);
+          
+          // Store role in localStorage or context
+          localStorage.setItem("userRole", userRole);
+          
+          router.push("/home");
+        } catch (infoError) {
+          console.error("Error fetching user info:", infoError);
+          router.push("/home");
+        }
       } else {
         alert("Login failed: " + response.data.message);
       }
