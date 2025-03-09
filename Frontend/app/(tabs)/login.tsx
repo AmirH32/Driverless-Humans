@@ -4,11 +4,36 @@ import { ThemedView } from '@/components/ThemedView';
 import { router } from "expo-router";
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const linkDocumentToUser = async () => {
+    try {
+      // Retrieve the TempUserID from AsyncStorage
+      const tempUserId = await AsyncStorage.getItem('temp_user_id');
+  
+      if (tempUserId) {
+        // Send TempUserID to the backend to link the document to the logged-in user
+        const response = await api.post('/link_document_to_user', {tempUserId})
+  
+        if (response.data.success) {
+          console.log("Document successfully linked to user");
+          // Optionally, remove TempUserID from AsyncStorage after linking
+          await AsyncStorage.removeItem('temp_user_id');
+        } else {
+          console.error('Error linking document:', response.data.error);
+        }
+      } else {
+        console.log('No TempUserID found, skipping linking');
+      }
+    } catch (error) {
+      console.error('Error during linking document:', error);
+    }
+  };
 
   const handlePress = async () => {
     try {
@@ -20,13 +45,19 @@ export default function LoginScreen() {
 
         alert("Login successful");
         try {
+          linkDocumentToUser();
           const userInfoResponse = await api.get("/user-info");
           const userRole = userInfoResponse.data.role;
           
           // Store role in localStorage or context
           localStorage.setItem("userRole", userRole);
-          
-          router.push("/home");
+          if (userRole == "Disabled") {
+            router.push("/search");
+          } else if (userRole == "Volunteer") {
+            router.push("/timetables");
+          } else {
+            router.push("/home");
+          }
         } catch (infoError) {
           console.error("Error fetching user info:", infoError);
           router.push("/home");

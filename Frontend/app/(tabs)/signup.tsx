@@ -4,6 +4,8 @@ import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api"; // Import the Axios instance
 import { router } from "expo-router";
 import axios, { AxiosError } from 'axios';
+import * as DocumentPicker from 'expo-document-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
@@ -11,6 +13,61 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const hasDisability = true; 
+
+  const handleUploadDocument = async () => {
+    try {
+      // Open the document picker for PDFs
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true, // Ensures file is accessible
+      });
+  
+      // Handle user cancellation
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        console.log("User canceled document picker");
+        return;
+      }
+  
+      const file = result.assets[0];
+  
+      // Validate file selection
+      if (!file.uri || !file.name || !file.mimeType) {
+        console.error("Invalid file selected:", file);
+        return;
+      }
+  
+      // Convert file URI to Blob
+      const response = await fetch(file.uri);
+      const blob = await response.blob();
+  
+      // Create FormData and append the file (no need for cast as any in this case)
+      const formData = new FormData();
+      formData.append("file", blob, file.name); // Correct syntax for FormData
+  
+      // Send to backend using your custom axios instance
+      const uploadResponse = await api.post("/upload_pdf_temp", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      
+      // Check the response for the TempUserID (make sure backend returns it)
+      if (uploadResponse.data && uploadResponse.data.temp_user_id) {
+        const tempUserId = uploadResponse.data.temp_user_id;
+        console.log('Temporary User ID:', tempUserId);
+        
+        // Store this TempUserID for later use (you can use AsyncStorage or React Context as discussed)
+        await AsyncStorage.setItem('temp_user_id', tempUserId);
+        console.log('TempUserID stored successfully');
+      } else {
+        console.error('TempUserID not found in response:', uploadResponse.data);
+      }
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      alert("Error: There was an issue uploading your document.");
+    }
+  };
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -76,7 +133,7 @@ export default function SignupScreen() {
       </View> */}
 
       {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadButton} onPress={() => alert("Upload feature coming soon!")}>
+      <TouchableOpacity style={styles.uploadButton} onPress={handleUploadDocument}>
         <Text style={styles.buttonText}>Upload Disability Evidence</Text>
       </TouchableOpacity>
 
