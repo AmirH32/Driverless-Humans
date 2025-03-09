@@ -6,7 +6,7 @@ from Backend.data.timetables import get_timetables
 from Backend.data.stops import get_autocomplete_stops, get_stops_data
 from Backend.data.utils import calc_coord_distance
 
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_file
 from flask_migrate import Migrate
 
 from Backend.database.models import (
@@ -14,7 +14,8 @@ from Backend.database.models import (
     User,
     Reservations,
     UserReservation,
-    VolunteerReservation
+    VolunteerReservation,
+    Document
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -34,11 +35,27 @@ from markupsafe import escape
 from flask_talisman import Talisman
 from flask_cors import CORS
 
+import psycopg2
 import pandas as pd
 
+from werkzeug.utils import secure_filename
+
 DISABLE_AUTHORISATION = False
+
 if DISABLE_AUTHORISATION:
     jwt_required = lambda refresh=True: (lambda x:x)
+
+
+# Constants for allowed file types and max file size (optional)
+# Define the upload folder path
+UPLOAD_FOLDER = 'uploads/'
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Max file size (16MB)
+
+# Allowed file types (for example, only PDF files)
+ALLOWED_EXTENSIONS = {'pdf'}
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ### Load environment variables (BODS_API_KEY)
 # load_dotenv()
@@ -97,6 +114,9 @@ def auth_init():
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token"
     app.config["JWT_REFRESH_COOKIE_NAME"] = "refresh_token"
 
+    # Set the max content length for request files globally
+    app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
     # Initialise the database with the Flask app
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -111,6 +131,9 @@ def auth_init():
 
 
 auth_init()
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/timetables", methods=["GET"])
@@ -147,6 +170,86 @@ def autocomplete() -> List[Dict[str, Any]]:
     ]
     return autocompletions_json
 
+@app.route('/upload_pdf', methods=['POST'])
+@jwt_required()
+def upload_pdf():
+    # Ensure user is authenticated and get the user ID from the JWT
+    user_id = get_jwt_identity()
+
+    # Find the user by their ID
+    user = User.query.filter_by(UserID=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the file from the request
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Check if the file has a valid extension
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+
+    # Generate a secure filename for the file
+    filename = secure_filename(file.filename)
+
+    # Create a unique filename to avoid overwriting
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+    # Save the file to the server's file system
+    file.save(file_path)
+
+    # Create a new Document instance
+    document = Document(
+        Name=filename,  # Safe filename for the document
+        FilePath=file_path,  # Save the file path in the database
+        UserID=user.UserID  # Associate with the user
+    )
+
+    # Add to the session and commit
+    db.session.add(document)
+    db.session.commit()
+
+    # Return a response with document details
+    return jsonify({
+        "success": True,
+        "message": "PDF uploaded successfully",
+        "document_name": document.Name,
+        "document_id": document.DocumentID,
+        "file_path": file_path  # Optionally, return the file path or URL
+    }), 200
+
+@app.route('/view_pdf', methods=['GET'])
+@jwt_required()
+def view_pdf():
+    ### ASSUMPTION: User's have only one document
+
+    # Ensure user is authenticated and get the user ID from the JWT
+    user_id = get_jwt_identity()
+
+    # Find the user by their ID
+    user = User.query.filter_by(UserID=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+      # Find the document by document_id
+    document = Document.query.filter_by(UserID=user.UserID).first()
+    if not document:
+        return jsonify({"error": "Document not found"}), 404
+
+    # Get the file path
+    file_path = document.FilePath
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found on the server"}), 404
+
+    # Return the PDF file
+    try:
+        return send_file(file_path, as_attachment=False, mimetype='application/pdf')
+    except Exception as e:
+        return jsonify({"error": f"Error sending file: {str(e)}"}), 500
+    
 
 @app.route("/login", methods=["POST"])
 def login():

@@ -1,18 +1,75 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as DocumentPicker from 'expo-document-picker';
+import api from "@/services/api";// Adjust the import path as necessary
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import axios, { AxiosError } from 'axios';
+
 
 export default function DisabilityScreen() {
   const router = useRouter();
 
-  const handleViewDocument = () => {
-    console.log('View Current Document button clicked');
+  const handleViewDocument = async () => {
+    try {
+      const response = await api.get("/view_pdf", {
+        responseType: 'blob', // Important to get the file as a binary blob
+      });
+      
+    // Create a URL for the binary blob
+    const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+
+    // Open the file in a new browser tab
+    window.open(fileURL, '_blank');
+    } catch (error) {
+      console.error('Error viewing PDF:', error);
+    }
   };
 
-  const handleUploadDocument = () => {
-    console.log('Upload New Document button clicked');
+  
+  const handleUploadDocument = async () => {
+    try {
+      // Open the document picker for PDFs
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true, // Ensures file is accessible
+      });
+  
+      // Handle user cancellation
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        console.log("User canceled document picker");
+        return;
+      }
+  
+      const file = result.assets[0];
+  
+      // Validate file selection
+      if (!file.uri || !file.name || !file.mimeType) {
+        console.error("Invalid file selected:", file);
+        return;
+      }
+  
+      // Convert file URI to Blob
+      const response = await fetch(file.uri);
+      const blob = await response.blob();
+  
+      // Create FormData and append the file (no need for cast as any in this case)
+      const formData = new FormData();
+      formData.append("file", blob, file.name); // Correct syntax for FormData
+  
+      // Send to backend using your custom axios instance
+      const uploadResponse = await api.post("/upload_pdf", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      console.log("PDF uploaded successfully:", uploadResponse.data);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      alert("Error: There was an issue uploading your document.");
+    }
   };
 
   return (

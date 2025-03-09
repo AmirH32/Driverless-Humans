@@ -1,7 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
+
+class Document(db.Model):
+    __tablename__ = 'document'
+    
+    DocumentID = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key for the document
+    UserID = db.Column(db.Integer, ForeignKey('user.UserID'), nullable=False, unique=True)  # Foreign key linking to User
+    Name = db.Column(db.String(255), nullable=False)  # Name of the document
+    FilePath = db.Column(db.String(255), nullable=False)  # Store the file path instead of binary data
+
+    # Relationship to User model (optional)
+    user = db.relationship('User', backref=db.backref('documents', lazy=True))
+
+    def __repr__(self):
+        return f"<Document {self.Name}>"
+
 
 
 class User(db.Model):
