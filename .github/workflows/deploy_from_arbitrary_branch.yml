@@ -23,7 +23,7 @@ jobs:
         run: ssh-keyscan -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_IP_ADDRESS }} >> ~/.ssh/known_hosts
       - name: Run commands on VPS
         run: |
-          ssh vps-driverless-humans-deploy << 'EOF'
+          ssh vps-driverless-humans-deploy << EOF
             cd /opt/DriverlessHumans/Driverless-Humans/Backend/
             docker compose down -v || true
             git checkout $BRANCH_NAME
