@@ -194,9 +194,12 @@ def login():
         }), 401
 
 
-@app.route("/user-info", methods=["GET"])
+@app.route("/user-info", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_user_info():
+    if request.method == "OPTIONS":
+        return "", 200  # Respond to OPTIONS request
+
     user_id = get_jwt_identity()
     user = User.query.filter_by(UserID=user_id).first()
     
