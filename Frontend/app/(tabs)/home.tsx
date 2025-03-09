@@ -33,7 +33,7 @@ export default function HomeScreen() {
       {/* Volunteer Sign up Button */}
       <TouchableOpacity
         style={[styles.button, styles.volunteerButton]}
-        onPress={() => router.push('/volunteer_signup')}
+        onPress={() => router.push('/volunteerSignup')}
       >
         <Text style={styles.buttonText}>Sign up as a volunteer</Text>
       </TouchableOpacity>
