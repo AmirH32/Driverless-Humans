@@ -1,0 +1,30 @@
+name: Driverless Humans Automated Backend Deployment
+run-name: $ {{ github.actor}} is deploying code from ${{ github.ref#refs/heads/ }} to the backend
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        run: |
+          GITHUB_REF="${{ github.ref }}"
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          echo "The branch name is: $BRANCH_NAME"
+      - run: mkdir -p ~/.ssh
+      - name: Save SSH config
+        run: echo "${{ secrets.VPS_SSH_CONFIG }}" >> ~/.ssh/config
+      - name: Save SSH key
+        run: echo "${{ secrets.VPS_SSH_KEY }}" >> ~/.ssh/id
+      - name: Save SSH destination to known_hosts
+        run: ssh-keyscan ${{ secrets.VPS_IP_ADDRESS }} >> ~/.ssh/known_hosts
+      - name: Run commands on VPS
+        run: |
+          ssh vps-driverless-humans-deploy << 'EOF'
+            cd /opt/DriverlessHumans/Driverless-Humans/Backend/
+            docker compose down -v || true
+            git checkout $BRANCH_NAME
+            git pull origin $BRANCH_NAME
+            docker compose up --build -d
+          EOF
