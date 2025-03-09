@@ -9,7 +9,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [hasDisability, setHasDisability] = useState(false);
+  const hasDisability = true; 
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
