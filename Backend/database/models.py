@@ -1,8 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
+from enum import Enum
 
 db = SQLAlchemy()
 
+class Roles(Enum):
+    VOLUNTEER = "Volunteer"
+    DISABLED = "Disabled"
 
 class User(db.Model):
     UserID = db.Column(db.Integer, primary_key=True, unique=True)

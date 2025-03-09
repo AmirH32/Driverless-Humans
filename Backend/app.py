@@ -14,8 +14,12 @@ from Backend.database.models import (
     User,
     Reservations,
     UserReservation,
-    VolunteerReservation
+    VolunteerReservation,
+    Roles
 )
+
+from Backend.database.utils import get_reservation_data
+
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
@@ -278,6 +282,55 @@ def refresh():
         # Refresh token has expired
         return jsonify({"message": "Please login again."}), 401
 
+@app.route("/see_reservation", methods=["GET"])
+@jwt_required()
+def see_reservation():
+    userID = get_jwt_identity()
+    user = db.session.query(User).filter_by(UserID=userID).first()
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+
+    role = user.Role
+    if role not in [role.value for role in Roles]:
+        return jsonify({"message": f"Unexpected role '{role}'."}), 400
+    
+    if role == Roles.VOLUNTEER:
+        reservations = (
+            db.session.query(Reservations)
+            .join(VolunteerReservation, Reservations.ReservationID == VolunteerReservation.ReservationID)
+            .filter(VolunteerReservation.UserID == userID)
+            .all()
+        )
+    
+    elif role == Roles.DISABLED:
+        reservations = (
+            db.session.query(Reservations)
+            .join(UserReservation, Reservations.ReservationID == UserReservation.ReservationID)
+            .filter(UserReservation.UserID == userID)
+            .all()
+        )
+
+    if len(reservations) != 1:
+        return jsonify({"message": f"Got {len(reservations)} reservations, but expected length 1."}), 400
+
+    res = reservations[0]
+
+    reservations_dict = {
+        "ReservationID": res.ReservationID,
+        "StopID1": res.StopID1,
+        "StopID2": res.StopID2,
+        "BusID": res.BusID,
+        "Time": res.Time,
+        "VolunteerCount": res.VolunteerCount,
+    }
+
+    data = get_reservation_data(res)
+    if data is None:
+        return jsonify({"message": "Could not fetch timetables."}), 400
+    
+    reservations_dict |= data
+    return jsonify({"role": role, "reservations": reservations_dict}), 200
+    
 
 @app.route("/create_reservation", methods=["POST"])
 @jwt_required()  # Protect this route
