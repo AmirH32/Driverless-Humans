@@ -424,8 +424,9 @@ def see_reservation():
         return jsonify({"message": "User not found."}), 404
 
     role = user.Role
-    print(f"see_reservation userID={userID},role={role},isVolunteer={role==Roles.VOLUNTEER}")
-    if role not in [role.value for role in Roles]:
+    print(f"see_reservation userID={userID},role={role},Roles.VOLUNTEER,isVolunteer={role=="Volunteer"}")
+    
+    if role not in ["Volunteer", "Disabled"]:
         return jsonify({"message": f"Unexpected role '{role}'."}), 400
     
     reservations = (
@@ -433,7 +434,7 @@ def see_reservation():
         .join(VolunteerReservation, Reservations.ReservationID == VolunteerReservation.ReservationID)
         .filter(VolunteerReservation.UserID == userID)
         .all()
-    ) if role == Roles.VOLUNTEER else (
+    ) if role == "Volunteer" else (
         db.session.query(Reservations)
         .join(UserReservation, Reservations.ReservationID == UserReservation.ReservationID)
         .filter(UserReservation.UserID == userID)
@@ -540,7 +541,7 @@ def add_volunteer():
 
     # Get the user object to check the role
     user = db.session.query(User).filter_by(UserID=userID).first()
-    
+    print(f"userRole={user.Role}")
     # Check the user has the right role
     if user.Role != "Volunteer":
         return jsonify(

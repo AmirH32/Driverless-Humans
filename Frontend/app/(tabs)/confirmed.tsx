@@ -72,7 +72,7 @@ export default function ConfirmedScreen() {
       const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [isConfirmed]);
 
   return (
     <ThemedView style={styles.container}>
