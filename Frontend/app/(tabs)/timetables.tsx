@@ -18,11 +18,31 @@ export default function LoginScreen() {
     router.back();
   };
 
-  const bookBus = (srcStop, dstStop, vechileBookingID) => {
-    console.log("bookBus")
-    const timee = new Date();
-    alert("send booking from <" + srcStop + "> to <"+ dstStop+"> on vechicle <"+ vechileBookingID+"> at time <"+timee+">");
-
+  const formatDateForSQL = (date: Date): string => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');  // Months are 0-based
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+  
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  };
+  
+  
+  
+  const bookBus = async (src_stop_id, dst_stop_id, vehicle_id) => {
+    console.log("bookBus"); console.log(src_stop_id); console.log(dst_stop_id); console.log(vehicle_id);
+    const date = new Date();
+    const formattedDate = formatDateForSQL(date);
+    const response = await api.post("/create_reservation", {
+      StopID1: src_stop_id,
+      StopID2: dst_stop_id,
+      BusID: vehicle_id,
+      Time: formattedDate,
+      VolunteerCount: 0
+    });
+    router.push("/confirmed");
   };
 
   const { src_stop_id, dst_stop_id, src_stop_name, dst_stop_name } = useLocalSearchParams();

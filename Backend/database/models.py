@@ -35,23 +35,28 @@ class UserAccessibility(db.Model):
         db.Integer,
         db.ForeignKey("user.UserID", ondelete="CASCADE"),
         primary_key=True,
-        unique=True,
     )
     RequirementID = db.Column(
         db.Integer,
         db.ForeignKey("accessibilityrequirement.RequirementID", ondelete="CASCADE"),
         primary_key=True,
-        unique=True,
     )
 
 
 class Reservations(db.Model):
-    ReservationID = db.Column(db.Integer, primary_key=True, unique=True)
-    StopID1 = db.Column(db.Integer, nullable=False)
-    StopID2 = db.Column(db.Integer, nullable=False)
-    BusID = db.Column(db.Integer, nullable=False)
+    ReservationID = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
+    StopID1 = db.Column(db.String, nullable=False)
+    StopID2 = db.Column(db.String, nullable=False)
+    BusID = db.Column(db.String, nullable=False)
     VolunteerCount = db.Column(db.Integer, nullable=False)
     Time = db.Column(db.DateTime, nullable=False)
+
+    def init(self, StopID1, StopID2, BusID, Time, VolunteerCount):
+        self.StopID1 = StopID1
+        self.StopID2 = StopID2
+        self.BusID = BusID
+        self.Time = Time
+        self.VolunteerCount = VolunteerCount
 
 class VolunteerReservation(db.Model):
     __tablename__ = "Volunteer_to_Reservation"
@@ -70,7 +75,7 @@ class UserReservation(db.Model):
         db.Integer,
         db.ForeignKey("reservations.ReservationID", ondelete="CASCADE"),
         primary_key=True,
-        unique=True,
+        autoincrement=True
     )
 
 
@@ -87,7 +92,6 @@ class UserToOptions(db.Model):
         db.Integer,
         db.ForeignKey("user.UserID", ondelete="CASCADE"),
         primary_key=True,
-        unique=True,
     )
     OptionID = db.Column(
         db.Integer,
