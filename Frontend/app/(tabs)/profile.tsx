@@ -64,15 +64,39 @@ export default function ProfileScreen() {
   };
 
   // Handle Save for Change Password
-  const handleSavePassword = () => {
+  const handleSavePassword = async() => {
     if (newPassword === confirmPassword && newPassword !== '') {
-      alert('Password successfully changed!');
-      setPasswordModalVisible(false);
-      setNewPassword('');
-      setConfirmPassword('');
-
+      try{
+        const requestBody = {newPassword};
+        const response = await api.post("/change_password", requestBody);
+        if (response.data.success) {
+          alert('Password successfully changed!');
+          setPasswordModalVisible(false);
+          setNewPassword('');
+          setConfirmPassword('');
+        } else {
+          alert("Password change failed. " + response.data.message);
+        }
+      } catch (error: unknown) {
+        // Handle Axios error
+        if (axios.isAxiosError(error)) {
+          // Check if error.response exists and contains a message
+          if (error.response && error.response.data && error.response.data.message) {
+            alert("Password change failed: " + error.response.data.message);
+          } else {
+            // Handle error without message (e.g., network issues)
+            alert("Password change failed: Unknown error from the server.");
+          }
+        } else if (error instanceof Error) {
+          // Generic JS error
+          alert("Password change failed: " + error.message);
+        } else {
+          // Fallback for unknown errors
+          alert("An unknown error occurred.");
+        }
+      }
     } else {
-      alert('Passwords do not match or fields are empty');
+      alert('All fields are required.');
     }
   };
 
