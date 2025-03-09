@@ -22,7 +22,6 @@ export default function LoginScreen() {
         try {
           const userInfoResponse = await api.get("/user-info");
           const userRole = userInfoResponse.data.role;
-          console.log("User role:", userRole);
           
           // Store role in localStorage or context
           localStorage.setItem("userRole", userRole);
