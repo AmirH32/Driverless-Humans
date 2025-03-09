@@ -30,7 +30,7 @@ export default function VolunteerConfirmedScreen() {
 
     } else {
       // If booking wasn't confirmed, just return to timetables
-      router.push('/timetables');
+      router.push('/volunteerList');
     }
   };
 
