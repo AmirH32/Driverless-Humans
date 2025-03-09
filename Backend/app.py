@@ -438,12 +438,12 @@ def remove_volunteer():
         return jsonify({"error": str(e)}), 500
             
 @app.route("/show_reservations", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def show_reservations():
     try:
         volunteer_latitude = request.args.get("latitude",None)
         volunteer_longitude = request.args.get("longitude",None)
-        limit = request.args.get("limit",5)
+        limit = int(request.args.get("limit",5))
         volunteer_latlong = (float(volunteer_latitude), float(volunteer_longitude))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -484,7 +484,9 @@ def show_reservations():
         reservations_list.append({
             "reservation_id": res["ReservationID"],
             "origin_id": res["StopID1"],
-            "destination_id": res["StopID2"]
+            "destination_id": res["StopID2"],
+            "volunteer_count": res["VolunteerCount"],
+            "distance": res["distance"]
         } | timetable.model_dump(mode='json'))
 
     return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
