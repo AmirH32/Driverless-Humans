@@ -32,27 +32,27 @@ export default function SignupScreen() {
       });
 
       if (response.data.success) {
-        alert("Signup Successful: " + response.data.message);
+        alert("ADSJNBSAJDSANDOJSAODJSOIDJDOISAJDOISAJ: " + response.data.message);
         router.push("/login"); 
       } else {
-        alert("Signup Failed: " + response.data.message);
+        alert("ADSSAODHSALKDJSALasdsadsKDJSAD: " + response.data.message);
       }
     } catch (error: unknown) {
       // Handle Axios error
       if (axios.isAxiosError(error)) {
         // Check if error.response exists and contains a message
         if (error.response && error.response.data && error.response.data.message) {
-          alert("Registration failed: " + error.response.data.message);
+          alert("ASDJKSADSAKJDSAD: " + error.response.data.message);
         } else {
           // Handle error without message (e.g., network issues)
-          alert("Registration failed: Unknown error from the server.");
+          alert("ASDKJSADNSASA: Unknown error from the server.");
         }
       } else if (error instanceof Error) {
         // Generic JS error
-        alert("Error during Registration: " + error.message);
+        alert("AJDHKJSADNSAKJd " + error.message);
       } else {
         // Fallback for unknown errors
-        alert("An unknown error occurred.");
+        alert("AAJDNSAJDk");
       }
     }
   };
