@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
+import { speakText } from '@/services/ttsUtils';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -32,28 +33,28 @@ export default function SettingsScreen() {
       {/* Buttons */}
       <TouchableOpacity
         style={[styles.button, styles.profileButton]}
-        onPress={() => router.push('/profile')}
+        onPress={() => {router.push('/profile'); speakText('Profile button clicked')}}
       >
         <Text style={styles.buttonText}>Profile</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.disabilityButton]}
-        onPress={() => router.push('/disability')}
+        onPress={() => {router.push('/disability'); speakText('Disability Information button clicked')}}
       >
         <Text style={styles.buttonText}>Disability Info</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.accessibilityButton]}
-        onPress={() => router.push('/accessibility')}
+        onPress={() => {router.push('/accessibility'); speakText('Accessibility settings button clicked')}}
       >
         <Text style={styles.buttonText}>Accessibility</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.helpButton]}
-        onPress={() => router.push('/help')}
+        onPress={() => {router.push('/help'); speakText('Help and support button clicked')}}
       >
         <Text style={styles.buttonText}>Help & Support</Text>
       </TouchableOpacity>

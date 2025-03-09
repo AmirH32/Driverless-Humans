@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import axios, { AxiosError } from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { speakText } from '@/services/ttsUtils';
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
@@ -129,10 +130,10 @@ export default function SignupScreen() {
       <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
       <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} />
 
-      <TextInput style={styles.input} placeholder="Enter Name" placeholderTextColor="#D0E1FF" value={name} onChangeText={setName} />
-      <TextInput style={styles.input} placeholder="Enter Email" placeholderTextColor="#D0E1FF" value={email} onChangeText={setEmail} />
-      <TextInput style={styles.input} placeholder="Enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={password} onChangeText={setPassword} />
-      <TextInput style={styles.input} placeholder="Re-enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+      <TextInput style={styles.input} placeholder="Enter Name" placeholderTextColor="#D0E1FF" value={name} onChangeText={setName} onFocus={() => speakText('Enter name field')}/>
+      <TextInput style={styles.input} placeholder="Enter Email" placeholderTextColor="#D0E1FF" value={email} onChangeText={setEmail} onFocus={() => speakText('Enter email field')}/>
+      <TextInput style={styles.input} placeholder="Enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={password} onChangeText={setPassword} onFocus={() => speakText('Enter Password field')}/>
+      <TextInput style={styles.input} placeholder="Re-enter Password" placeholderTextColor="#D0E1FF" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} onFocus={() => speakText('Enter Confirm password field')}/>
 
       {/* Checkbox */}
       {/* <View style={styles.checkboxWrapper}>
@@ -143,12 +144,12 @@ export default function SignupScreen() {
       </View> */}
 
       {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadButton} onPress={handleUploadDocument}>
+      <TouchableOpacity style={styles.uploadButton} onPress={() => {speakText('Upload document for disability evidence clicked'); handleUploadDocument()}}> 
         <Text style={styles.buttonText}>Upload Disability Evidence</Text>
       </TouchableOpacity>
 
       {/* Signup Button */}
-      <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+      <TouchableOpacity style={styles.signupButton} onPress={() => {speakText('Registration button clicked'); handleSignup()}}>
         <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
     </ThemedView>

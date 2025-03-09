@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import api from '@/services/api';
+import { speakText } from '@/services/ttsUtils';
 
 export default function ConfirmedScreen() {
   const router = useRouter();
@@ -82,7 +83,7 @@ export default function ConfirmedScreen() {
       {/* Confirm Booking Button */}
       <Pressable 
         style={[styles.button_confirm, isConfirmed && styles.button_pressed]} 
-        onPress={handleConfirm}
+        onPress={() => {speakText('Confirm button clicked'); handleConfirm();}}
         disabled={isConfirmed}
       >
         <Text style={styles.buttonText}>
@@ -93,7 +94,7 @@ export default function ConfirmedScreen() {
       {/* Cancel Booking Button */}
       <Pressable 
         style={styles.button_cancel}
-        onPress={handleCancel}
+        onPress={() => {speakText('Cancel button clicked'); handleCancel();}}
       >
         <Text style={styles.buttonText}>
           {isConfirmed ? 'Stop Volunteering' : 'Cancel'}

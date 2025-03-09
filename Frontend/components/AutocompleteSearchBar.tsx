@@ -5,6 +5,7 @@ import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-na
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { router } from 'expo-router';
 import api from "@/services/api";
+import { speakText } from '@/services/ttsUtils';
 
 type Stop = {
   id: string;
@@ -49,6 +50,7 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
     <View style={styles.main_container}>
       <IconSymbol size={50} name="map.pin" color={"#0000FF"} />
       <TextInput
+        onFocus={() => speakText('Enter location field')}
         onChangeText={onChangeText}
         value={input}
         style={styles.input}

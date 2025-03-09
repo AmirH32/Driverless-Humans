@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet, Text, View, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { speakText } from '@/services/ttsUtils';
 
 export default function AccessibilityScreen() {
   const router = useRouter();
@@ -29,16 +30,20 @@ export default function AccessibilityScreen() {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Font Size</Text>
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.fontButton}>
-            <Text style={styles.fontButtonText}>Small</Text>
+          <TouchableOpacity style={styles.fontButton} onPress={() => {
+    speakText('Small Font size button pressed')}}>
+            <Text style={styles.fontButtonText} >Small</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.fontButton}>
+          <TouchableOpacity style={styles.fontButton} onPress={() => {
+    speakText('Normal Font size button pressed')}}>
             <Text style={styles.fontButtonText}>Normal</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.fontButton}>
+          <TouchableOpacity style={styles.fontButton} onPress={() => {
+    speakText('Big Font size button pressed')}}>
             <Text style={styles.fontButtonText}>Big</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.fontButton}>
+          <TouchableOpacity style={styles.fontButton} onPress={() => {
+    speakText('Large Font size button pressed')}}>
             <Text style={styles.fontButtonText}>Large</Text>
           </TouchableOpacity>
         </View>
@@ -48,19 +53,23 @@ export default function AccessibilityScreen() {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Theme</Text>
         <View style={styles.themeToggleContainer}>
-          <Text style={styles.themeText}>Light</Text>
+        <Text style={styles.themeText}>Light</Text>
           <Switch
             value={isDarkTheme}
-            onValueChange={toggleTheme}
+            onValueChange={(value) => {
+              toggleTheme(); // Correctly call the toggleTheme function
+              speakText(value ? 'Theme is dark' : 'Theme is light'); // Speak based on the toggle
+            }}
             thumbColor={isDarkTheme ? '#f4f3f4' : '#f4f3f4'}
             trackColor={{ false: '#81b0ff', true: '#767577' }}
           />
-          <Text style={styles.themeText}>Dark</Text>
+        <Text style={styles.themeText}>Dark</Text>
         </View>
       </View>
 
       {/* Text to Speech Button */}
-      <TouchableOpacity style={[styles.button, styles.textToSpeechButton]}>
+      <TouchableOpacity style={[styles.button, styles.textToSpeechButton]} onPress={() => {
+    speakText('Enable Text to Speech button pressed')}}>
         <Text style={styles.buttonText}>Enable Text to Speech</Text>
       </TouchableOpacity>
     </ThemedView>

@@ -3,23 +3,10 @@ import { TouchableOpacity, StyleSheet, Text, Image, Platform } from 'react-nativ
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import * as Speech from 'expo-speech'; // Import the Speech module
+import { speakText } from '@/services/ttsUtils';
 
 export default function HomeScreen() {
   const router = useRouter();
-
-  const speakText = (text: string) => {
-    if (Platform.OS === 'web') {
-      // Web: Use Web Speech API for text-to-speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      // Mobile: Use Expo Speech API for text-to-speech
-      Speech.speak(text, {
-        language: 'en',
-      });
-    }
-  };
 
   return (
     <ThemedView style={styles.container}>

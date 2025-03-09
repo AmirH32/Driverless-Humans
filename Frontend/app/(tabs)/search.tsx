@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, Pressable, ImageBackground } from "react-native
 import AutocompleteInput from "@/components/AutocompleteSearchBar";
 import { useRouter } from 'expo-router';
 import { TopBar } from '@/components/TopBar';
+import { speakText } from '@/services/ttsUtils';
 
 type Stop = {
   id: string;
@@ -39,7 +40,7 @@ export default function SearchScreen() {
             </View>
           </View>
 
-          <Pressable style={styles.submitButton} onPress={handleSubmit}>
+          <Pressable style={styles.submitButton} onPress={()=>{speakText('Find Route button clicked') ;handleSubmit()}}>
             <Text style={styles.submitButtonText}>Find Routes</Text>
           </Pressable>
         </View>

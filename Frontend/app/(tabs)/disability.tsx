@@ -6,6 +6,7 @@ import api from "@/services/api";// Adjust the import path as necessary
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import axios, { AxiosError } from 'axios';
+import { speakText } from '@/services/ttsUtils';
 
 
 export default function DisabilityScreen() {
@@ -86,7 +87,7 @@ export default function DisabilityScreen() {
       {/* View Current Document Button */}
       <TouchableOpacity
         style={[styles.button, styles.viewButton]}
-        onPress={handleViewDocument}
+        onPress={() => {handleViewDocument(); speakText('View current disability document pressed')}}
       >
         <Text style={styles.buttonText}>View Current Document</Text>
       </TouchableOpacity>
@@ -94,7 +95,7 @@ export default function DisabilityScreen() {
       {/* Upload New Document Button */}
       <TouchableOpacity
         style={[styles.button, styles.uploadButton]}
-        onPress={handleUploadDocument}
+        onPress={() => {handleUploadDocument(); speakText('Upload disability document pressed');}}
       >
         <Text style={styles.buttonText}>Upload New Document</Text>
       </TouchableOpacity>

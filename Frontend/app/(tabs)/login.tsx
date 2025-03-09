@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { speakText } from '@/services/ttsUtils';
 
 export default function LoginScreen() {
 
@@ -96,6 +97,7 @@ export default function LoginScreen() {
         placeholderTextColor="#D0E1FF" 
         value={email}
         onChangeText={setEmail}
+        onFocus={() => speakText('Enter Email field')}
       />
       <TextInput
         style={styles.input}
@@ -104,11 +106,12 @@ export default function LoginScreen() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        onFocus={() => speakText('Enter Password field')}
       />
       
       <TouchableOpacity
         style={[styles.loginButton]}
-        onPress={handlePress}
+        onPress={() => {speakText('Log in button clicked'); handlePress();}}
       >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>

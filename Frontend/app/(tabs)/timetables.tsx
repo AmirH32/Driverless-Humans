@@ -6,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from "@/services/api";
+import { speakText } from '@/services/ttsUtils';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -14,8 +15,8 @@ export default function LoginScreen() {
   const color = '#000000';
 
   const backToEdit = () => {
-    alert("This button should link back to the origin/ desitination page");
-    router.back();
+    speakText("Going back to search page")
+    router.push('/search');
   };
 
   const formatDateForSQL = (date: Date): string => {
@@ -73,7 +74,7 @@ export default function LoginScreen() {
         <Pressable
           key={index}
           style={styles.busview_container}
-          onPress={() => bookBus(src_stop_id, dst_stop_id, dat["vehicle_id"])}
+          onPress={() => {bookBus(src_stop_id, dst_stop_id, dat["vehicle_id"]); speakText(`You are booking a bus on route ${dat["route_name"]} which will arrive in ${dat["arrival_min"]} minutes. There are ${dat["seats_empty"]} seats and a ${getRampType(dat)}`)}}
         >
           <Text style={styles.busview_busNumber}>{dat["route_name"]}</Text>
           <View style={styles.busview_infoContainer}>
