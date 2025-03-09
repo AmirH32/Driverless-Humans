@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from werkzeug.security import generate_password_hash
 from Backend.database.models import User, db
@@ -7,9 +7,36 @@ import re
 
 
 # Init for Flask & JWT Manager
+# Init for Flask & JWT Manager
 def init_jwt(app: Flask):
     app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET") # Add test in future to make sure it's set correctly in prod
     jwt = JWTManager(app)
+    
+    # Add JWT error handlers
+    @jwt.unauthorized_loader
+    def missing_token_callback(error_string):
+        return jsonify({
+            "message": "Missing authentication token",
+            "success": False,
+            "error_type": "missing_token"
+        }), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error_string):
+        return jsonify({
+            "message": "Invalid authentication token",
+            "success": False,
+            "error_type": "invalid_token"
+        }), 401
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            "message": "Expired authentication token",
+            "success": False,
+            "error_type": "token_expired"
+        }), 401
+        
     return jwt
 
 def generate_hashed_password(password):
