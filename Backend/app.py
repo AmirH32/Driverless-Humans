@@ -273,7 +273,6 @@ def link_document_to_user():
     document = Document.query.filter_by(TempUserID=temp_user_id).first()
     if document:
         document.UserID = user_id  # Link the document to the authenticated user
-        document.TempUserID = None  # Remove the TempUserID once linked
         db.session.commit()
         return jsonify({"success": True, "message": "Document linked to user successfully"}), 200
     else:
@@ -387,6 +386,7 @@ def register():
     name = sanitise_input(data.get("name", ""))
     password = data.get("password", "")
     hasDisability = data.get("hasDisability", "")
+    temp_user_id = data.get("tempUserId","")
 
     # Make sure email and password fields are filled
     if not email or not password or not name:
@@ -402,6 +402,12 @@ def register():
                 "success": False,
             }
         ), 400
+    
+    document = db.session.query(Document).filter_by(TempUserID=temp_user_id).first()
+    if not temp_user_id or not document:
+        return jsonify({"message": "User has not uploaded a document", "success": False}), 400
+    
+    print(f"User has document: {document}")
     
     if hasDisability == True:
         role = "Disabled"
