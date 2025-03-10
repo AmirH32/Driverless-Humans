@@ -849,7 +849,7 @@ def delete_reservation():
         
         db.session.commit()
 
-        return jsonify({"message": "Reservations deleted successfully."}), 200
+        return jsonify({"message": "Reservations deleted successfully.", "success": True}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
