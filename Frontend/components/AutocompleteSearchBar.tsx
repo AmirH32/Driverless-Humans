@@ -6,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { router } from 'expo-router';
 import api from "@/services/api";
 import { useFontSize } from "@/contexts/FontSizeContext";
+import { speakText } from '@/services/ttsUtils';
 
 type Stop = {
   id: string;
@@ -23,7 +24,6 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   const [data, setData] = useState<Stop[]>([]);
   const {fontScale, setFontScale} = useFontSize();
   const styles = createStyles(fontScale);
-
 
   const onChangeText = async (text: string) => {
     setInput(text);
@@ -53,6 +53,7 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
     <View style={styles.main_container}>
       <IconSymbol size={50} name="map.pin" color={"#0000FF"} />
       <TextInput
+        onFocus={() => speakText('Enter location field')}
         onChangeText={onChangeText}
         value={input}
         style={styles.input}

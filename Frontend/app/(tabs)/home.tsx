@@ -1,8 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, Image, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { speakText } from '@/services/ttsUtils';
 import { useFontSize } from '@/contexts/FontSizeContext';
 
 export default function HomeScreen() {
@@ -19,10 +20,13 @@ export default function HomeScreen() {
       
       <ThemedText style={styles.title}>Plan and Track your journey!</ThemedText>
 
-      {/* Login Button */}
-      <TouchableOpacity
+         {/* Login Button */}
+         <TouchableOpacity
         style={[styles.button, styles.loginButton]}
-        onPress={() => router.push('/login')}
+        onPress={() => {
+          router.push('/login');
+          speakText('Login button clicked');
+        }}
       >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
@@ -30,7 +34,10 @@ export default function HomeScreen() {
       {/* Sign up Button */}
       <TouchableOpacity
         style={[styles.button, styles.signupButton]}
-        onPress={() => router.push('/signup')}
+        onPress={() => {
+          router.push('/signup');
+          speakText('Sign up button clicked');
+        }}
       >
         <Text style={styles.buttonText}>Sign up</Text>
       </TouchableOpacity>
@@ -38,7 +45,10 @@ export default function HomeScreen() {
       {/* Volunteer Sign up Button */}
       <TouchableOpacity
         style={[styles.button, styles.volunteerButton]}
-        onPress={() => router.push('/volunteerSignup')}
+        onPress={() => {
+          router.push('/volunteerSignup');
+          speakText('Sign up as volunteer button clicked');
+        }}
       >
         <Text style={styles.buttonText}>Sign up as a volunteer</Text>
       </TouchableOpacity>

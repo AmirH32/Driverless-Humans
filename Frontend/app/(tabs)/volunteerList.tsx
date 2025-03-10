@@ -27,8 +27,7 @@ export default function VolunteerListScreen() {
   ]
 
   const volunteerFor = (reservation_id) => {
-    alert("volunteering for " + reservation_id);
-    // router.push(`/volunteerConfirm?reservation_id=${reservation_id}`);
+    router.push(`/confirmed_v?ReservationID=${reservation_id}`);
   };
 
   const getReservations = async (latitude, longitude) => {

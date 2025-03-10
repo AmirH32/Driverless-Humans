@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
 import { useFontSize } from '@/contexts/FontSizeContext';
+import { speakText } from '@/services/ttsUtils';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -109,23 +110,23 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <TouchableOpacity 
         style={styles.crossButton}
-        onPress={() => router.push('/settings')}
+        onPress={() => {router.push('/settings')}}
       >
         <Text style={styles.crossText}>✕</Text>
       </TouchableOpacity>
-
+    
       <ThemedText style={styles.title}>Profile</ThemedText>
 
       <TouchableOpacity
         style={[styles.button, styles.editButton]} 
-        onPress={() => setEditModalVisible(true)}
+        onPress={() => {setEditModalVisible(true); speakText('Edit profile button clicked')}}
       >
         <Text style={styles.buttonText}>Edit Profile</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, styles.passwordButton]}
-        onPress={() => setPasswordModalVisible(true)}
+        onPress={() => {setPasswordModalVisible(true); speakText('Change password button clicked')}}
       >
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
@@ -134,7 +135,10 @@ export default function ProfileScreen() {
         <Text style={styles.buttonText}>Toggle Notifications</Text>
         <Switch
           value={notificationsEnabled}
-          onValueChange={setNotificationsEnabled}
+          onValueChange={(value) => {
+            setNotificationsEnabled(value); // Update the state
+            speakText(value ? 'Notifications are enabled' : 'Notifications are disabled'); // Speak based on the toggle
+          }}
           trackColor={{ false: '#ccc', true: '#81b0ff' }}
           thumbColor={notificationsEnabled ? '#007BFF' : '#f4f3f4'}
         />
@@ -156,12 +160,14 @@ export default function ProfileScreen() {
               placeholder="New Name"
               value={name}
               onChangeText={setName}
+              onFocus={() => speakText('Enter a new name field')}
             />
             <TextInput
               style={styles.input}
               placeholder="New Email"
               value={email}
               onChangeText={setEmail}
+              onFocus={() => speakText('Enter a new email field')}
             />
             <TextInput
               style={styles.input}
@@ -170,19 +176,23 @@ export default function ProfileScreen() {
               placeholderTextColor="#999"
               value={currentPassword}
               onChangeText={setCurrentPassword}
+              onFocus={() => speakText('Enter current password field')}
             />
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setEditModalVisible(false)}
+                onPress={() => {setEditModalVisible(false); speakText('Cancel button pressed') }}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={[styles.modalButton, styles.saveButton]}
-                onPress={handleSaveProfile}
+                onPress={() => {
+                  handleSaveProfile(); // Call the handleSaveProfile function
+                  speakText('Save changes button pressed'); // Speak the text
+                }}
                 disabled={!(name || email) || !currentPassword}
               >
                 <Text style={styles.buttonText}>Save Changes</Text>
@@ -209,6 +219,7 @@ export default function ProfileScreen() {
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
+              onFocus={() => speakText('Enter new password field')}
             />
             <TextInput
               style={styles.input}
@@ -216,19 +227,23 @@ export default function ProfileScreen() {
               secureTextEntry
               value={confirmPassword}
               onChangeText={setConfirmPassword}
+              onFocus={() => speakText('Confirm new password field')}
             />
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setPasswordModalVisible(false)}
+                onPress={() => {setPasswordModalVisible(false); speakText('Cancel button pressed'); }}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={[styles.modalButton, styles.saveButton]}
-                onPress={handleSavePassword}
+                onPress={() => {
+                  handleSavePassword(); // Call the handleSaveProfile function
+                  speakText('Save password button pressed'); // Speak the text
+                }}
                 disabled={newPassword === '' || confirmPassword === '' || newPassword !== confirmPassword}
               >
                 <Text style={styles.buttonText}>Save Changes</Text>

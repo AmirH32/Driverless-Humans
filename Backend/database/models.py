@@ -1,17 +1,26 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
+from enum import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 db = SQLAlchemy()
+
+class Roles(Enum):
+    VOLUNTEER = "Volunteer"
+    DISABLED = "Disabled"
+
 
 class Document(db.Model):
     __tablename__ = 'document'
     
     DocumentID = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key for the document
-    UserID = db.Column(db.Integer, ForeignKey('user.UserID'), nullable=False, unique=True)  # Foreign key linking to User
+    UserID = db.Column(db.Integer, ForeignKey('user.UserID'), nullable=True, unique=True)  # Foreign key linking to User
     Name = db.Column(db.String(255), nullable=False)  # Name of the document
     FilePath = db.Column(db.String(255), nullable=False)  # Store the file path instead of binary data
+    TempUserID = db.Column(UUID(as_uuid=True), unique=True, nullable=True)  
 
     # Relationship to User model (optional)
     user = db.relationship('User', backref=db.backref('documents', lazy=True))

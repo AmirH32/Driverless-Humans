@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useFontSize } from '@/contexts/FontSizeContext';
+import api from '@/services/api';
+import { speakText } from '@/services/ttsUtils';
+import axios, { AxiosError } from 'axios';
 
 export default function ConfirmedScreen() {
   const router = useRouter();
@@ -13,17 +16,45 @@ export default function ConfirmedScreen() {
   // Font scaling
   const {fontScale, setFontScale} = useFontSize();
   const styles = createStyles(fontScale);
-
+  
   // Track if the booking has been confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
-
+  const [info, setInfo] = useState<JSX.Element | null>(null);
+  const { StopID1, StopID2, BusID, Time, VolunteerCount } = useLocalSearchParams();
+  
   // Handle confirming the booking
   const handleConfirm = async () => {
-    setIsConfirmed(true);
-    // TODO: Send an API request to confirm the booking
-    alert("Booking confirmed!");
+    try{
+      console.log("Confirm fetching data.")
+      const response = await api.post("/create_reservation", {StopID1, StopID2, BusID, Time, VolunteerCount: parseInt(VolunteerCount as string, 10)});
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (response.data.success) {
+        setIsConfirmed(true);
+        fetchData();
+      } else {
+        // You can handle non-200 responses here if needed
+        alert("Reservation confirmation failed: " + response.data.message);
+      }
+    } catch (error: unknown) {
+      // Handle Axios error
+      if (axios.isAxiosError(error)) {
+        // Check if error.response exists and contains a message
+        if (error.response && error.response.data && error.response.data.message) {
+          alert("Reservation confirmation failed: " + error.response.data.message);
+        } else {
+          // Handle error without message (e.g., network issues)
+          alert("Reservation confirmation failed: Unknown error from the server.");
+        }
+      } else if (error instanceof Error) {
+        // Generic JS error
+        alert("Error during reservation confirmation: " + error.message);
+      } else {
+        // Fallback for unknown errors
+        alert("An unknown error occurred.");
+      }
+    }
   };
-
+  
   // Handle cancelling the booking
   const handleCancel = async () => {
     if (isConfirmed) {
@@ -31,62 +62,78 @@ export default function ConfirmedScreen() {
       setIsConfirmed(false);
 
       // TODO: API request to cancel the booking
-      alert("Booking cancelled.");
-
+      try{
+        const response = api.post("/delete_reservation");
+      } catch (error: unknown) {
+        // Handle Axios error
+        if (axios.isAxiosError(error)) {
+          // Check if error.response exists and contains a message
+          if (error.response && error.response.data && error.response.data.message) {
+            alert("Reservation deletion failed: " + error.response.data.message);
+          } else {
+            // Handle error without message (e.g., network issues)
+            alert("Reservation deletion failed: Unknown error from the server.");
+          }
+        } else if (error instanceof Error) {
+          // Generic JS error
+          alert("Error during reservation deletion: " + error.message);
+        } else {
+          // Fallback for unknown errors
+          alert("An unknown error occurred.");
+        }
+      }
     } else {
       // If booking wasn't confirmed, just return to timetables
       router.push('/timetables');
-    }
+    } 
   };
 
-  master_data = {
-    seats_available: 1,
-    volounteers_available: 4,
-    minutes_wait: 30,
-  }// TODO using the API, this need to be linked
-  
-  const getData = async () => {
-    try {
-      
-      const src_stop_id = "0500CCITY423";
-      const dst_stop_id = "0500CCITY523"; // TODO these should be passed from the prev page
-
-      const response = await fetch(`http://127.0.0.1:5000/timetables?origin_id=${src_stop_id}&destination_id=${dst_stop_id}`);
-      const data = await response.json(); // ! This is what will happen, but using dummies for now
-      console.log(data);
-      master_data["minutes_wait"] = data["arrival_min"]
-      // TODO Modify the dict
-    } catch (error) {
-      console.error("Error during stops fetch, could not connect to server:", error);
-    }
+  const fetchData = async () => {
+    const response = await api.get('/see_reservation');
+    const data = response.data.reservations;
+    const infoComponents = (
+      <View style={styles.infoView}>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["street"]}</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["seats_empty"]} Seat Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["VolunteerCount"]} Volunteers Available</Text>
+        </View>
+        <View style={styles.infoEntry}>
+          <IconSymbol size={50} name="clock" color={'#000000'} /> 
+          <Text style={styles.infoText}>{data["arrival_min"]} Minute wait</Text>
+        </View>
+      </View>
+    )
+    setInfo(infoComponents);
   };
 
-
+  useEffect(() => {
+    if (isConfirmed) {
+      console.log("Effect fetching data.")
+      fetchData();
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isConfirmed]);
 
   return (
     <ThemedView style={styles.container}>
       <TopBar/>
       <ThemedText type="title" style={{color: '#000000'}}>Booking Confirmed!</ThemedText>
       <Image source={require('@/assets/images/camb_map.png')} style={styles.mapimg}/>
-      <View style={styles.infoView}>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["seats_available"]} Seat Available</Text>
-        </View>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["volounteers_available"]} Volunteers Available</Text>
-        </View>
-        <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="clock" color={'#000000'} /> 
-          <Text style={styles.infoText}>{master_data["minutes_wait"]} Minute wait</Text>
-        </View>
-      </View>
+      {isConfirmed && info}
 
       {/* Confirm Booking Button */}
       <Pressable 
         style={[styles.button_confirm, isConfirmed && styles.button_pressed]} 
-        onPress={handleConfirm}
+        onPress={() => {speakText('Confirm button clicked'); handleConfirm();}}
         disabled={isConfirmed}
       >
         <Text style={styles.buttonText}>
@@ -97,7 +144,7 @@ export default function ConfirmedScreen() {
       {/* Cancel Booking Button */}
       <Pressable 
         style={styles.button_cancel}
-        onPress={handleCancel}
+        onPress={() => {speakText('Cancel button clicked'); handleCancel();}}
       >
         <Text style={styles.buttonText}>
           {isConfirmed ? 'Cancel Booking' : 'Cancel'}

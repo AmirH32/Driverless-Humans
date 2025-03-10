@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useFontSize } from '@/contexts/FontSizeContext';
+import { speakText } from '@/services/ttsUtils';
 
 export default function AccessibilityScreen() {
   const router = useRouter();
@@ -51,19 +52,23 @@ export default function AccessibilityScreen() {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Theme</Text>
         <View style={styles.themeToggleContainer}>
-          <Text style={styles.themeText}>Light</Text>
+        <Text style={styles.themeText}>Light</Text>
           <Switch
             value={isDarkTheme}
-            onValueChange={toggleTheme}
+            onValueChange={(value) => {
+              toggleTheme(); // Correctly call the toggleTheme function
+              speakText(value ? 'Dark theme enabled' : 'Light theme enabled'); // Speak based on the toggle
+            }}
             thumbColor={isDarkTheme ? '#f4f3f4' : '#f4f3f4'}
             trackColor={{ false: '#81b0ff', true: '#767577' }}
           />
-          <Text style={styles.themeText}>Dark</Text>
+        <Text style={styles.themeText}>Dark</Text>
         </View>
       </View>
 
       {/* Text to Speech Button */}
-      <TouchableOpacity style={[styles.button, styles.textToSpeechButton]}>
+      <TouchableOpacity style={[styles.button, styles.textToSpeechButton]} onPress={() => {
+    speakText('Enable Text to Speech button pressed')}}>
         <Text style={styles.buttonText}>Enable Text to Speech</Text>
       </TouchableOpacity>
     </ThemedView>

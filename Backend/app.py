@@ -8,6 +8,7 @@ from Backend.data.utils import calc_coord_distance
 
 from flask import Flask, request, jsonify, make_response, send_file
 from flask_migrate import Migrate
+import uuid
 
 from Backend.database.models import (
     db,
@@ -15,8 +16,12 @@ from Backend.database.models import (
     Reservations,
     UserReservation,
     VolunteerReservation,
+    Roles,
     Document
 )
+
+from Backend.database.utils import get_reservation_data
+
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
@@ -133,6 +138,11 @@ def auth_init():
 auth_init()
 
 def allowed_file(filename):
+    """
+    Argument: A string filename
+
+    Returns: A boolean indicating if the file extension is within the constant allowed extensions 
+    """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -173,6 +183,11 @@ def autocomplete() -> List[Dict[str, Any]]:
 @app.route('/upload_pdf', methods=['POST'])
 @jwt_required()
 def upload_pdf():
+    """
+    Arguments: A pdf file
+
+    Purpose: Stores the document in the constant UPLOAD_FOLDER directory as well as adding it's metadata to the database so it can be stored against a user ID
+    """
     # Ensure user is authenticated and get the user ID from the JWT
     user_id = get_jwt_identity()
 
@@ -219,9 +234,80 @@ def upload_pdf():
         "file_path": file_path  # Optionally, return the file path or URL
     }), 200
 
+@app.route('/upload_pdf_temp', methods=['POST'])
+def upload_pdf_temp():
+    """
+    Arguments: A pdf file
+
+    Purpose: Stores the document in the constant UPLOAD_FOLDER directory as well as adding it's metadata to the database so it can be stored against a temporary user ID before the user is registered
+    """
+    # Generate a temporary user ID for the "disabled" user
+    temp_user_id = uuid.uuid4()  # Generate a unique TempUserID
+
+    # Get the file from the request
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Check if the file has a valid extension
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+
+    # Generate a secure filename for the file
+    filename = secure_filename(file.filename)
+
+    # Save the file to the server's file system
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+
+    # Create a new Document instance with TempUserID
+    document = Document(
+        Name=filename,
+        FilePath=file_path,
+        TempUserID=temp_user_id  # Associate with TempUserID
+    )
+
+    db.session.add(document)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "PDF uploaded successfully",
+        "temp_user_id": str(temp_user_id),  # Return the TempUserID for frontend use
+        "document_name": document.Name,
+        "document_id": document.DocumentID,
+        "file_path": file_path
+    }), 200
+
+@app.route('/link_document_to_user', methods=['POST'])
+@jwt_required()
+def link_document_to_user():
+    """
+    Arguments: A temporary User ID
+
+    Purpose: Links a document to a user ID by searching for the document linked to the temporary User ID
+    """
+    user_id = get_jwt_identity()  # Get the user ID from the JWT
+    temp_user_id = request.json.get('tempUserId')  # TempUserID passed from frontend
+    # Find the document associated with the TempUserID
+    document = Document.query.filter_by(TempUserID=temp_user_id).first()
+    if document:
+        document.UserID = user_id  # Link the document to the authenticated user
+        db.session.commit()
+        return jsonify({"success": True, "message": "Document linked to user successfully"}), 200
+    else:
+        return jsonify({"error": "Document not found or already linked"}), 404
+
+
+
 @app.route('/view_pdf', methods=['GET'])
 @jwt_required()
 def view_pdf():
+    """
+    Arguments: None
+
+    Purpose: Searches the database for the document linked to the user's ID
+    """
     ### ASSUMPTION: User's have only one document
 
     # Ensure user is authenticated and get the user ID from the JWT
@@ -253,6 +339,11 @@ def view_pdf():
 
 @app.route("/login", methods=["POST"])
 def login():
+    """
+    Arguments: A string email and password
+
+    Purpose: Allows user's to login by providing them an access and refresh token after confirming that their password matches that of the User in the database with the same email
+    """
     data = request.get_json()
     email = sanitise_input(data.get("email"))
     password = data.get("password")
@@ -300,6 +391,11 @@ def login():
 @app.route("/user-info", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_user_info():
+    """
+    Arguments: None
+
+    Purpose: Returns the user ID, role, name and email
+    """
     if request.method == "OPTIONS":
         return "", 200  # Respond to OPTIONS request
 
@@ -320,11 +416,17 @@ def get_user_info():
 
 @app.route("/register", methods=["POST"])
 def register():
+    """
+    Arguments: name, email, password, hasDisability, temp_user_id
+
+    Purpose: Check that the user's email does not already exist in the database, check their password and email, their role and if they have uploaded a supporting document. Then creates the user in the database.
+    """
     data = request.get_json()
     email = sanitise_input(data.get("email", ""))
     name = sanitise_input(data.get("name", ""))
     password = data.get("password", "")
     hasDisability = data.get("hasDisability", "")
+    temp_user_id = data.get("tempUserId","")
 
     # Make sure email and password fields are filled
     if not email or not password or not name:
@@ -341,10 +443,18 @@ def register():
             }
         ), 400
     
+    
+    
     if hasDisability == True:
         role = "Disabled"
     else:
         role = "Volunteer"
+
+    # If the user is registering as disabled, check to see if they have uploaded a document
+    if role == "Disabled":
+        document = db.session.query(Document).filter_by(TempUserID=temp_user_id).first()
+        if not temp_user_id or not document:
+            return jsonify({"message": "User has not uploaded a document", "success": False}), 400
 
     # Check if user already exists
     existing_user = User.query.filter_by(Email=email).first()
@@ -360,6 +470,11 @@ def register():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
+    """
+    Arguments: None
+
+    Purpose: Clears the user's cookies and logs them out
+    """
     response = make_response(
         jsonify({"message": "Logout successful", "success": True}), 200
     )
@@ -371,10 +486,15 @@ def logout():
     return response
 
 
-### FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES
+### TODO: FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES (DONE)
 @app.route("/refresh")
 @jwt_required(refresh=True)
 def refresh():
+    """
+    Arguments: None
+
+    Purpose: Creates a new access and refresh token for the user when called
+    """
     try:
         current_user = get_jwt_identity()
         user = User.query.filter_by(UserID=current_user).first()
@@ -410,12 +530,69 @@ def refresh():
         # Refresh token has expired
         return jsonify({"message": "Please login again."}), 401
 
+@app.route("/see_reservation", methods=["GET"])
+@jwt_required()
+def see_reservation():
+    """
+    Arguments: None
+
+    Purpose: Allows the user to see all reservations
+    """
+    userID = get_jwt_identity()
+    
+    user = db.session.query(User).filter_by(UserID=userID).first()
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+
+    role = user.Role
+    print(f"see_reservation userID={userID},role={role},{Roles.VOLUNTEER},isVolunteer={role=='Volunteer'}")
+    
+    if role not in ["Volunteer", "Disabled"]:
+        return jsonify({"message": f"Unexpected role '{role}'."}), 400
+    
+    reservations = (
+        db.session.query(Reservations)
+        .join(VolunteerReservation, Reservations.ReservationID == VolunteerReservation.ReservationID)
+        .filter(VolunteerReservation.UserID == userID)
+        .all()
+    ) if role == "Volunteer" else (
+        db.session.query(Reservations)
+        .join(UserReservation, Reservations.ReservationID == UserReservation.ReservationID)
+        .filter(UserReservation.UserID == userID)
+        .all()
+    )
+
+    print(f"reservations={reservations}")
+
+    # if len(reservations) != 1:
+    #     return jsonify({"message": f"Got {len(reservations)} reservations, but expected length 1."}), 400
+
+    res = reservations[0]
+
+    reservations_dict = {
+        "ReservationID": res.ReservationID,
+        "StopID1": res.StopID1,
+        "StopID2": res.StopID2,
+        "BusID": res.BusID,
+        "Time": res.Time,
+        "VolunteerCount": res.VolunteerCount,
+    }
+
+    data = get_reservation_data(reservations_dict)
+    if data is None:
+        return jsonify({"message": "Could not fetch timetables."}), 400
+    
+    reservations_dict |= data
+    return jsonify({"role": role, "reservations": reservations_dict}), 200
+    
 
 @app.route("/create_reservation", methods=["POST"])
 @jwt_required()  # Protect this route
 def create_reservation():
     """
+    Arguments: stopID1, stopID2, busID, time, VolunteerCount
 
+    Purpose: Allows the user to create a reservation if there is no matching reservation already existing
     """
     data = request.get_json()
     stopID1 = sanitise_input(data.get("StopID1", ""))
@@ -435,7 +612,7 @@ def create_reservation():
         db.session.query(UserReservation)
         .filter_by(UserID=userID)  # Filter by userID
         .join(Reservations, UserReservation.ReservationID == Reservations.ReservationID)  # Join with the Reservations table
-        .filter(Reservations.Time == time, Reservations.BusID == busID)  # Check Time and busID
+        .filter(Reservations.Time == time, Reservations.BusID == busID)  # Check against Time and busID
         .first()
     )
 
@@ -464,7 +641,7 @@ def create_reservation():
         
         db.session.add(user_reservation)
         db.session.commit()
-
+        print(f"Created reservation {new_reservation}")
         return jsonify(
             {
                 "message": "Reservation created successfully",
@@ -479,6 +656,11 @@ def create_reservation():
 @app.route("/add_volunteer", methods=["POST"])
 @jwt_required()  # Protect this route
 def add_volunteer():
+    """
+    Arguments: reservationID
+
+    Purpose: Allows the volunteers to be added to the reservation
+    """
     data = request.get_json()
 
     reservationID = data.get("ReservationID", "")
@@ -487,7 +669,7 @@ def add_volunteer():
 
     # Get the user object to check the role
     user = db.session.query(User).filter_by(UserID=userID).first()
-    
+    print(f"userRole={user.Role}")
     # Check the user has the right role
     if user.Role != "Volunteer":
         return jsonify(
@@ -509,7 +691,7 @@ def add_volunteer():
     if existing_volunteer_reservations:
         return jsonify(
             {"message": "The user is already volunteering for this reservation."}
-        ), 400
+        ), 200
     
 
     # Find reservation to add the user
@@ -517,7 +699,7 @@ def add_volunteer():
     reservation = db.session.query(Reservations).filter_by(ReservationID = reservationID).first()
 
     if not reservation:
-        return jsonify({"message":"Reservation not found."}), 404
+        return jsonify({"message":"Reservation not found."}), 200
     # End of Checks
 
     try:
@@ -546,6 +728,11 @@ def add_volunteer():
 @app.route("/remove_volunteer", methods=["POST"])
 @jwt_required()
 def remove_volunteer():  
+    """
+    Arguments: reservationID
+
+    Purpose: Allows the volunteers to be removed from the reservation
+    """
     data = request.get_json()
 
     reservationID = data.get("ReservationID", "")
@@ -556,10 +743,10 @@ def remove_volunteer():
         volunteerReservation = db.session.query(VolunteerReservation).filter_by(UserID=userID, ReservationID=reservationID).first()
 
         if not reservation:
-            return jsonify({"message":"Reservation not found."}), 404
+            return jsonify({"message":"Reservation not found."}), 200
         
         if not volunteerReservation:
-            return jsonify({"message":"Reservation not found."}), 404
+            return jsonify({"message":"Reservation not found."}), 200
         
         reservation.VolunteerCount -= 1
         db.session.delete(volunteerReservation)
@@ -571,76 +758,10 @@ def remove_volunteer():
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
 
-@app.route("/get_reservation", methods=["GET"])
-@jwt_required()
-def get_reservation():
-    try:
-        reservation_id = int(request.args.get("reservationID",None))
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    res = (
-        db.session.query(Reservations)
-        .filter_by(ReservationID=reservation_id)
-        .first()
-    )
-
-    reservation_dict = {
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    }
-    return reservation_dict
-
-    reservations_df = pd.DataFrame([{
-        "ReservationID": res.ReservationID,
-        "StopID1": res.StopID1,
-        "StopID2": res.StopID2,
-        "BusID": res.BusID,
-        "Time": res.Time,
-        "VolunteerCount": res.VolunteerCount
-    } for res in reservations], columns=["ReservationID", "StopID1", "StopID2", "BusID", "Time", "VolunteerCount"])
-
-    reservations_df = pd.DataFrame({"ReservationID":[11,12], "StopID1":["0500CCITY423","0500CCITY523"], "StopID2":["0500CCITY523","0500CCITY423"], "BusID":["v0","v1"], "Time":[100,101], "VolunteerCount":[0,1]})
-    
-    latlongs_df = get_stops_data().reset_index()
-    reservations_df = pd.merge(reservations_df, latlongs_df, left_on='StopID1', right_on='id', how='inner')
-    reservations_df = reservations_df.drop(columns=['id'])
-
-    reservations_df["distance"] = reservations_df.apply(
-        lambda row: calc_coord_distance((row["latitude"], row["longitude"]), volunteer_latlong),
-        axis=1,
-    )
-
-    reservations_df = reservations_df.sort_values(by="distance").head(limit)
-    
-    reservations_list = []
-    for _,res in reservations_df.iterrows():
-        timetables = [t for t in get_timetables(origin_id=res["StopID1"],destination_id=res["StopID2"])
-                      if t.vehicle_id == res["BusID"]]
-        
-        if len(timetables) == 0:
-            continue
-
-        timetable = timetables[0]
-
-        reservations_list.append({
-            "reservation_id": res["ReservationID"],
-            "origin_id": res["StopID1"],
-            "destination_id": res["StopID2"],
-            "volunteer_count": res["VolunteerCount"],
-            "distance": res["distance"]
-        } | timetable.model_dump(mode='json'))
-
-    return jsonify({"message": "Reservations retrieved successfully.", "reservations": reservations_list}), 200
-
-
 @app.route("/show_reservations", methods=["GET"])
 @jwt_required()
 def show_reservations():
+
     try:
         volunteer_latitude = request.args.get("latitude",None)
         volunteer_longitude = request.args.get("longitude",None)
@@ -700,26 +821,33 @@ def show_reservations():
 @app.route("/delete_reservation", methods=["POST"])
 @jwt_required()
 def delete_reservation():
+    """
+    Arguments: None
+
+    Purpose: Deletes all of the user's reservations
+    """
     try:
         userID = get_jwt_identity()
 
         # Find the most recent reservation for the user to delete
-        reservation = (
+        reservations = (
             db.session.query(Reservations)
             .join(UserReservation)
             .filter(UserReservation.UserID == userID)
             .order_by(Reservations.Time.desc())
-            .first()
+            .all()
         )
 
-        if not reservation:
-            return jsonify({"message": "No reservations found for this user."}), 404
+        # if not reservations:
+            # return jsonify({"message": "No reservations found for this user."}), 404
 
-        # Delete the reservation
-        db.session.delete(reservation)
+        for reservation in reservations:
+            # Delete the reservation
+            db.session.delete(reservation)
+        
         db.session.commit()
 
-        return jsonify({"message": "Reservation deleted successfully."}), 200
+        return jsonify({"message": "Reservations deleted successfully."}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -727,6 +855,11 @@ def delete_reservation():
 @app.route("/change_password", methods=["POST"])
 @jwt_required()
 def change_password():
+    """
+    Arguments: newPassword
+
+    Purpose: Allows the user to change their password as long as it is strong enough
+    """
     try: 
         userID = get_jwt_identity()
 
@@ -769,6 +902,11 @@ def change_password():
 @app.route("/edit_profile", methods=["POST"])
 @jwt_required()
 def edit_profile():
+    """
+    Arguments: name, email and currentPassword
+
+    Purpose: Allows the user to change their name and email as long as it follows the correct format and their current password is correct
+    """
     try: 
         userID = get_jwt_identity()
 
