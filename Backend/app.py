@@ -138,6 +138,11 @@ def auth_init():
 auth_init()
 
 def allowed_file(filename):
+    """
+    Argument: A string filename
+
+    Returns: A boolean indicating if the file extension is within the constant allowed extensions 
+    """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -178,6 +183,11 @@ def autocomplete() -> List[Dict[str, Any]]:
 @app.route('/upload_pdf', methods=['POST'])
 @jwt_required()
 def upload_pdf():
+    """
+    Arguments: A pdf file
+
+    Purpose: Stores the document in the constant UPLOAD_FOLDER directory as well as adding it's metadata to the database so it can be stored against a user ID
+    """
     # Ensure user is authenticated and get the user ID from the JWT
     user_id = get_jwt_identity()
 
@@ -226,6 +236,11 @@ def upload_pdf():
 
 @app.route('/upload_pdf_temp', methods=['POST'])
 def upload_pdf_temp():
+    """
+    Arguments: A pdf file
+
+    Purpose: Stores the document in the constant UPLOAD_FOLDER directory as well as adding it's metadata to the database so it can be stored against a temporary user ID before the user is registered
+    """
     # Generate a temporary user ID for the "disabled" user
     temp_user_id = uuid.uuid4()  # Generate a unique TempUserID
 
@@ -267,6 +282,11 @@ def upload_pdf_temp():
 @app.route('/link_document_to_user', methods=['POST'])
 @jwt_required()
 def link_document_to_user():
+    """
+    Arguments: A temporary User ID
+
+    Purpose: Links a document to a user ID by searching for the document linked to the temporary User ID
+    """
     user_id = get_jwt_identity()  # Get the user ID from the JWT
     temp_user_id = request.json.get('tempUserId')  # TempUserID passed from frontend
     # Find the document associated with the TempUserID
@@ -283,6 +303,11 @@ def link_document_to_user():
 @app.route('/view_pdf', methods=['GET'])
 @jwt_required()
 def view_pdf():
+    """
+    Arguments: None
+
+    Purpose: Searches the database for the document linked to the user's ID
+    """
     ### ASSUMPTION: User's have only one document
 
     # Ensure user is authenticated and get the user ID from the JWT
@@ -314,6 +339,11 @@ def view_pdf():
 
 @app.route("/login", methods=["POST"])
 def login():
+    """
+    Arguments: A string email and password
+
+    Purpose: Allows user's to login by providing them an access and refresh token after confirming that their password matches that of the User in the database with the same email
+    """
     data = request.get_json()
     email = sanitise_input(data.get("email"))
     password = data.get("password")
@@ -361,6 +391,11 @@ def login():
 @app.route("/user-info", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_user_info():
+    """
+    Arguments: None
+
+    Purpose: Returns the user ID, role, name and email
+    """
     if request.method == "OPTIONS":
         return "", 200  # Respond to OPTIONS request
 
@@ -381,6 +416,11 @@ def get_user_info():
 
 @app.route("/register", methods=["POST"])
 def register():
+    """
+    Arguments: name, email, password, hasDisability, temp_user_id
+
+    Purpose: Check that the user's email does not already exist in the database, check their password and email, their role and if they have uploaded a supporting document. Then creates the user in the database.
+    """
     data = request.get_json()
     email = sanitise_input(data.get("email", ""))
     name = sanitise_input(data.get("name", ""))
@@ -403,16 +443,18 @@ def register():
             }
         ), 400
     
-    document = db.session.query(Document).filter_by(TempUserID=temp_user_id).first()
-    if not temp_user_id or not document:
-        return jsonify({"message": "User has not uploaded a document", "success": False}), 400
     
-    print(f"User has document: {document}")
     
     if hasDisability == True:
         role = "Disabled"
     else:
         role = "Volunteer"
+
+    # If the user is registering as disabled, check to see if they have uploaded a document
+    if role == "Disabled":
+        document = db.session.query(Document).filter_by(TempUserID=temp_user_id).first()
+        if not temp_user_id or not document:
+            return jsonify({"message": "User has not uploaded a document", "success": False}), 400
 
     # Check if user already exists
     existing_user = User.query.filter_by(Email=email).first()
@@ -428,6 +470,11 @@ def register():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
+    """
+    Arguments: None
+
+    Purpose: Clears the user's cookies and logs them out
+    """
     response = make_response(
         jsonify({"message": "Logout successful", "success": True}), 200
     )
@@ -439,10 +486,15 @@ def logout():
     return response
 
 
-### FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES
+### TODO: FRONTEND NEEDS TO REFRESH ACCESS TOKENS EVERY HOUR OR EVERYTIME IT EXPIRES (DONE)
 @app.route("/refresh")
 @jwt_required(refresh=True)
 def refresh():
+    """
+    Arguments: None
+
+    Purpose: Creates a new access and refresh token for the user when called
+    """
     try:
         current_user = get_jwt_identity()
         user = User.query.filter_by(UserID=current_user).first()
@@ -481,6 +533,11 @@ def refresh():
 @app.route("/see_reservation", methods=["GET"])
 @jwt_required()
 def see_reservation():
+    """
+    Arguments: None
+
+    Purpose: Allows the user to see all reservations
+    """
     userID = get_jwt_identity()
     
     user = db.session.query(User).filter_by(UserID=userID).first()
@@ -533,7 +590,9 @@ def see_reservation():
 @jwt_required()  # Protect this route
 def create_reservation():
     """
+    Arguments: stopID1, stopID2, busID, time, VolunteerCount
 
+    Purpose: Allows the user to create a reservation if there is no matching reservation already existing
     """
     data = request.get_json()
     stopID1 = sanitise_input(data.get("StopID1", ""))
@@ -553,7 +612,7 @@ def create_reservation():
         db.session.query(UserReservation)
         .filter_by(UserID=userID)  # Filter by userID
         .join(Reservations, UserReservation.ReservationID == Reservations.ReservationID)  # Join with the Reservations table
-        .filter(Reservations.Time == time, Reservations.BusID == busID)  # Check Time and busID
+        .filter(Reservations.Time == time, Reservations.BusID == busID)  # Check against Time and busID
         .first()
     )
 
@@ -597,6 +656,11 @@ def create_reservation():
 @app.route("/add_volunteer", methods=["POST"])
 @jwt_required()  # Protect this route
 def add_volunteer():
+    """
+    Arguments: reservationID
+
+    Purpose: Allows the volunteers to be added to the reservation
+    """
     data = request.get_json()
 
     reservationID = data.get("ReservationID", "")
@@ -664,6 +728,11 @@ def add_volunteer():
 @app.route("/remove_volunteer", methods=["POST"])
 @jwt_required()
 def remove_volunteer():  
+    """
+    Arguments: reservationID
+
+    Purpose: Allows the volunteers to be removed from the reservation
+    """
     data = request.get_json()
 
     reservationID = data.get("ReservationID", "")
@@ -692,6 +761,7 @@ def remove_volunteer():
 @app.route("/show_reservations", methods=["GET"])
 @jwt_required()
 def show_reservations():
+
     try:
         volunteer_latitude = request.args.get("latitude",None)
         volunteer_longitude = request.args.get("longitude",None)
@@ -751,6 +821,11 @@ def show_reservations():
 @app.route("/delete_reservation", methods=["POST"])
 @jwt_required()
 def delete_reservation():
+    """
+    Arguments: None
+
+    Purpose: Deletes all of the user's reservations
+    """
     try:
         userID = get_jwt_identity()
 
@@ -780,6 +855,11 @@ def delete_reservation():
 @app.route("/change_password", methods=["POST"])
 @jwt_required()
 def change_password():
+    """
+    Arguments: newPassword
+
+    Purpose: Allows the user to change their password as long as it is strong enough
+    """
     try: 
         userID = get_jwt_identity()
 
@@ -822,6 +902,11 @@ def change_password():
 @app.route("/edit_profile", methods=["POST"])
 @jwt_required()
 def edit_profile():
+    """
+    Arguments: name, email and currentPassword
+
+    Purpose: Allows the user to change their name and email as long as it follows the correct format and their current password is correct
+    """
     try: 
         userID = get_jwt_identity()
 
