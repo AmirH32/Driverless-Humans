@@ -133,6 +133,14 @@ export default function SignupScreen() {
   return (
     <ThemedView style={styles.container}>
       <Image source={require('../../assets/images/council_logo.png')} style={styles.topLeftImage} />
+
+      <TouchableOpacity 
+        style={styles.crossButton}
+        onPress={() => {router.push('/home')}}
+      >
+        <Text style={styles.crossText}>✕</Text>
+      </TouchableOpacity>
+
       <Image source={require('../../assets/images/buses.png')} style={styles.mainImage} />
 
       <TextInput style={styles.input} placeholder="Enter Name" placeholderTextColor="#D0E1FF" value={name} onChangeText={setName} onFocus={() => speakText('Enter name field')}/>
@@ -170,6 +178,20 @@ const createStyles = (fontScale:number) => {
         alignItems: 'center',
         paddingHorizontal: 20,
         marginTop: -40,
+      },
+      crossButton: {
+        position: 'absolute',
+        top: 130,
+        left: 20,
+        padding: 10,
+        zIndex: 1,
+        marginTop: 40,
+      },
+      crossText: {
+        fontSize: 30 * fontScale,
+        lineHeight: 30 * fontScale * 1.2,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
       },
       topLeftImage: {
         position: 'absolute',

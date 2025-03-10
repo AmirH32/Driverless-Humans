@@ -17,13 +17,13 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        // tabBarStyle: Platform.select({
-        //   ios: { position: 'absolute' },
-        //   default: {},
-        // }),
-        tabBarStyle: {
-          display: 'none', // Hide the tab bar globally
-        },
+        tabBarStyle: Platform.select({
+          ios: { position: 'absolute' },
+          default: {},
+        }),
+        // tabBarStyle: {
+        //   display: 'none', // Hide the tab bar globally
+        // },
       }}>
       <Tabs.Screen
         name="home"
@@ -89,13 +89,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="timetables"
-        options={{
-          title: 'Time Tables',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
@@ -103,10 +96,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="timetables"
+        options={{
+          title: 'Time Tables',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="confirmed"
         options={{
           title: 'Confirmed',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="volunteerList"
+        options={{
+          title: 'Volunteer List',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="people" color={color} />,
         }}
       />
       <Tabs.Screen

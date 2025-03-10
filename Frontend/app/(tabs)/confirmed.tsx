@@ -126,7 +126,7 @@ export default function ConfirmedScreen() {
   return (
     <ThemedView style={styles.container}>
       <TopBar/>
-      <ThemedText type="title" style={{color: '#000000'}}>Booking Confirmed!</ThemedText>
+      <ThemedText type="title" style={{color: '#000000'}}>Booking Confirmation</ThemedText>
       <Image source={require('@/assets/images/camb_map.png')} style={styles.mapimg}/>
       {isConfirmed && info}
 
