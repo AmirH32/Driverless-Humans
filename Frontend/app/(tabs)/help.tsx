@@ -72,7 +72,7 @@ const createStyles = (fontScale:number) => {
       crossText: {
         fontSize: 30 * fontScale,
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: '#5D5D5D',
       },
       title: {
         fontSize: 32 * fontScale,

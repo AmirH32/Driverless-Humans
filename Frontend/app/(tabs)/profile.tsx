@@ -283,7 +283,7 @@ const createStyles = (fontScale:number) => {
         fontSize: 30 * fontScale,
         lineHeight: 30 * fontScale * 1.2,
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: '#5D5D5D',
       },
       title: {
         fontSize: 40 * fontScale,
