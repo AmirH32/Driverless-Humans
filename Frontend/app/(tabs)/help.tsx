@@ -9,7 +9,7 @@ import { useFontSize } from '@/contexts/FontSizeContext';
 export default function HelpScreen() {
   const router = useRouter();
 
-  const colourScheme = useColorScheme();
+  const colourScheme = useColorScheme() ?? 'dark';
   const {fontScale, setFontScale} = useFontSize();
   const styles = createStyles(fontScale, colourScheme);
 
