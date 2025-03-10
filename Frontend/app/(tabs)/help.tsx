@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, Image, Linking, Pressable, useColorScheme } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, Image, Linking, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -9,9 +9,9 @@ import { useFontSize } from '@/contexts/FontSizeContext';
 export default function HelpScreen() {
   const router = useRouter();
 
-  const colourScheme = useColorScheme() ?? 'dark';
+  // Font scaling
   const {fontScale, setFontScale} = useFontSize();
-  const styles = createStyles(fontScale, colourScheme);
+  const styles = createStyles(fontScale);
 
   return (
     <ThemedView style={styles.container}>
@@ -51,7 +51,7 @@ export default function HelpScreen() {
   );
 }
 
-const createStyles = (fontScale:number, colorScheme:string) => {
+const createStyles = (fontScale:number) => {
   return (
     StyleSheet.create({
       container: {
@@ -72,7 +72,7 @@ const createStyles = (fontScale:number, colorScheme:string) => {
       crossText: {
         fontSize: 30 * fontScale,
         fontWeight: 'bold',
-        color: colorScheme === 'dark' ? 'white' : 'black',
+        color: '#FFFFFF',
       },
       title: {
         fontSize: 32 * fontScale,
@@ -98,7 +98,7 @@ const createStyles = (fontScale:number, colorScheme:string) => {
         width: 300,
       },
       buttonText: {
-        color: colorScheme === 'dark' ? 'white' : 'black',
+        color: 'white',
         fontSize: 25 * fontScale,
         lineHeight: 25 * fontScale * 1.2,
         fontWeight: 'bold',
