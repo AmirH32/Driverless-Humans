@@ -7,6 +7,7 @@ import { TopBar } from '@/components/TopBar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import api from '@/services/api';
 import { speakText } from '@/services/ttsUtils';
+import axios, { AxiosError } from 'axios';
 
 export default function ConfirmedScreen() {
   const router = useRouter();
@@ -18,12 +19,35 @@ export default function ConfirmedScreen() {
   
   // Handle confirming the booking
   const handleConfirm = async () => {
-    const r = api.post("/delete_reservation");
-    console.log("Confirm fetching data.")
-    const response = api.post("/create_reservation", {StopID1, StopID2, BusID, Time, VolunteerCount: parseInt(VolunteerCount as string, 10)});
-    await new Promise(resolve => setTimeout(resolve, 100));
-    setIsConfirmed(true);
-    fetchData();
+    try{
+      console.log("Confirm fetching data.")
+      const response = await api.post("/create_reservation", {StopID1, StopID2, BusID, Time, VolunteerCount: parseInt(VolunteerCount as string, 10)});
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (response.data.success) {
+        setIsConfirmed(true);
+        fetchData();
+      } else {
+        // You can handle non-200 responses here if needed
+        alert("Reservation confirmation failed: " + response.data.message);
+      }
+    } catch (error: unknown) {
+      // Handle Axios error
+      if (axios.isAxiosError(error)) {
+        // Check if error.response exists and contains a message
+        if (error.response && error.response.data && error.response.data.message) {
+          alert("Reservation confirmation failed: " + error.response.data.message);
+        } else {
+          // Handle error without message (e.g., network issues)
+          alert("Reservation confirmation failed: Unknown error from the server.");
+        }
+      } else if (error instanceof Error) {
+        // Generic JS error
+        alert("Error during reservation confirmation: " + error.message);
+      } else {
+        // Fallback for unknown errors
+        alert("An unknown error occurred.");
+      }
+    }
   };
   
   // Handle cancelling the booking
@@ -33,11 +57,30 @@ export default function ConfirmedScreen() {
       setIsConfirmed(false);
 
       // TODO: API request to cancel the booking
-      const response = api.post("/delete_reservation");
+      try{
+        const response = api.post("/delete_reservation");
+      } catch (error: unknown) {
+        // Handle Axios error
+        if (axios.isAxiosError(error)) {
+          // Check if error.response exists and contains a message
+          if (error.response && error.response.data && error.response.data.message) {
+            alert("Reservation deletion failed: " + error.response.data.message);
+          } else {
+            // Handle error without message (e.g., network issues)
+            alert("Reservation deletion failed: Unknown error from the server.");
+          }
+        } else if (error instanceof Error) {
+          // Generic JS error
+          alert("Error during reservation deletion: " + error.message);
+        } else {
+          // Fallback for unknown errors
+          alert("An unknown error occurred.");
+        }
+      }
     } else {
       // If booking wasn't confirmed, just return to timetables
       router.push('/timetables');
-    }
+    } 
   };
 
   const fetchData = async () => {
