@@ -755,7 +755,7 @@ def remove_volunteer():
 
         db.session.commit()
 
-        return jsonify({"message": "Volunteer removed from the reservation successfully."}), 200
+        return jsonify({"message": "Volunteer removed from the reservation successfully.", "success": True}), 200
     except Exception as e:
         db.session.rollback()  # Rollback in case of error
         return jsonify({"error": str(e)}), 500
