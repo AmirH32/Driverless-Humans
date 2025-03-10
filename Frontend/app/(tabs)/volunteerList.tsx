@@ -41,7 +41,7 @@ export default function VolunteerListScreen() {
       // const data = {"message":"Reservations retrieved successfully.","reservations":[{"arrival_min":338,"destination_id":"0500CCITY523","distance":0.0004016471372001294,"origin_id":"0500CCITY423","ramp_type":"MANUAL","reservation_id":11,"route_id":"U1","route_name":"U1","seats_empty":1,"vehicle_id":"v0","volunteer_count":0},{"arrival_min":385,"destination_id":"0500CCITY423","distance":0.5085989229610376,"origin_id":"0500CCITY523","ramp_type":"MANUAL","reservation_id":12,"route_id":"U1","route_name":"U1","seats_empty":1,"vehicle_id":"v1","volunteer_count":1}]}
 
       const getRampType = (dat) => {
-        return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
+        return dat["ramp_type"] === "MANUAL" ? "manual" : "automatic";
       };
       
       const resComponents = data.reservations.map((res, index) => (
@@ -52,7 +52,7 @@ export default function VolunteerListScreen() {
         >
           <Text style={styles.busview_busNumber}>{res["route_name"]}</Text>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="{getRampType(dat)}" color={color} />
+            <IconSymbol size={50} name="distance" color={color} />
             <Text>{res["distance"].toFixed(1)} km</Text>
           </View>
           <View style={styles.busview_infoContainer}>
@@ -60,15 +60,15 @@ export default function VolunteerListScreen() {
             <Text>{res["arrival_min"]} min</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="testing123" color={color} />
+            <IconSymbol size={50} name="wheelchair" color={color} />
             <Text>{res["seats_empty"]} seat(s) free</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="{getRampType(dat)}" color={color} />
+            <IconSymbol size={50} name={getRampType(dat)} color={color} />
             <Text>{getRampType(res)}</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="{getRampType(dat)}" color={color} />
+            <IconSymbol size={50} name="volunteer" color={color} />
             <Text>{res["volunteer_count"]}</Text>
           </View>
         </Pressable>

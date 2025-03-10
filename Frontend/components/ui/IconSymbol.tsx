@@ -19,7 +19,11 @@ const MAPPING = {
   'map.pin': 'location-pin',
   'settings.fill': 'settings',
   'arrow.left': 'arrow-back',
-
+  'wheelchair': 'accessible',
+  'automatic': 'electric-bolt',
+  'manual': 'pan-tool',
+  'volunteer': 'wheelchair-pickup',
+  'distance': 'directions-walk'
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
