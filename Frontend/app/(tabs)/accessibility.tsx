@@ -12,7 +12,7 @@ export default function AccessibilityScreen() {
   const {fontScale, setFontScale} = useFontSize();
 
   // State for theme toggle
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const styles = createStyles(fontScale, isDarkTheme);
 
   const toggleTheme = () => {
