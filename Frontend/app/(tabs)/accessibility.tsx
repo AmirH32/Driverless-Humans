@@ -58,7 +58,7 @@ export default function AccessibilityScreen() {
             value={isDarkTheme}
             onValueChange={(value) => {
               toggleTheme(); // Correctly call the toggleTheme function
-              speakText(value ? 'Theme is dark' : 'Theme is light'); // Speak based on the toggle
+              speakText(value ? 'Dark theme enabled' : 'Light theme enabled'); // Speak based on the toggle
             }}
             thumbColor={isDarkTheme ? '#f4f3f4' : '#f4f3f4'}
             trackColor={{ false: '#81b0ff', true: '#767577' }}
