@@ -43,7 +43,7 @@ export default function VolunteerListScreen() {
       const getRampType = (dat) => {
         return dat["ramp_type"] === "MANUAL" ? "manual" : "automatic";
       };
-      
+
       const resComponents = data.reservations.map((res, index) => (
         <Pressable
           key={index}
@@ -64,12 +64,12 @@ export default function VolunteerListScreen() {
             <Text>{res["seats_empty"]} seat(s) free</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name={getRampType(dat)} color={color} />
+            <IconSymbol size={50} name={getRampType(res)} color={color} />
             <Text>{getRampType(res)}</Text>
           </View>
           <View style={styles.busview_infoContainer}>
             <IconSymbol size={50} name="volunteer" color={color} />
-            <Text>{res["volunteer_count"]}</Text>
+            <Text>{res["volunteer_count"]} volunteers</Text>
           </View>
         </Pressable>
       ));
