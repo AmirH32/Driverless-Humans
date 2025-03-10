@@ -4,11 +4,15 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
+import { useBackHistory } from '@/contexts/BackHistoryContext';
 import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 
 export default function SettingsScreen() {
   const router = useRouter();
+
+  // Back history
+  const { goBack } = useBackHistory();
 
   // Font scaling
   const {fontScale, setFontScale} = useFontSize();
@@ -34,6 +38,13 @@ export default function SettingsScreen() {
   return (
     <ThemedView style={styles.container}>
       <ThemedText style={styles.title}>Settings</ThemedText>
+
+      <TouchableOpacity 
+        style={styles.crossButton}
+        onPress={() => goBack()}
+      >
+        <Text style={styles.crossText}>✕</Text>
+      </TouchableOpacity>
 
       {/* Buttons */}
       <TouchableOpacity
@@ -84,6 +95,20 @@ const createStyles = (fontScale: number) => {
         alignItems: 'center',
         paddingHorizontal: 20,
         marginTop: -40,
+      },
+      crossButton: {
+        position: 'absolute',
+        top: 60,
+        left: 20,
+        padding: 10,
+        zIndex: 1,
+        marginTop: 40,
+      },
+      crossText: {
+        fontSize: 30 * fontScale,
+        lineHeight: 30 * fontScale * 1.2,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
       },
       title: {
         fontSize: 40 * fontScale,
