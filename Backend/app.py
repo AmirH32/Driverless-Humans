@@ -719,6 +719,7 @@ def add_volunteer():
             {
                 "message": "Volunteer added to the reservation successfully.",
                 "reservation_id": reservation.ReservationID,
+                "success": True,
             }
         ), 201
     
