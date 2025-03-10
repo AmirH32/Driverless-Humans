@@ -158,6 +158,7 @@ export default function ProfileScreen() {
             <TextInput
               style={styles.input}
               placeholder="New Name"
+              placeholderTextColor="#999"
               value={name}
               onChangeText={setName}
               onFocus={() => speakText('Enter a new name field')}
@@ -165,6 +166,7 @@ export default function ProfileScreen() {
             <TextInput
               style={styles.input}
               placeholder="New Email"
+              placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
               onFocus={() => speakText('Enter a new email field')}
@@ -217,6 +219,7 @@ export default function ProfileScreen() {
               style={styles.input}
               placeholder="New Password"
               secureTextEntry
+              placeholderTextColor="#999"
               value={newPassword}
               onChangeText={setNewPassword}
               onFocus={() => speakText('Enter new password field')}
@@ -225,6 +228,7 @@ export default function ProfileScreen() {
               style={styles.input}
               placeholder="Confirm New Password"
               secureTextEntry
+              placeholderTextColor="#999"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               onFocus={() => speakText('Confirm new password field')}
