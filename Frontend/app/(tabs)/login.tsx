@@ -4,11 +4,16 @@ import { ThemedView } from '@/components/ThemedView';
 import { router } from "expo-router";
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
+import { useFontSize } from '@/contexts/FontSizeContext';
 
 export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   const handlePress = async () => {
     try {
@@ -86,48 +91,55 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  topLeftImage: {
-    position: 'absolute',
-    top: 65,
-    left: 0,
-    width: 200,
-    height: 100,
-    resizeMode: 'contain',
-  },
-  mainImage: {
-    width: 390,
-    height: 280,
-    marginBottom: 0,
-    resizeMode: 'contain',
-  },
-  input: {
-    height: 40,
-    backgroundColor: '#007BFF',
-    color: 'white',
-    borderRadius: 8,
-    paddingLeft: 10,
-    marginBottom: 10,
-    width: '80%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  loginButton: {
-    backgroundColor: '#00BF63',
-    paddingVertical: 12,
-    borderRadius: 15,
-    marginTop: 20,
-    paddingHorizontal: 100,
-  },
-});
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -40,
+      },
+      topLeftImage: {
+        position: 'absolute',
+        top: 65,
+        left: 0,
+        width: 200,
+        height: 100,
+        resizeMode: 'contain',
+      },
+      mainImage: {
+        width: 390,
+        height: 280,
+        marginBottom: 0,
+        resizeMode: 'contain',
+      },
+      input: {
+        fontSize: 15 * fontScale,
+        lineHeight: 15 * fontScale * 1.2,
+        height: 40,
+        backgroundColor: '#007BFF',
+        color: 'white',
+        borderRadius: 8,
+        paddingLeft: 10,
+        marginBottom: 10,
+        width: '80%',
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 20 * fontScale,
+        lineHeight: 20 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      loginButton: {
+        backgroundColor: '#00BF63',
+        paddingVertical: 12,
+        borderRadius: 15,
+        marginTop: 20,
+        paddingHorizontal: 100,
+      },
+    })
+  )
+};
