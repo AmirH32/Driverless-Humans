@@ -13,8 +13,8 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const hasDisability = true; 
-  const doc_uploaded = false;
+  const [docUploaded, setDocUploaded] = useState(false);
+  const hasDisability = true;
 
   const handleUploadDocument = async () => {
     try {
@@ -61,7 +61,7 @@ export default function SignupScreen() {
         // Store this TempUserID for later use (you can use AsyncStorage or React Context as discussed)
         await AsyncStorage.setItem('temp_user_id', tempUserId);
         alert("message: Successfully uploaded document")
-        const doc_uploaded = true;
+        setDocUploaded(true);
         
       } else {
         console.error('TempUserID not found in response:', uploadResponse.data);
@@ -83,7 +83,7 @@ export default function SignupScreen() {
       return;
     }
 
-    if (!doc_uploaded) {
+    if (!docUploaded) {
       alert("Error: Please upload document as supporting evidence");
       return;
     }
