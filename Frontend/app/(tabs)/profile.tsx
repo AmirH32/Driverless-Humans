@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View, Modal, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
+import { useBackHistory } from '@/contexts/BackHistoryContext';
 import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 
 export default function ProfileScreen() {
-  const router = useRouter();
+  // Back history
+  const { goBack } = useBackHistory();
 
   // Font scaling
   const {fontScale, setFontScale} = useFontSize();
@@ -110,7 +111,7 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <TouchableOpacity 
         style={styles.crossButton}
-        onPress={() => {router.push('/settings')}}
+        onPress={() => goBack()}
       >
         <Text style={styles.crossText}>✕</Text>
       </TouchableOpacity>
