@@ -72,7 +72,7 @@ export default function LoginScreen() {
       const data = response.data;
 
       const getRampType = (dat) => {
-        return dat["ramp_type"] === "MANUAL" ? "Manual ramp" : "Automatic ramp";
+        return dat["ramp_type"] === "MANUAL" ? "manual" : "automatic";
       };
       
       const bussesComponents = data.map((dat, index) => (
@@ -87,11 +87,11 @@ export default function LoginScreen() {
             <Text>{dat["arrival_min"]} min</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="testing123" color={color} />
+            <IconSymbol size={50} name="wheelchair" color={color} />
             <Text>{dat["seats_empty"]} seat(s) free</Text>
           </View>
           <View style={styles.busview_infoContainer}>
-            <IconSymbol size={50} name="{getRampType(dat)}" color={color} />
+            <IconSymbol size={50} name={getRampType(dat)} color={color} />
             <Text>{getRampType(dat)}</Text>
           </View>
         </Pressable>

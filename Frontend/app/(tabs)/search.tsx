@@ -23,7 +23,7 @@ export default function SearchScreen() {
 
   const handleSubmit = () => {
     if (origin && destination) {
-      alert("Navigating to Schedule from " + origin.id + " to " + destination.id);
+      // alert("Navigating to Schedule from " + origin.id + " to " + destination.id);
       router.push(`/timetables?src_stop_id=${origin.id}&dst_stop_id=${destination.id}&src_stop_name=${origin.name}&dst_stop_name=${destination.name}`);
     }
   };  

@@ -89,15 +89,15 @@ export default function ConfirmedScreen() {
     const infoComponents = (
       <View style={styles.infoView}>
         <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <IconSymbol size={50} name="location-on" color={'#000000'} /> 
           <Text style={styles.infoText}>{data["street"]}</Text>
         </View>
         <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <IconSymbol size={50} name="wheelchair" color={'#000000'} /> 
           <Text style={styles.infoText}>{data["seats_empty"]} Seat Available</Text>
         </View>
         <View style={styles.infoEntry}>
-          <IconSymbol size={50} name="house.fill" color={'#000000'} /> 
+          <IconSymbol size={50} name="volunteer" color={'#000000'} /> 
           <Text style={styles.infoText}>{data["VolunteerCount"]} Volunteers Available</Text>
         </View>
         <View style={styles.infoEntry}>
