@@ -65,7 +65,7 @@ export default function SignupScreen() {
         
         // Store this TempUserID for later use (you can use AsyncStorage or React Context as discussed)
         await AsyncStorage.setItem('temp_user_id', tempUserId);
-        alert("message: Successfully uploaded document")
+        alert("Successfully uploaded document!")
         setDocUploaded(true);
         
       } else {

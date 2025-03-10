@@ -17,13 +17,13 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: { position: 'absolute' },
-          default: {},
-        }),
-        // tabBarStyle: {
-        //   display: 'none', // Hide the tab bar globally
-        // },
+        // tabBarStyle: Platform.select({
+        //   ios: { position: 'absolute' },
+        //   default: {},
+        // }),
+        tabBarStyle: {
+          display: 'none', // Hide the tab bar globally
+        },
       }}>
       <Tabs.Screen
         name="home"
