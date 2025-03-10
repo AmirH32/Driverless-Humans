@@ -181,7 +181,7 @@ const createStyles = (fontScale:number) => {
       },
       crossButton: {
         position: 'absolute',
-        top: 130,
+        top: 110,
         left: 20,
         padding: 10,
         zIndex: 1,
