@@ -4,9 +4,14 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { speakText } from '@/services/ttsUtils';
+import { useFontSize } from '@/contexts/FontSizeContext';
 
 export default function HelpScreen() {
   const router = useRouter();
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   return (
     <ThemedView style={styles.container}>
@@ -46,54 +51,59 @@ export default function HelpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  crossButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    padding: 10,
-    zIndex: 1,
-    marginTop: 40,
-  },
-  crossText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 40,
-    letterSpacing: 2,
-    marginBottom: 30,
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 40,
-    letterSpacing: 2,
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 25,
-    borderRadius: 15,
-    marginBottom: 30,
-    width: 300,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  }
-});
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -40,
+      },
+      crossButton: {
+        position: 'absolute',
+        top: 60,
+        left: 20,
+        padding: 10,
+        zIndex: 1,
+        marginTop: 40,
+      },
+      crossText: {
+        fontSize: 30 * fontScale,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+      },
+      title: {
+        fontSize: 32 * fontScale,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        lineHeight: 40 * fontScale,
+        letterSpacing: 2,
+        marginBottom: 30,
+      },
+      text: {
+        fontSize: 24 * fontScale,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        lineHeight: 40 * fontScale,
+        letterSpacing: 2,
+        marginBottom: 30,
+      },
+      button: {
+        backgroundColor: '#007BFF',
+        paddingVertical: 25,
+        borderRadius: 15,
+        marginBottom: 30,
+        width: 300,
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 25 * fontScale,
+        lineHeight: 25 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      }
+    })
+  )
+};

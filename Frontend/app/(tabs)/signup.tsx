@@ -4,6 +4,7 @@ import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api"; // Import the Axios instance
 import { router } from "expo-router";
 import axios, { AxiosError } from 'axios';
+import { useFontSize } from '@/contexts/FontSizeContext';
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { speakText } from '@/services/ttsUtils';
@@ -14,7 +15,11 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [docUploaded, setDocUploaded] = useState(false);
-  const hasDisability = true;
+  const hasDisability = true; 
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   const handleUploadDocument = async () => {
     try {
@@ -156,84 +161,91 @@ export default function SignupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  topLeftImage: {
-    position: 'absolute',
-    top: 65,
-    left: 0,
-    width: 200,
-    height: 100,
-    resizeMode: 'contain',
-  },
-  mainImage: {
-    width: 390,
-    height: 280,
-    marginBottom: 0,
-    resizeMode: 'contain',
-  },
-  input: {
-    height: 40,
-    backgroundColor: '#007BFF',
-    color: 'white',
-    borderRadius: 8,
-    paddingLeft: 10,
-    marginBottom: 10,
-    width: '80%',
-  },
-  // checkboxWrapper: {
-  //   backgroundColor: '#FFA500',
-  //   borderRadius: 15,
-  //   paddingVertical: 10,
-  //   paddingHorizontal: 20,
-  //   marginTop: 10,
-  //   alignItems: 'center',
-  //   width: '80%',
-  // },
-  // checkboxContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  // },
-  // checkbox: {
-  //   width: 20,
-  //   height: 20,
-  //   borderWidth: 2,
-  //   borderColor: '#007BFF',
-  //   borderRadius: 4,
-  //   marginRight: 10,
-  //   backgroundColor: 'white',
-  // },
-  // checkedCheckbox: {
-  //   backgroundColor: '#007BFF',
-  // },
-  // checkboxText: {
-  //   fontSize: 16,
-  //   color: 'white',
-  // },
-  uploadButton: {
-    backgroundColor: '#FFA500',
-    paddingVertical: 12,
-    borderRadius: 15,
-    marginTop: 10,
-    paddingHorizontal: 37,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  signupButton: {
-    backgroundColor: '#00BF63',
-    paddingVertical: 12,
-    borderRadius: 15,
-    marginTop: 20,
-    paddingHorizontal: 100,
-  },
-});
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -40,
+      },
+      topLeftImage: {
+        position: 'absolute',
+        top: 65,
+        left: 0,
+        width: 200,
+        height: 100,
+        resizeMode: 'contain',
+      },
+      mainImage: {
+        width: 390,
+        height: 280,
+        marginBottom: 0,
+        resizeMode: 'contain',
+      },
+      input: {
+        height: 40,
+        backgroundColor: '#007BFF',
+        color: 'white',
+        borderRadius: 8,
+        paddingLeft: 10,
+        marginBottom: 10,
+        width: '80%',
+        fontSize: 15 * fontScale,
+        lineHeight: 15 * fontScale * 1.2,
+      },
+      // checkboxWrapper: {
+      //   backgroundColor: '#FFA500',
+      //   borderRadius: 15,
+      //   paddingVertical: 10,
+      //   paddingHorizontal: 20,
+      //   marginTop: 10,
+      //   alignItems: 'center',
+      //   width: '80%',
+      // },
+      // checkboxContainer: {
+      //   flexDirection: 'row',
+      //   alignItems: 'center',
+      // },
+      // checkbox: {
+      //   width: 20,
+      //   height: 20,
+      //   borderWidth: 2,
+      //   borderColor: '#007BFF',
+      //   borderRadius: 4,
+      //   marginRight: 10,
+      //   backgroundColor: 'white',
+      // },
+      // checkedCheckbox: {
+      //   backgroundColor: '#007BFF',
+      // },
+      // checkboxText: {
+      //   fontSize: 16,
+      //   color: 'white',
+      // },
+      uploadButton: {
+        backgroundColor: '#FFA500',
+        paddingVertical: 12,
+        borderRadius: 15,
+        marginTop: 10,
+        paddingHorizontal: 37,
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 16 * fontScale,
+        lineHeight: 16 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      signupButton: {
+        backgroundColor: '#00BF63',
+        paddingVertical: 12,
+        borderRadius: 15,
+        marginTop: 20,
+        paddingHorizontal: 100,
+      },
+    })
+  )
+};

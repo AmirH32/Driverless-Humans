@@ -5,10 +5,15 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
 import axios, { AxiosError } from 'axios';
+import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 
 export default function ProfileScreen() {
   const router = useRouter();
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   // State for both modals
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -251,102 +256,110 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  crossButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    padding: 10,
-    zIndex: 1,
-    marginTop: 40,
-  },
-  crossText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 40,
-    letterSpacing: 2,
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 25,
-    borderRadius: 15,
-    marginTop: 20,
-    width: 300,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  notificationsBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 25,
-    paddingHorizontal: 10,
-    width: 300,
-    backgroundColor: '#007BFF',
-    borderRadius: 15,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 15,
-    width: 350,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontSize: 18,
-  },
-  modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  modalButton: {
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#7ed957',
-    flex: 1,
-    marginLeft: 10,
-  },
-  cancelButton: {
-    backgroundColor: '#FF5252',
-    width: 100,
-  },
-});
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -40,
+      },
+      crossButton: {
+        position: 'absolute',
+        top: 60,
+        left: 20,
+        padding: 10,
+        zIndex: 1,
+        marginTop: 40,
+      },
+      crossText: {
+        fontSize: 30 * fontScale,
+        lineHeight: 30 * fontScale * 1.2,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+      },
+      title: {
+        fontSize: 40 * fontScale,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        lineHeight: 40 * fontScale,
+        letterSpacing: 2,
+        marginBottom: 30,
+      },
+      button: {
+        backgroundColor: '#007BFF',
+        paddingVertical: 25,
+        borderRadius: 15,
+        marginTop: 20,
+        width: 300,
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 25 * fontScale,
+        lineHeight: 25 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      notificationsBox: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 25,
+        paddingHorizontal: 10,
+        width: 300,
+        backgroundColor: '#007BFF',
+        borderRadius: 15,
+      },
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        backgroundColor: '#FFF',
+        padding: 20,
+        borderRadius: 15,
+        width: 350,
+      },
+      modalTitle: {
+        fontSize: 24 * fontScale,
+        lineHeight: 24 * fontScale * 1.2,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+      },
+      input: {
+        height: 50,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 15,
+        paddingHorizontal: 10,
+        fontSize: 18 * fontScale,
+        lineHeight: 18 * fontScale * 1.2,
+      },
+      modalButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+      },
+      modalButton: {
+        paddingVertical: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+      },
+      saveButton: {
+        backgroundColor: '#7ed957',
+        flex: 1,
+        marginLeft: 10,
+      },
+      cancelButton: {
+        backgroundColor: '#FF5252',
+        width: 100,
+      },
+    })
+  )
+};

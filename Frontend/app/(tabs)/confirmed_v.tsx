@@ -8,9 +8,12 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import api from '@/services/api';
 import { speakText } from '@/services/ttsUtils';
 import axios, { AxiosError } from 'axios';
+import { useFontSize } from '@/contexts/FontSizeContext';
 
 export default function ConfirmedScreen() {
   const router = useRouter();
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   // Track if the booking has been confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -147,67 +150,74 @@ export default function ConfirmedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 10,
-    color: '#000000',
-  },
-  mapimg: {
-    width: 200,
-    height: 200,
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  infoView: {
-    backgroundColor: '#39b7ff',
-    borderRadius: 25,
-    padding: 15,
-    marginBottom: 20,
-    width: '90%',
-  },
-  infoEntry: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  infoText: {
-    fontSize: 18,
-    color: '#000000',
-    marginLeft: 10,
-  },
-  button_confirm: {
-    backgroundColor: '#03bf62',
-    paddingVertical: 15,
-    borderRadius: 20,
-    width: '90%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  button_pressed: {
-    backgroundColor: '#006c43',
-  },
-  button_cancel: {
-    backgroundColor: '#ff3130',
-    paddingVertical: 15,
-    borderRadius: 20,
-    width: '90%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-});
+const createStyles = (fontScale: number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+      },
+      title: {
+        fontSize: 30 * fontScale,
+        lineHeight: 30 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 10,
+        color: '#000000',
+      },
+      mapimg: {
+        width: 200,
+        height: 200,
+        marginTop: 10,
+        marginBottom: 20,
+      },
+      infoView: {
+        backgroundColor: '#39b7ff',
+        borderRadius: 25,
+        padding: 15,
+        marginBottom: 20,
+        width: '90%',
+      },
+      infoEntry: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 5,
+      },
+      infoText: {
+        fontSize: 18 * fontScale,
+        lineHeight: 18 * fontScale * 1.2,
+        color: '#000000',
+        marginLeft: 10,
+      },
+      button_confirm: {
+        backgroundColor: '#03bf62',
+        paddingVertical: 15,
+        borderRadius: 20,
+        width: '90%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      button_pressed: {
+        backgroundColor: '#006c43',
+      },
+      button_cancel: {
+        backgroundColor: '#ff3130',
+        paddingVertical: 15,
+        borderRadius: 20,
+        width: '90%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      buttonText: {
+        color: '#FFFFFF',
+        fontSize: 20 * fontScale,
+        lineHeight: 20 * fontScale * 1.2,
+        fontWeight: 'bold',
+      },
+    })
+  )
+};

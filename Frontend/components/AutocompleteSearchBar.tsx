@@ -5,6 +5,7 @@ import { Text, StyleSheet, TextInput, FlatList, Pressable, View } from "react-na
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { router } from 'expo-router';
 import api from "@/services/api";
+import { useFontSize } from "@/contexts/FontSizeContext";
 import { speakText } from '@/services/ttsUtils';
 
 type Stop = {
@@ -21,6 +22,8 @@ type AutocompleteInputProps = {
 export default function AutocompleteInput({ label, onSelect }: AutocompleteInputProps) {
   const [input, setInput] = useState<string>("");
   const [data, setData] = useState<Stop[]>([]);
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   const onChangeText = async (text: string) => {
     setInput(text);
@@ -85,44 +88,52 @@ export default function AutocompleteInput({ label, onSelect }: AutocompleteInput
   );
 }
 
-const styles = StyleSheet.create({
-  totalContainer: {
-    paddingTop: 15,
-    paddingBottom: 15,
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      totalContainer: {
+        paddingTop: 15,
+        paddingBottom: 15,
 
-  },
-  main_container: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly'
-  },
-  searchLabel: {
-    marginLeft: 12,
-    marginVertical: 5,
-    fontSize: 12,
-    width: '100%',
-  },
-  input: {
-    height: 40,
-    marginHorizontal: 12,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    borderColor: 'gray',
-  },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-  },
-  itemTextContainer: {
-    marginLeft: 10,
-    flexShrink: 1,
-  },
-  itemTitle: {
-    fontWeight: "700",
-  },
-  itemSubtitle: {
-    fontSize: 12,
-  },
-});
+      },
+      main_container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly'
+      },
+      searchLabel: {
+        marginLeft: 12,
+        marginVertical: 5,
+        fontSize: 12 * fontScale,
+        lineHeight: 12 * fontScale * 1.2,
+        width: '100%',
+      },
+      input: {
+        height: 40,
+        fontSize: 15 * fontScale,
+        lineHeight: 15 * fontScale * 1.2,
+        marginHorizontal: 12,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        borderColor: 'gray',
+      },
+      itemContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 15,
+      },
+      itemTextContainer: {
+        marginLeft: 10,
+        flexShrink: 1,
+      },
+      itemTitle: {
+        fontWeight: "700",
+      },
+      itemSubtitle: {
+        fontSize: 12 * fontScale,
+        lineHeight: 12 * fontScale * 1.2,
+      },
+    })
+  )
+};

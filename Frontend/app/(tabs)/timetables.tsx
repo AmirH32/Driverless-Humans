@@ -6,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from "@/services/api";
+import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 
 export default function LoginScreen() {
@@ -13,6 +14,10 @@ export default function LoginScreen() {
   const [busstop, setBusStop] = useState('');
   const [busses, setBusses] = useState<JSX.Element[]>([]);  // State for storing bus data
   const color = '#000000';
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   const backToEdit = () => {
     speakText("Going back to search page")
@@ -126,54 +131,60 @@ export default function LoginScreen() {
 
 
 
-const styles = StyleSheet.create({
-  wide_container: {
-    height: '100vh',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-    overflowY: 'scroll',
-    height: 100,
-  },
-  editbar_overal: {
-    maxHeight: 100,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 25,
-    paddingLeft: 8,
-    borderRadius: 40,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-  },
-  editbar_search: {
-    borderRadius: 32,
-    height: 84,
-    fontSize: 25,
+const createStyles = (fontScale:number) => {
+  return (
+    StyleSheet.create({
+      wide_container: {
+        height: '100vh',
+      },
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+        overflowY: 'scroll',
+        height: 100,
+      },
+      editbar_overal: {
+        maxHeight: 100,
+        borderColor: 'gray',
+        borderWidth: 1,
+        marginBottom: 25,
+        paddingLeft: 8,
+        borderRadius: 40,
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+      },
+      editbar_search: {
+        borderRadius: 32,
+        height: 84,
+        fontSize: 25 * fontScale,
+        lineHeight: 25 * fontScale * 1.2,
 
-  },
-  editbar_button: {
-    borderRadius: 32,
-    height: 84,
-  },
-  busview_container: {
-    height: 160,
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#39b7ff',
-    borderRadius: 30,
-    marginBottom: 10,
-    alignItems: 'center',
-    justifyContent: 'space-evenly'
-  },
-  busview_busNumber: {
-    fontSize: 50,
-  },
-  busview_infoContainer: {
-    alignItems: 'center',
-  },
-});
+      },
+      editbar_button: {
+        borderRadius: 32,
+        height: 84,
+      },
+      busview_container: {
+        height: 160,
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#39b7ff',
+        borderRadius: 30,
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'space-evenly'
+      },
+      busview_busNumber: {
+        fontSize: 50 * fontScale,
+        lineHeight: 50 * fontScale * 1.2,
+      },
+      busview_infoContainer: {
+        alignItems: 'center',
+      },
+    })
+  )
+};

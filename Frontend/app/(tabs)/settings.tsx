@@ -4,10 +4,15 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api";
+import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 
 export default function SettingsScreen() {
   const router = useRouter();
+
+  // Font scaling
+  const {fontScale, setFontScale} = useFontSize();
+  const styles = createStyles(fontScale);
 
   const handleLogout = async () => {
     try {
@@ -70,44 +75,49 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 40,
-    letterSpacing: 2,
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 25,
-    borderRadius: 15,
-    marginTop: 20,
-    width: 300,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  profileButton: {
-  },
-  disabilityButton: {
-  },
-  accessibilityButton: {
-  },
-  helpButton: {
-  },
-  logoutButton: {
-    backgroundColor: '#E30000',
-  },
-});
+const createStyles = (fontScale: number) => {
+  return (
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: -40,
+      },
+      title: {
+        fontSize: 40 * fontScale,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        lineHeight: 40 * fontScale,
+        letterSpacing: 2,
+        marginBottom: 30,
+      },
+      button: {
+        backgroundColor: '#007BFF',
+        paddingVertical: 25,
+        borderRadius: 15,
+        marginTop: 20,
+        width: 300,
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 25 * fontScale,
+        lineHeight: 25 * fontScale * 1.2,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      profileButton: {
+      },
+      disabilityButton: {
+      },
+      accessibilityButton: {
+      },
+      helpButton: {
+      },
+      logoutButton: {
+        backgroundColor: '#E30000',
+      },
+    })
+  )
+};
