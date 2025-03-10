@@ -110,6 +110,8 @@ const createStyles = (fontScale:number) => {
       },
       input: {
         height: 40,
+        fontSize: 15 * fontScale,
+        lineHeight: 15 * fontScale * 1.2,
         marginHorizontal: 12,
         paddingHorizontal: 10,
         borderRadius: 5,
