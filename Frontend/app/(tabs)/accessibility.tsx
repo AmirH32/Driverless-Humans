@@ -5,14 +5,15 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
+import { withTiming } from 'react-native-reanimated';
 
 export default function AccessibilityScreen() {
   const router = useRouter();
   const {fontScale, setFontScale} = useFontSize();
-  const styles = createStyles(fontScale);
 
   // State for theme toggle
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const styles = createStyles(fontScale, isDarkTheme);
 
   const toggleTheme = () => {
     setIsDarkTheme((prev) => !prev);
@@ -75,7 +76,7 @@ export default function AccessibilityScreen() {
   );
 }
 
-const createStyles = (fontScale:number) => {
+const createStyles = (fontScale:number, isDarkTheme:boolean) => {
   return (
     StyleSheet.create({
       container: {
@@ -84,6 +85,7 @@ const createStyles = (fontScale:number) => {
         alignItems: 'center',
         paddingHorizontal: 20,
         marginTop: -40,
+        backgroundColor: isDarkTheme? '#151718' : '#EAEAEA',
       },
       crossButton: {
         position: 'absolute',
@@ -97,7 +99,7 @@ const createStyles = (fontScale:number) => {
         fontSize: 30 * fontScale,
         lineHeight: 30 * fontScale * 1.2,
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: isDarkTheme ? '#FFFFFF' : 'black',
       },
       title: {
         fontSize: 32 * fontScale,
@@ -106,9 +108,10 @@ const createStyles = (fontScale:number) => {
         lineHeight: 40 * fontScale,
         letterSpacing: 2,
         marginBottom: 30,
+        color: isDarkTheme ? 'white' : 'black',
       },
       box: {
-        backgroundColor: '#007BFF',
+        backgroundColor: isDarkTheme ? '#007BFF' : '#AAD4FF',
         padding: 20,
         borderRadius: 15,
         marginTop: 20,
@@ -119,7 +122,7 @@ const createStyles = (fontScale:number) => {
         fontSize: 24 * fontScale,
         lineHeight: 24 * fontScale * 1.2,
         fontWeight: 'bold',
-        color: '#fff',
+        color: isDarkTheme ? 'white' : 'black',
         marginBottom: 15,
       },
       buttonRow: {
@@ -130,7 +133,7 @@ const createStyles = (fontScale:number) => {
         marginTop: 10,
       },
       fontButton: {
-        backgroundColor: 'black',
+        backgroundColor: isDarkTheme ? 'black' : 'white',
         paddingVertical: 10,
         paddingHorizontal: 0,
         borderRadius: 15,
@@ -139,7 +142,7 @@ const createStyles = (fontScale:number) => {
         width: 70,
       },
       fontButtonText: {
-        color: 'white',
+        color: isDarkTheme ? 'white' : 'black',
         fontSize: 14 * fontScale,
         lineHeight: 14 * fontScale * 1.2,
         fontWeight: 'bold',
@@ -152,25 +155,25 @@ const createStyles = (fontScale:number) => {
         width: '100%',
       },
       themeText: {
-        color: 'black',
+        color: isDarkTheme ? 'white' : 'black',
         fontSize: 18 * fontScale,
         lineHeight: 18 * fontScale * 1.2,
         fontWeight: 'bold',
       },
       textToSpeechButton: {
-        backgroundColor: '#007BFF',
+        backgroundColor: isDarkTheme ? '#007BFF' : '#AAD4FF',
         width: '100%',
         paddingVertical: 25,
       },
       button: {
-        backgroundColor: 'black',
+        backgroundColor: isDarkTheme ? 'black' : 'white',
         paddingVertical: 15,
         borderRadius: 15,
         marginTop: 20,
         width: '80%',
       },
       buttonText: {
-        color: 'white',
+        color: isDarkTheme ? 'white' : 'black',
         fontSize: 24 * fontScale,
         lineHeight: 24 * fontScale * 1.2,
         fontWeight: 'bold',
