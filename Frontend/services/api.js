@@ -4,8 +4,8 @@ import { Alert } from 'react-native';
 
 // Creates axios instance to ensure tokens are sent with requests
 const api = axios.create({
-  //baseURL: 'https://driverless-humans.kibtry.net',
-  baseURL: 'http://127.0.0.1:5000', // Replace with your backend URL
+  baseURL: 'https://driverless-humans.kibtry.net',
+  //baseURL: 'http://127.0.0.1:5000', // Replace with your backend URL
   withCredentials: true,
 });
 

@@ -587,7 +587,7 @@ def see_reservation():
     
 
 @app.route("/create_reservation", methods=["POST"])
-@jwt_required()  # Protect this route
+@jwt_required()  # Protect th\is route
 def create_reservation():
     """
     Arguments: stopID1, stopID2, busID, time, VolunteerCount
@@ -646,6 +646,7 @@ def create_reservation():
             {
                 "message": "Reservation created successfully",
                 "reservation_id": new_reservation.ReservationID,
+                "success": True,
             }
         ), 201
 
