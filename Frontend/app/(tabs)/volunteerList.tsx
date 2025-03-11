@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, Pressable, Text } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TopBar } from '@/components/TopBar';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import api from "@/services/api";
 import { useFontSize } from '@/contexts/FontSizeContext';
 

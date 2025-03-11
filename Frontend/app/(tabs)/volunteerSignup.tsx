@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, Text, TextInput, Image, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, TextInput, Image } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import api from "@/services/api"; // Import the Axios instance
 import { router } from "expo-router";

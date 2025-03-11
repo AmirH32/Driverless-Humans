@@ -59,7 +59,7 @@ export default function LoginScreen() {
           if (userRole == "Disabled") {
             router.push("/search");
           } else if (userRole == "Volunteer") {
-            router.push("/timetables");
+            router.push("/volunteerList");
           } else {
             router.push("/home");
           }

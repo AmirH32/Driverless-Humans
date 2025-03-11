@@ -2,10 +2,9 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
-import api from "@/services/api";// Adjust the import path as necessary
+import api from "@/services/api";
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import axios, { AxiosError } from 'axios';
 import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
 

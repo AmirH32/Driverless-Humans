@@ -5,7 +5,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useFontSize } from '@/contexts/FontSizeContext';
 import { speakText } from '@/services/ttsUtils';
-import { withTiming } from 'react-native-reanimated';
 
 export default function AccessibilityScreen() {
   const router = useRouter();
@@ -99,7 +98,7 @@ const createStyles = (fontScale:number, isDarkTheme:boolean) => {
         fontSize: 30 * fontScale,
         lineHeight: 30 * fontScale * 1.2,
         fontWeight: 'bold',
-        color: isDarkTheme ? '#FFFFFF' : 'black',
+        color: isDarkTheme ? 'white' : 'black',
       },
       title: {
         fontSize: 32 * fontScale,
