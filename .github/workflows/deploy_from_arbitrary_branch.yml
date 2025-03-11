@@ -25,7 +25,8 @@ jobs:
             cd /opt/DriverlessHumans/Driverless-Humans/Backend/
             docker compose down -v || true
             echo "Target branch name is: ${BRANCH_NAME}"
+            git fetch origin
             git checkout ${BRANCH_NAME}
-            git pull origin ${BRANCH_NAME}
+            git reset --hard origin/${BRANCH_NAME}
             docker compose up --build -d
           EOF

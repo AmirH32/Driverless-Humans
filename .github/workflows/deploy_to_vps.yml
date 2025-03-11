@@ -24,7 +24,8 @@ jobs:
           ssh vps-driverless-humans-deploy << 'EOF'
             cd /opt/DriverlessHumans/Driverless-Humans/Backend/
             docker compose down || true
+            git fetch origin
             git checkout main
-            git pull origin main
+            git reset --hard origin/main
             docker compose up --build -d
           EOF
