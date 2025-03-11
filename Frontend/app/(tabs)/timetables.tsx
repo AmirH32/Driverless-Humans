@@ -41,6 +41,7 @@ export default function LoginScreen() {
     console.log("bookBus"); console.log(src_stop_id); console.log(dst_stop_id); console.log(vehicle_id);
     const date = new Date();
     const formattedDate = formatDateForSQL(date);
+    const response = api.post("/delete_reservation");
     router.push(`/confirmed?StopID1=${src_stop_id}&StopID2=${dst_stop_id}&BusID=${vehicle_id}&Time=${formattedDate}&VolunteerCount=0}`);
   };
 
