@@ -159,8 +159,10 @@ def timetables() -> List[Dict[str, Any]]:
     origin_id = request.args.get("origin_id")
     destination_id = request.args.get("destination_id")
     timetables = get_timetables(origin_id=origin_id, destination_id=destination_id)
-    timetables_json = [timetable.model_dump(mode="json") for timetable in timetables]
-    return timetables_json
+    if timetables is None:
+        return []
+    else:
+        return [timetable.model_dump(mode="json") for timetable in timetables]
 
 
 @app.route("/autocomplete", methods=["GET"])
