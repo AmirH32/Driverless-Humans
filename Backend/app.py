@@ -80,13 +80,14 @@ CORS(
 csp = {
     "default-src": [
         "'self'",  # Allow content from the same origin
-        "http://localhost:8081",  # Allow frontend origin
+        "https://kilo.kibtry.net",  # Your production domain
     ],
-    "script-src": ["'self'", "'unsafe-inline'", "http://localhost:8081"],
-    "style-src": ["'self'", "'unsafe-inline'", "http://localhost:8081"],
+    "script-src": ["'self'", "'unsafe-inline'", "https://kilo.kibtry.net"],
+    "style-src": ["'self'", "'unsafe-inline'", "https://kilo.kibtry.net"],
     "img-src": [
         "'self'",
         "data:",  # Allow inline images
+        "https://kilo.kibtry.net",
     ],
 }
 ###
@@ -145,6 +146,20 @@ def allowed_file(filename):
     """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.after_request
+def cors_with_credentials(response):
+    if request.method == 'OPTIONS':
+        # Replace any existing headers
+        response.headers['Access-Control-Allow-Origin'] = 'https://kilo.kibtry.net'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    else:
+        # For non-OPTIONS requests
+        response.headers['Access-Control-Allow-Origin'] = 'https://kilo.kibtry.net'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    
+    return response
 
 @app.route("/timetables", methods=["GET"])
 @jwt_required()
@@ -339,7 +354,7 @@ def view_pdf():
         return jsonify({"error": f"Error sending file: {str(e)}"}), 500
     
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST", "OPTIONS"])
 def login():
     """
     Arguments: A string email and password
