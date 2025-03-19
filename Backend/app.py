@@ -72,7 +72,7 @@ app = Flask(__name__)
 CORS(
     app,
     supports_credentials=True,
-    resources={r"/*": {"origins": "*"}},  # Allow all origins
+    resources={r"/*": {"origins": "https://kilo.kibtry.net"}},  # Allow all origins
 )
 
 
