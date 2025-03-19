@@ -340,7 +340,7 @@ def view_pdf():
         return jsonify({"error": f"Error sending file: {str(e)}"}), 500
     
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST", "OPTIONS"])
 def login():
     """
     Arguments: A string email and password
