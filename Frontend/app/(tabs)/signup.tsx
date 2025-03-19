@@ -49,7 +49,7 @@ export default function SignupScreen() {
   
       // Create FormData and append the file 
       const formData = new FormData();
-      formData.append("file", blob, file.name); // Correct syntax for FormData
+      formData.append("file", blob, file.name);
   
       // Send to backend using my axios instance
       const uploadResponse = await api.post("/upload_pdf_temp", formData, {
