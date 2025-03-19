@@ -72,7 +72,7 @@ app = Flask(__name__)
 CORS(
     app,
     supports_credentials=True,
-    resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}},
+    resources={r"/*": {"origins": "*"}},  # Allow all origins
 )
 
 
@@ -80,13 +80,14 @@ CORS(
 csp = {
     "default-src": [
         "'self'",  # Allow content from the same origin
-        "http://localhost:8081",  # Allow frontend origin
+        "https://kilo.kibtry.net",  # Your production domain
     ],
-    "script-src": ["'self'", "'unsafe-inline'", "http://localhost:8081"],
-    "style-src": ["'self'", "'unsafe-inline'", "http://localhost:8081"],
+    "script-src": ["'self'", "'unsafe-inline'", "https://kilo.kibtry.net"],
+    "style-src": ["'self'", "'unsafe-inline'", "https://kilo.kibtry.net"],
     "img-src": [
         "'self'",
         "data:",  # Allow inline images
+        "https://kilo.kibtry.net",
     ],
 }
 ###
