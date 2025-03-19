@@ -69,11 +69,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app = Flask(__name__)
 
 ### Only need this for development on browser but should work without on phones (REMOVE IN PROD)
-CORS(
-    app,
-    supports_credentials=True,
-    resources={r"/*": {"origins": "https://kilo.kibtry.net"}},  # Allow all origins
-)
+# CORS(
+#     app,
+#     supports_credentials=True,
+#     resources={r"/*": {"origins": "https://kilo.kibtry.net"}},  # Allow all origins
+# )
 
 
 # Define Content Security Policy (CSP) to allow frontend this is only needed in DEV (REMOVE IN PROD)
