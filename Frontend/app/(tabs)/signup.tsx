@@ -47,11 +47,11 @@ export default function SignupScreen() {
       const response = await fetch(file.uri);
       const blob = await response.blob();
   
-      // Create FormData and append the file (no need for cast as any in this case)
+      // Create FormData and append the file 
       const formData = new FormData();
       formData.append("file", blob, file.name); // Correct syntax for FormData
   
-      // Send to backend using your custom axios instance
+      // Send to backend using my axios instance
       const uploadResponse = await api.post("/upload_pdf_temp", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -63,7 +63,7 @@ export default function SignupScreen() {
       if (uploadResponse.data && uploadResponse.data.temp_user_id) {
         const tempUserId = uploadResponse.data.temp_user_id;
         
-        // Store this TempUserID for later use (you can use AsyncStorage or React Context as discussed)
+        // Store this TempUserID for later use 
         await AsyncStorage.setItem('temp_user_id', tempUserId);
         alert("Successfully uploaded document!")
         setDocUploaded(true);
